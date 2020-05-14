@@ -1,7 +1,7 @@
 import app from "./App";
 import { DB_URL, SERVER_PORT } from "./config";
 import connectToDB from "./db/connection";
-import logger from "./logger";
+import logger from "./helpers/logger";
 
 /**
  * Initial database connection
