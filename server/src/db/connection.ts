@@ -8,6 +8,7 @@ const connectToDB = async (dbUrl: string): Promise<typeof mongoose> => {
   return mongoose.connect(dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useCreateIndex: true,
   });
 };
 
