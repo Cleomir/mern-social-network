@@ -14,6 +14,6 @@ module.exports = {
   },
   externals: [nodeExternals()],
   resolve: {
-    extensions: [".ts", ".tsx", ".js"],
+    extensions: [".ts", ".js"],
   },
 };
