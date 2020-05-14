@@ -1,22 +1,26 @@
 import express, { Application, Request, Response } from "express";
+import passport from "passport";
 
-import index from "./routes";
+import users from "./routes/users";
+import jwtHandler from "./helpers/jwtHandler";
 
 /**
  * Express instance
  */
 const app: Application = express();
-// request body parser
+// json body parser
 app.use(express.json());
+// passport config
+app.use(passport.initialize());
+jwtHandler(passport);
 // mount root routes
-app.use("/", index);
+app.use("/users", users);
 // 404 handler
 app.use((req: Request, res: Response) => {
   const error: Error = new Error("not Found");
 
   return res.status(404).json({
     message: error.message,
-    name: error.name,
     status: 404,
   });
 });
