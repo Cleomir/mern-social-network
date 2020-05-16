@@ -2,6 +2,10 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "http://example.com",
   "definitions": {
+    "user": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{24}$"
+    },
     "experience": {
       "type": "object",
       "properties": {
@@ -16,11 +20,11 @@
         },
         "from": {
           "type": "string",
-          "format": "date-time"
+          "format": "date"
         },
         "to": {
           "type": "string",
-          "format": "date-time"
+          "format": "date"
         },
         "current": {
           "type": "boolean"
@@ -45,11 +49,11 @@
         },
         "from": {
           "type": "string",
-          "format": "date-time"
+          "format": "date"
         },
         "to": {
           "type": "string",
-          "format": "date-time"
+          "format": "date"
         },
         "current": {
           "type": "boolean"
@@ -86,8 +90,7 @@
       "type": "object",
       "properties": {
         "user": {
-          "type": "string",
-          "minLength": 23
+          "$ref": "#/definitions/user"
         },
         "handle": {
           "type": "string",
@@ -140,8 +143,20 @@
       "type": "object",
       "properties": {
         "user": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{24}$"
+          "$ref": "#/definitions/user"
+        }
+      }
+    },
+    "experiences": {
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/user"
+        },
+        "experiences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/experience"
+          }
         }
       }
     }
