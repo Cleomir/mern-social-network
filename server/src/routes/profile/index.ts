@@ -6,6 +6,7 @@ import createProfile from "./createProfile";
 import getProfileByHandle from "./getProfileByHandle";
 import getProfileByUserId from "./getProfileByUserId";
 import getAllProfiles from "./getAllProfiles";
+import addExperience from "./experience/addExperience";
 
 const router: Router = express.Router();
 
@@ -23,6 +24,12 @@ router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   createProfile
+);
+
+router.put(
+  "/experience",
+  passport.authenticate("jwt", { session: false }),
+  addExperience
 );
 
 export default router;
