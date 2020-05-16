@@ -37,7 +37,10 @@ export const findProfileById = async (id: string): Promise<IProfile | null> => {
 export const findProfileByHandle = async (
   handle: string
 ): Promise<IProfile | null> => {
-  return (Profile.findOne({ handle }) as unknown) as IProfile;
+  return (Profile.findOne({ handle }).populate("user", [
+    "name",
+    "avatar",
+  ]) as unknown) as IProfile;
 };
 
 /**
