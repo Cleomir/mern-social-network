@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Ajv from "ajv";
+import { ErrorObject } from "ajv";
 
 import { findUserByEmail } from "../../db/queries";
 import comparePassword from "../../helpers/comparePassword";
@@ -9,6 +9,11 @@ import signJwtToken from "../../helpers/signJwtToken";
 import IJwtPayload from "../../interfaces/IJwtPayload";
 import UsersSchema from "../../../json-schemas/users.json";
 import validateRequest from "../../helpers/validadteRequest";
+import {
+  USER_NOT_FOUND,
+  INVALID_CREDENTIALS,
+  UNABLE_TO_LOGIN,
+} from "../../config/custom-error-messages";
 
 /**
  * User login
@@ -22,13 +27,12 @@ const login = async (
 ): Promise<Response | undefined> => {
   try {
     const { email, password } = req.body;
-
-    const validationResult:
-      | Ajv.ErrorObject[]
-      | null
-      | undefined = validateRequest(UsersSchema, {
-      login: { email, password },
-    });
+    const validationResult: ErrorObject[] | null | undefined = validateRequest(
+      UsersSchema,
+      {
+        login: { email, password },
+      }
+    );
 
     // return validation errors
     if (validationResult && validationResult.length > 0) {
@@ -39,14 +43,14 @@ const login = async (
 
     // check if user exists
     if (!existingUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: USER_NOT_FOUND });
     }
 
     // check if password match
     const isMatch = await comparePassword(password, existingUser.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "email or password incorrect" });
+      return res.status(400).json({ message: INVALID_CREDENTIALS });
     }
 
     // generate jwt
@@ -60,8 +64,8 @@ const login = async (
 
     return res.status(200).json({ token });
   } catch (error) {
-    logger.error("Could not login \n", error);
-    return res.status(500).json({ message: "Could not login" });
+    logger.error(`${UNABLE_TO_LOGIN}\n`, error);
+    return res.status(500).json({ message: UNABLE_TO_LOGIN });
   }
 };
 

@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import gravatar from "gravatar";
-import Ajv from "ajv";
+import { ErrorObject } from "ajv";
 
 import { insertUser } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IUser from "../../interfaces/IUser";
 import UsersSchema from "../../../json-schemas/users.json";
 import validateRequest from "../../helpers/validadteRequest";
+import { USER_NOT_SAVED } from "../../config/custom-error-messages";
 
 /**
  * Create new user
@@ -14,16 +15,15 @@ import validateRequest from "../../helpers/validadteRequest";
  * @param res - Response object
  * @returns The response of the request
  */
-const create = async (req: Request, res: Response) => {
+const create = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { name, email, password } = req.body;
-
-    const validationResult:
-      | Ajv.ErrorObject[]
-      | null
-      | undefined = validateRequest(UsersSchema, {
-      user: { name, email, password },
-    });
+    const validationResult: ErrorObject[] | null | undefined = validateRequest(
+      UsersSchema,
+      {
+        user: { name, email, password },
+      }
+    );
 
     // return validation errors
     if (validationResult && validationResult.length > 0) {
@@ -35,7 +35,6 @@ const create = async (req: Request, res: Response) => {
       r: "pg",
       d: "mm",
     });
-
     const user: IUser = ((await insertUser({
       name,
       email,
@@ -45,7 +44,7 @@ const create = async (req: Request, res: Response) => {
     })) as unknown) as IUser;
 
     if (!user) {
-      return res.status(500).end();
+      return res.status(500).json({ message: USER_NOT_SAVED });
     }
 
     return res.status(201).json({
@@ -55,8 +54,8 @@ const create = async (req: Request, res: Response) => {
       date: user.date,
     });
   } catch (error) {
-    logger.error("Could not insert new user \n", error);
-    return res.status(500).json({ message: "Could not register the user" });
+    logger.error(`${USER_NOT_SAVED}\n`, error);
+    return res.status(500).json({ message: USER_NOT_SAVED });
   }
 };
 
