@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
-import Ajv from "ajv";
+import { ErrorObject } from "ajv";
 
 import logger from "../../helpers/logger";
 import ProfilesSchema from "../../../json-schemas/profile.json";
 import validateRequest from "../../helpers/validadteRequest";
 import IUser from "../../interfaces/IUser";
-import { NO_USER_PROFILE } from "../../config/custom-error-messages";
+import {
+  NO_USER_PROFILE,
+  NO_PROFILE,
+} from "../../config/custom-error-messages";
 import { findProfileById } from "../../db/queries";
 import IProfile from "../../interfaces/IProfile";
 
@@ -15,12 +18,14 @@ import IProfile from "../../interfaces/IProfile";
  * @param res - Response object
  *
  */
-const getProfile = async (req: Request, res: Response) => {
+const getCurrentUserProfile = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const { id } = req.user as IUser;
-
     const validationResult:
-      | Ajv.ErrorObject[]
+      | ErrorObject[]
       | null
       | undefined = validateRequest(ProfilesSchema, { get: { user: id } });
 
@@ -38,8 +43,8 @@ const getProfile = async (req: Request, res: Response) => {
     return res.status(200).json(profile);
   } catch (error) {
     logger.error("Could not query profile \n", error);
-    return res.status(500).json({ message: "Could not find profile" });
+    return res.status(500).json({ message: NO_PROFILE });
   }
 };
 
-export default getProfile;
+export default getCurrentUserProfile;
