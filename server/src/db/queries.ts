@@ -20,6 +20,16 @@ export const findUserByEmail = async (email: string): Promise<IUser | null> => {
 };
 
 /**
+ * Query all profiles
+ */
+export const findAllProfiles = async (): Promise<IProfile[] | null> => {
+  return (Profile.find().populate("user", [
+    "name",
+    "avatar",
+  ]) as unknown) as IProfile[];
+};
+
+/**
  * Query profile by ID
  * @param id User's id
  */

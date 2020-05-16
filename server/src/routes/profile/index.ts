@@ -5,11 +5,13 @@ import getCurrentUserProfile from "./getCurrentUserProfile";
 import createProfile from "./createProfile";
 import getProfileByHandle from "./getProfileByHandle";
 import getProfileByUserId from "./getProfileByUserId";
+import getAllProfiles from "./getAllProfiles";
 
 const router: Router = express.Router();
 
 // mount "profile" routes
 router.get("/handle/:handle", getProfileByHandle);
+router.get("/all", getAllProfiles);
 router.get("/:user_id", getProfileByUserId);
 router.get(
   "/",
