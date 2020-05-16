@@ -9,7 +9,31 @@ import {
   USER_EXISTS,
   PROFILE_HANDLE_EXISTS,
   PROFILE_EXISTS,
+  USER_NOT_FOUND,
 } from "../config/custom-error-messages";
+import IExperience from "../interfaces/IExperience";
+
+export const addExperiences = async (
+  userId: string,
+  experiences: IExperience[]
+) => {
+  try {
+    const userProfile: IProfile | null = await findProfileById(userId);
+
+    if (!userProfile) {
+      throw new Error(USER_NOT_FOUND);
+    }
+
+    // check if user already has experience
+    const currentExperience = userProfile.experience
+      ? [...experiences, ...userProfile.experience]
+      : [...experiences];
+
+    return updateProfile(userId, { experience: currentExperience });
+  } catch (error) {
+    throw error;
+  }
+};
 
 /**
  * Query user by email
@@ -113,5 +137,8 @@ export const insertProfile = async (profile: IProfile) => {
 };
 
 export const updateProfile = async (userId: string, fields: object) => {
-  return Profile.findOneAndUpdate({ user: userId }, { $set: fields });
+  return (Profile.findOneAndUpdate(
+    { user: userId },
+    { $set: fields }
+  ) as unknown) as IProfile;
 };
