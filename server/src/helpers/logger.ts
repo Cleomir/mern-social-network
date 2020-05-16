@@ -1,6 +1,6 @@
 import winston from "winston";
 
-import { ENVIRONMENT } from "../config";
+import { ENVIRONMENT } from "../config/env-variables";
 
 /**
  * Define logs configuration

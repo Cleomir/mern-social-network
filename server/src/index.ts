@@ -1,5 +1,5 @@
 import app from "./App";
-import { DB_URL, SERVER_PORT } from "./config";
+import { DB_URL, SERVER_PORT } from "./config/env-variables";
 import connectToDB from "./db/connection";
 import logger from "./helpers/logger";
 
