@@ -82,56 +82,67 @@
     }
   },
   "properties": {
-    "id": {
-      "type": "string",
-      "minLength": 23
-    },
-    "handle": {
-      "type": "string",
-      "maxLength": 40
-    },
-    "company": {
-      "type": "string"
-    },
-    "website": {
-      "type": "string"
-    },
-    "location": {
-      "type": "string"
-    },
-    "status": {
-      "type": "string"
-    },
-    "skills": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "bio": {
-      "type": "string"
-    },
-    "github_username": {
-      "type": "string"
-    },
-    "experience": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "$ref": "#/definitions/experience"
-      }
-    },
-    "education": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "$ref": "#/definitions/education"
-      }
-    },
-    "social": {
+    "create": {
       "type": "object",
-      "$ref": "#/definitions/social"
+      "properties": {
+        "user": {
+          "type": "string",
+          "minLength": 23
+        },
+        "handle": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "company": {
+          "type": "string"
+        },
+        "website": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minItems": 1
+          }
+        },
+        "bio": {
+          "type": "string"
+        },
+        "github_username": {
+          "type": "string"
+        },
+        "experience": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/experience"
+          }
+        },
+        "education": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/education"
+          }
+        },
+        "social": {
+          "$ref": "#/definitions/social"
+        }
+      },
+      "required": ["user", "handle", "status", "skills"]
+    },
+    "get": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        }
+      }
     }
-  },
-  "required": ["id", "handle", "status", "skills"]
+  }
 }
