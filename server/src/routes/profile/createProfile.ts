@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Ajv from "ajv";
+import { ErrorObject } from "ajv";
 
 import logger from "../../helpers/logger";
 import ProfilesSchema from "../../../json-schemas/profile.json";
@@ -18,7 +18,7 @@ import IUser from "../../interfaces/IUser";
  * @param res - Response object
  *
  */
-const createProfile = async (req: Request, res: Response) => {
+const createProfile = async (req: Request, res: Response): Promise<any> => {
   try {
     // extract request params
     const profile: IProfile = {
@@ -36,7 +36,7 @@ const createProfile = async (req: Request, res: Response) => {
       social: req.body.social,
     };
     const validationResult:
-      | Ajv.ErrorObject[]
+      | ErrorObject[]
       | null
       | undefined = validateRequest(ProfilesSchema, { create: { ...profile } });
 
