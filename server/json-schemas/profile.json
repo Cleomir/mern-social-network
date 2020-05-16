@@ -140,7 +140,8 @@
       "type": "object",
       "properties": {
         "user": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^[0-9a-f]{24}$"
         }
       }
     }
