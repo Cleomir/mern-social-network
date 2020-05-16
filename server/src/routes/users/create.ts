@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import gravatar from "gravatar";
 import Ajv from "ajv";
 
-import { insertNewUser } from "../../db/queries";
+import { insertUser } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IUser from "../../interfaces/IUser";
 import UsersSchema from "../../../json-schemas/users.json";
@@ -36,7 +36,7 @@ const create = async (req: Request, res: Response) => {
       d: "mm",
     });
 
-    const user: IUser = ((await insertNewUser({
+    const user: IUser = ((await insertUser({
       name,
       email,
       password,
@@ -56,7 +56,7 @@ const create = async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error("Could not insert new user \n", error);
-    return res.status(500).end();
+    return res.status(500).json({ message: "Could not register the user" });
   }
 };
 
