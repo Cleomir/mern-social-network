@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from "express";
 import passport from "passport";
+import helmet from "helmet";
 
 import users from "./routes/users";
 import profile from "./routes/profile";
@@ -9,6 +10,8 @@ import jwtHandler from "./helpers/jwtHandler";
  * Express instance
  */
 const app: Application = express();
+
+app.use(helmet());
 // json body parser
 app.use(express.json());
 // passport config
