@@ -1,5 +1,5 @@
 export default interface IProfile {
-  id: string;
+  user: string;
   handle: string;
   company?: string;
   website?: string;
