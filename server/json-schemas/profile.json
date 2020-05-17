@@ -147,18 +147,35 @@
         }
       }
     },
-    "experiences": {
+    "experience": {
       "properties": {
         "user": {
           "$ref": "#/definitions/user"
         },
-        "experiences": {
+        "experience": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/experience"
-          }
+          },
+          "minLength": 1
         }
-      }
+      },
+      "required": ["user", "experience"]
+    },
+    "education": {
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/user"
+        },
+        "education": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/education"
+          },
+          "minLength": 1
+        }
+      },
+      "required": ["user", "education"]
     }
   }
 }
