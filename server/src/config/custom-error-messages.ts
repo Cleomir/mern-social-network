@@ -8,3 +8,4 @@ export const USER_NOT_FOUND = "User not found";
 export const USER_NOT_SAVED = "Could not register the user";
 export const UNABLE_TO_LOGIN = "Could not login";
 export const UNABLE_TO_ADD_EXPERIENCE = "Could not add experience";
+export const UNABLE_TO_ADD_EDUCATION = "Could not add education";
