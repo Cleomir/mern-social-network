@@ -7,13 +7,29 @@ import getProfileByHandle from "./getProfileByHandle";
 import getProfileByUserId from "./getProfileByUserId";
 import getAllProfiles from "./getAllProfiles";
 import addExperience from "./experience/addExperience";
+import deleteExperience from "./experience/deleteExperience";
 import addEducation from "./education/addEducation";
 
 const router: Router = express.Router();
 
 // mount "profile" routes
+router.delete(
+  "/experience/:exp_id",
+  passport.authenticate("jwt", { session: false }),
+  deleteExperience
+);
 router.get("/handle/:handle", getProfileByHandle);
 router.get("/all", getAllProfiles);
+router.post(
+  "/experience",
+  passport.authenticate("jwt", { session: false }),
+  addExperience
+);
+router.post(
+  "/education",
+  passport.authenticate("jwt", { session: false }),
+  addEducation
+);
 router.get("/:user_id", getProfileByUserId);
 router.get(
   "/",
@@ -25,14 +41,5 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   createProfile
 );
-router.put(
-  "/experience",
-  passport.authenticate("jwt", { session: false }),
-  addExperience
-);
-router.put(
-  "/education",
-  passport.authenticate("jwt", { session: false }),
-  addEducation
-);
+
 export default router;
