@@ -6,7 +6,7 @@ import { ErrorObject } from "ajv";
 import validateRequest from "../../../helpers/validadteRequest";
 import ProfilesSchema from "../../../../json-schemas/profile.json";
 import IUser from "../../../interfaces/IUser";
-import { addExperiences } from "../../../db/queries";
+import { addExperienceToProfile } from "../../../db/queries";
 import IExperience from "../../../interfaces/IExperience";
 
 /**
@@ -17,11 +17,11 @@ import IExperience from "../../../interfaces/IExperience";
 const addExperience = async (req: Request, res: Response): Promise<any> => {
   try {
     const { id } = req.user as IUser;
-    const experiences: IExperience[] = req.body.experiences;
+    const experience: IExperience[] = req.body.experience;
     const validationResult: ErrorObject[] | null | undefined = validateRequest(
       ProfilesSchema,
       {
-        experiences: { user: id, experiences },
+        experience: { user: id, experience },
       }
     );
 
@@ -30,8 +30,8 @@ const addExperience = async (req: Request, res: Response): Promise<any> => {
       return res.status(400).json({ errors: validationResult });
     }
 
-    await addExperiences(id!, experiences);
-    logger.info(`User id ${id} has added new experiences`, experiences);
+    await addExperienceToProfile(id!, experience);
+    logger.info(`User id ${id} has added a new experience`, experience);
 
     return res.status(200).end();
   } catch (error) {
