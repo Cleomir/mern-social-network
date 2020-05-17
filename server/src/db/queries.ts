@@ -12,10 +12,43 @@ import {
   USER_NOT_FOUND,
 } from "../config/custom-error-messages";
 import IExperience from "../interfaces/IExperience";
+import IEducation from "../interfaces/IEducation";
 
-export const addExperiences = async (
+/**
+ * Add or append new education
+ * @param userId User's id
+ * @param education Education
+ */
+export const addEducationToProfile = async (
   userId: string,
-  experiences: IExperience[]
+  education: IEducation[]
+) => {
+  try {
+    const userProfile: IProfile | null = await findProfileById(userId);
+
+    if (!userProfile) {
+      throw new Error(USER_NOT_FOUND);
+    }
+
+    // check if user already has experience
+    const currentEducation = userProfile.education
+      ? [...education, ...userProfile.education]
+      : [...education];
+
+    return updateProfile(userId, { education: currentEducation });
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Add or append new working experience
+ * @param userId User's id
+ * @param experience Working experience
+ */
+export const addExperienceToProfile = async (
+  userId: string,
+  experience: IExperience[]
 ) => {
   try {
     const userProfile: IProfile | null = await findProfileById(userId);
@@ -26,8 +59,8 @@ export const addExperiences = async (
 
     // check if user already has experience
     const currentExperience = userProfile.experience
-      ? [...experiences, ...userProfile.experience]
-      : [...experiences];
+      ? [...experience, ...userProfile.experience]
+      : [...experience];
 
     return updateProfile(userId, { experience: currentExperience });
   } catch (error) {
