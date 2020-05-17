@@ -10,6 +10,7 @@ import {
   PROFILE_HANDLE_EXISTS,
   PROFILE_EXISTS,
   USER_NOT_FOUND,
+  NO_EXPERIENCE,
 } from "../config/custom-error-messages";
 import IExperience from "../interfaces/IExperience";
 import IEducation from "../interfaces/IEducation";
@@ -31,20 +32,20 @@ export const addEducationToProfile = async (
     }
 
     // check if user already has experience
-    const currentEducation = userProfile.education
-      ? [...education, ...userProfile.education]
-      : [...education];
+    userProfile.education
+      ? (userProfile.education = [...education, ...userProfile.education])
+      : (userProfile.education = [...education]);
 
-    return updateProfile(userId, { education: currentEducation });
+    return ((userProfile as unknown) as Document).save();
   } catch (error) {
     throw error;
   }
 };
 
 /**
- * Add or append new working experience
+ * Add or append new work experience
  * @param userId User's id
- * @param experience Working experience
+ * @param experience Work experience
  */
 export const addExperienceToProfile = async (
   userId: string,
@@ -58,11 +59,47 @@ export const addExperienceToProfile = async (
     }
 
     // check if user already has experience
-    const currentExperience = userProfile.experience
-      ? [...experience, ...userProfile.experience]
-      : [...experience];
+    userProfile.experience
+      ? (userProfile.experience = [...experience, ...userProfile.experience])
+      : (userProfile.experience = [...experience]);
 
-    return updateProfile(userId, { experience: currentExperience });
+    return ((userProfile as unknown) as Document).save();
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Remove work experience
+ * @param userId User's id
+ * @param experience Work experience
+ */
+export const removeExperienceFromProfile = async (
+  userId: string,
+  experienceId: string
+) => {
+  try {
+    const userProfile: IProfile | null = await findProfileById(userId);
+
+    if (!userProfile) {
+      throw new Error(USER_NOT_FOUND);
+    }
+
+    if (!userProfile.experience) {
+      throw new Error(NO_EXPERIENCE);
+    }
+
+    const ExperienceIndex: number = userProfile.experience.findIndex(
+      (experience) => experience.id === experienceId
+    );
+
+    if (ExperienceIndex === -1) {
+      throw new Error(NO_EXPERIENCE);
+    }
+
+    userProfile.experience.splice(ExperienceIndex, 1);
+
+    return ((userProfile as unknown) as Document).save();
   } catch (error) {
     throw error;
   }
@@ -167,11 +204,4 @@ export const insertProfile = async (profile: IProfile) => {
   } catch (error) {
     throw error;
   }
-};
-
-export const updateProfile = async (userId: string, fields: object) => {
-  return (Profile.findOneAndUpdate(
-    { user: userId },
-    { $set: fields }
-  ) as unknown) as IProfile;
 };
