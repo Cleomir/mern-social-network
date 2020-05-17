@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "http://example.com",
   "definitions": {
-    "user": {
+    "id": {
       "type": "string",
       "pattern": "^[0-9a-f]{24}$"
     },
@@ -90,7 +90,7 @@
       "type": "object",
       "properties": {
         "user": {
-          "$ref": "#/definitions/user"
+          "$ref": "#/definitions/id"
         },
         "handle": {
           "type": "string",
@@ -143,14 +143,22 @@
       "type": "object",
       "properties": {
         "user": {
-          "$ref": "#/definitions/user"
+          "$ref": "#/definitions/id"
+        }
+      }
+    },
+    "delete": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/id"
         }
       }
     },
     "experience": {
       "properties": {
         "user": {
-          "$ref": "#/definitions/user"
+          "$ref": "#/definitions/id"
         },
         "experience": {
           "type": "array",
@@ -165,7 +173,7 @@
     "education": {
       "properties": {
         "user": {
-          "$ref": "#/definitions/user"
+          "$ref": "#/definitions/id"
         },
         "education": {
           "type": "array",
