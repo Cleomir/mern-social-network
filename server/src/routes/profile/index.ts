@@ -9,6 +9,7 @@ import getAllProfiles from "./getAllProfiles";
 import addExperience from "./experience/addExperience";
 import deleteExperience from "./experience/deleteExperience";
 import addEducation from "./education/addEducation";
+import deleteEducation from "./education/deleteEducation";
 
 const router: Router = express.Router();
 
@@ -17,6 +18,11 @@ router.delete(
   "/experience/:exp_id",
   passport.authenticate("jwt", { session: false }),
   deleteExperience
+);
+router.delete(
+  "/education/:edu_id",
+  passport.authenticate("jwt", { session: false }),
+  deleteEducation
 );
 router.get("/handle/:handle", getProfileByHandle);
 router.get("/all", getAllProfiles);
