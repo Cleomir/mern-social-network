@@ -11,6 +11,7 @@ import {
   PROFILE_EXISTS,
   USER_NOT_FOUND,
   NO_EXPERIENCE,
+  NO_EDUCATION,
 } from "../config/custom-error-messages";
 import IExperience from "../interfaces/IExperience";
 import IEducation from "../interfaces/IEducation";
@@ -98,6 +99,42 @@ export const removeExperienceFromProfile = async (
     }
 
     userProfile.experience.splice(ExperienceIndex, 1);
+
+    return ((userProfile as unknown) as Document).save();
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Remove education
+ * @param userId User's id
+ * @param experience Work experience
+ */
+export const removeEducationFromProfile = async (
+  userId: string,
+  educationId: string
+) => {
+  try {
+    const userProfile: IProfile | null = await findProfileById(userId);
+
+    if (!userProfile) {
+      throw new Error(USER_NOT_FOUND);
+    }
+
+    if (!userProfile.education) {
+      throw new Error(NO_EDUCATION);
+    }
+
+    const EducationIndex: number = userProfile.education.findIndex(
+      (education) => education.id === educationId
+    );
+
+    if (EducationIndex === -1) {
+      throw new Error(NO_EDUCATION);
+    }
+
+    userProfile.education.splice(EducationIndex, 1);
 
     return ((userProfile as unknown) as Document).save();
   } catch (error) {
