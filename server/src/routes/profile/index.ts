@@ -10,6 +10,7 @@ import addExperience from "./experience/addExperience";
 import deleteExperience from "./experience/deleteExperience";
 import addEducation from "./education/addEducation";
 import deleteEducation from "./education/deleteEducation";
+import deleteProfileAndUser from "./deleteProfileAndUser";
 
 const router: Router = express.Router();
 
@@ -36,7 +37,11 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   addEducation
 );
-router.get("/:user_id", getProfileByUserId);
+router.delete(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  deleteProfileAndUser
+);
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
@@ -47,5 +52,6 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   createProfile
 );
+router.get("/:user_id", getProfileByUserId);
 
 export default router;
