@@ -10,6 +10,7 @@ export const UNABLE_TO_ADD_EXPERIENCE = "Could not add experience";
 export const UNABLE_TO_LOGIN = "Could not login";
 export const UNABLE_TO_REMOVE_EDUCATION = "Could not remove education";
 export const UNABLE_TO_REMOVE_EXPERIENCE = "Could not remove experience";
+export const UNABLE_TO_REMOVE_PROFILE = "Could not remove profile";
 export const USER_EXISTS = "User already exists";
 export const USER_NOT_FOUND = "User not found";
 export const USER_NOT_SAVED = "Could not register the user";
