@@ -143,11 +143,68 @@ export const removeEducationFromProfile = async (
 };
 
 /**
+ * Remove profile from database
+ * @param userId User's id
+ */
+export const removeProfile = async (userId: string) => {
+  try {
+    const userProfile: IProfile | null = await findProfileById(userId);
+
+    if (!userProfile) {
+      throw new Error(USER_NOT_FOUND);
+    }
+
+    return ((userProfile as unknown) as Document).remove();
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Remove user from database
+ * @param userId User's id
+ */
+export const removeUser = async (userId: string) => {
+  try {
+    const user: IUser | null = await findUserById(userId);
+
+    if (!user) {
+      throw new Error(USER_NOT_FOUND);
+    }
+
+    return ((user as unknown) as Document).remove();
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Remove profile and user from database
+ * @param userId User's id
+ */
+export const removeProfileAndUser = async (userId: string): Promise<void> => {
+  try {
+    await removeProfile(userId);
+    await removeUser(userId);
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
  * Query user by email
  * @param email - User's email
  */
 export const findUserByEmail = async (email: string): Promise<IUser | null> => {
   return (User.findOne({ email }) as unknown) as IUser;
+};
+
+/**
+ * Query user by id
+ * @param email - User's email
+ */
+export const findUserById = async (id: string): Promise<IUser | null> => {
+  return (User.findOne({ _id: id }) as unknown) as IUser;
 };
 
 /**
