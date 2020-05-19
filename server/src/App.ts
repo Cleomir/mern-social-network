@@ -5,6 +5,7 @@ import helmet from "helmet";
 import users from "./routes/users";
 import profile from "./routes/profile";
 import jwtHandler from "./helpers/jwtHandler";
+import "./interfaces/merged/User";
 
 /**
  * Express instance

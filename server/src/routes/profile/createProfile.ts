@@ -10,19 +10,17 @@ import {
   PROFILE_EXISTS,
   PROFILE_HANDLE_EXISTS,
 } from "../../config/custom-error-messages";
-import IUser from "../../interfaces/IUser";
 
 /**
  * Query user profile
  * @param req - Request object
  * @param res - Response object
- *
  */
 const createProfile = async (req: Request, res: Response): Promise<any> => {
   try {
     // extract request params
     const profile: IProfile = {
-      user: (req.user as IUser).id!,
+      user: req.user!.id,
       handle: req.body.handle,
       company: req.body.company,
       website: req.body.website,

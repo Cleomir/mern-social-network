@@ -4,7 +4,6 @@ import { ErrorObject } from "ajv";
 import logger from "../../helpers/logger";
 import ProfilesSchema from "../../../json-schemas/profile.json";
 import validateRequest from "../../helpers/validadteRequest";
-import IUser from "../../interfaces/IUser";
 import {
   NO_USER_PROFILE,
   NO_PROFILE,
@@ -23,7 +22,7 @@ const getCurrentUserProfile = async (
   res: Response
 ): Promise<Response> => {
   try {
-    const { id } = req.user as IUser;
+    const { id } = req.user!;
     const validationResult:
       | ErrorObject[]
       | null

@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 
 import {
-  NO_EXPERIENCE,
   NO_EDUCATION,
   UNABLE_TO_REMOVE_EDUCATION,
 } from "../../../config/custom-error-messages";
@@ -9,7 +8,6 @@ import logger from "../../../helpers/logger";
 import { ErrorObject } from "ajv";
 import validateRequest from "../../../helpers/validadteRequest";
 import ProfilesSchema from "../../../../json-schemas/profile.json";
-import IUser from "../../../interfaces/IUser";
 import { removeEducationFromProfile } from "../../../db/queries";
 
 /**
@@ -19,7 +17,7 @@ import { removeEducationFromProfile } from "../../../db/queries";
  */
 const deleteEducation = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { id } = req.user as IUser;
+    const { id } = req.user!;
     const edu_id = req.params.edu_id;
     const validationResult: ErrorObject[] | null | undefined = validateRequest(
       ProfilesSchema,

@@ -5,7 +5,6 @@ import logger from "../../../helpers/logger";
 import { ErrorObject } from "ajv";
 import validateRequest from "../../../helpers/validadteRequest";
 import ProfilesSchema from "../../../../json-schemas/profile.json";
-import IUser from "../../../interfaces/IUser";
 import { addEducationToProfile } from "../../../db/queries";
 import IEducation from "../../../interfaces/IEducation";
 
@@ -16,7 +15,7 @@ import IEducation from "../../../interfaces/IEducation";
  */
 const addEducation = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { id } = req.user as IUser;
+    const { id } = req.user!;
     const education: IEducation[] = req.body.education;
     const validationResult: ErrorObject[] | null | undefined = validateRequest(
       ProfilesSchema,

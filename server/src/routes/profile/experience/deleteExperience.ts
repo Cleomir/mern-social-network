@@ -8,7 +8,6 @@ import logger from "../../../helpers/logger";
 import { ErrorObject } from "ajv";
 import validateRequest from "../../../helpers/validadteRequest";
 import ProfilesSchema from "../../../../json-schemas/profile.json";
-import IUser from "../../../interfaces/IUser";
 import { removeExperienceFromProfile } from "../../../db/queries";
 
 /**
@@ -18,7 +17,7 @@ import { removeExperienceFromProfile } from "../../../db/queries";
  */
 const deleteExperience = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { id } = req.user as IUser;
+    const { id } = req.user!;
     const exp_id = req.params.exp_id;
     const validationResult: ErrorObject[] | null | undefined = validateRequest(
       ProfilesSchema,

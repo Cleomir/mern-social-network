@@ -5,7 +5,6 @@ import logger from "../../../helpers/logger";
 import { ErrorObject } from "ajv";
 import validateRequest from "../../../helpers/validadteRequest";
 import ProfilesSchema from "../../../../json-schemas/profile.json";
-import IUser from "../../../interfaces/IUser";
 import { addExperienceToProfile } from "../../../db/queries";
 import IExperience from "../../../interfaces/IExperience";
 
@@ -16,7 +15,7 @@ import IExperience from "../../../interfaces/IExperience";
  */
 const addExperience = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { id } = req.user as IUser;
+    const { id } = req.user!;
     const experience: IExperience[] = req.body.experience;
     const validationResult: ErrorObject[] | null | undefined = validateRequest(
       ProfilesSchema,
