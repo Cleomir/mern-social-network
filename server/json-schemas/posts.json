@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "posts.json",
+  "properties": {
+    "create": {
+      "type": "object",
+      "properties": {
+        "avatar": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 3
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "user": {
+          "$ref": "profiles.json#/definitions/id"
+        }
+      },
+      "required": ["text", "user"]
+    }
+  }
+}
