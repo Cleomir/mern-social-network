@@ -15,6 +15,8 @@ import {
 } from "../config/custom-error-messages";
 import IExperience from "../interfaces/IExperience";
 import IEducation from "../interfaces/IEducation";
+import IPost from "../interfaces/IPost";
+import Post from "./models/Post";
 
 /**
  * Add or append new education
@@ -68,6 +70,10 @@ export const addExperienceToProfile = async (
   } catch (error) {
     throw error;
   }
+};
+
+export const addPost = async (post: IPost): Promise<Document> => {
+  return new Post(post).save();
 };
 
 /**
