@@ -7,6 +7,7 @@ export const PROFILE_EXISTS = "Profile already exists";
 export const PROFILE_HANDLE_EXISTS = "Profile handle already exists";
 export const UNABLE_TO_ADD_EDUCATION = "Could not add education";
 export const UNABLE_TO_ADD_EXPERIENCE = "Could not add experience";
+export const UNABLE_TO_CREATE_POST = "Could not create post";
 export const UNABLE_TO_LOGIN = "Could not login";
 export const UNABLE_TO_REMOVE_EDUCATION = "Could not remove education";
 export const UNABLE_TO_REMOVE_EXPERIENCE = "Could not remove experience";
