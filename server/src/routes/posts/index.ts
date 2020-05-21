@@ -1,4 +1,7 @@
 import express, { Router } from "express";
+import passport from "passport";
+
+import createPost from "./createPost";
 
 /**
  * Default Express router
@@ -6,6 +9,6 @@ import express, { Router } from "express";
 const router: Router = express.Router();
 
 // mount HelloWorld route
-router.get("/");
+router.post("/", passport.authenticate("jwt", { session: false }), createPost);
 
 export default router;
