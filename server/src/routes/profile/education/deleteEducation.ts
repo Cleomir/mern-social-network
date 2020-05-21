@@ -6,8 +6,8 @@ import {
 } from "../../../config/custom-error-messages";
 import logger from "../../../helpers/logger";
 import { ErrorObject } from "ajv";
-import validateRequest from "../../../helpers/validadteRequest";
-import ProfilesSchema from "../../../../json-schemas/profile.json";
+import validateRequest from "../../../helpers/validateRequest";
+import ProfilesSchema from "../../../../json-schemas/profiles.json";
 import { removeEducationFromProfile } from "../../../db/queries";
 
 /**

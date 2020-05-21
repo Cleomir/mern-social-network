@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { ErrorObject } from "ajv";
 
 import logger from "../../helpers/logger";
-import ProfilesSchema from "../../../json-schemas/profile.json";
-import validateRequest from "../../helpers/validadteRequest";
+import ProfilesSchema from "../../../json-schemas/profiles.json";
+import validateRequest from "../../helpers/validateRequest";
 import {
   NO_USER_PROFILE,
   NO_PROFILE,

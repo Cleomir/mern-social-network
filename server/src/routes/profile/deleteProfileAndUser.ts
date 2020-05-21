@@ -6,9 +6,9 @@ import {
   USER_NOT_FOUND,
 } from "../../config/custom-error-messages";
 import logger from "../../helpers/logger";
-import ProfilesSchema from "../../../json-schemas/profile.json";
+import ProfilesSchema from "../../../json-schemas/profiles.json";
 import { ErrorObject } from "ajv";
-import validateRequest from "../../helpers/validadteRequest";
+import validateRequest from "../../helpers/validateRequest";
 
 /**
  * Delete Profile and User

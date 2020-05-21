@@ -5,8 +5,8 @@ import IProfile from "../../interfaces/IProfile";
 import { findProfileById } from "../../db/queries";
 import { NO_PROFILE } from "../../config/custom-error-messages";
 import logger from "../../helpers/logger";
-import validateRequest from "../../helpers/validadteRequest";
-import ProfilesSchema from "../../../json-schemas/profile.json";
+import validateRequest from "../../helpers/validateRequest";
+import ProfilesSchema from "../../../json-schemas/profiles.json";
 
 /**
  * Query profile by user ID

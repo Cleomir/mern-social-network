@@ -8,7 +8,7 @@ import logger from "../../helpers/logger";
 import signJwtToken from "../../helpers/signJwtToken";
 import IJwtPayload from "../../interfaces/IJwtPayload";
 import UsersSchema from "../../../json-schemas/users.json";
-import validateRequest from "../../helpers/validadteRequest";
+import validateRequest from "../../helpers/validateRequest";
 import {
   USER_NOT_FOUND,
   INVALID_CREDENTIALS,

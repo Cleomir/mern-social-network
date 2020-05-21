@@ -3,8 +3,8 @@ import { Request, Response } from "express";
 import { UNABLE_TO_ADD_EXPERIENCE } from "../../../config/custom-error-messages";
 import logger from "../../../helpers/logger";
 import { ErrorObject } from "ajv";
-import validateRequest from "../../../helpers/validadteRequest";
-import ProfilesSchema from "../../../../json-schemas/profile.json";
+import validateRequest from "../../../helpers/validateRequest";
+import ProfilesSchema from "../../../../json-schemas/profiles.json";
 import { addExperienceToProfile } from "../../../db/queries";
 import IExperience from "../../../interfaces/IExperience";
 
