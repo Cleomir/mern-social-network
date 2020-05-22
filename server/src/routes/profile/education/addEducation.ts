@@ -1,11 +1,11 @@
+import { ErrorObject } from "ajv";
 import { Request, Response } from "express";
 
-import { UNABLE_TO_ADD_EDUCATION } from "../../../config/custom-error-messages";
-import logger from "../../../helpers/logger";
-import { ErrorObject } from "ajv";
-import validateRequest from "../../../helpers/validateRequest";
 import ProfilesSchema from "../../../../json-schemas/profiles.json";
+import { UNABLE_TO_ADD_EDUCATION } from "../../../config/custom-error-messages";
 import { addEducationToProfile } from "../../../db/queries";
+import logger from "../../../helpers/logger";
+import validateRequest from "../../../helpers/validateRequest";
 import IEducation from "../../../interfaces/IEducation";
 
 /**

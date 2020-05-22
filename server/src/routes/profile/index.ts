@@ -1,16 +1,16 @@
 import express, { Router } from "express";
 import passport from "passport";
 
-import getCurrentUserProfile from "./getCurrentUserProfile";
 import createProfile from "./createProfile";
-import getProfileByHandle from "./getProfileByHandle";
-import getProfileByUserId from "./getProfileByUserId";
-import getAllProfiles from "./getAllProfiles";
-import addExperience from "./experience/addExperience";
-import deleteExperience from "./experience/deleteExperience";
+import deleteProfileAndUser from "./deleteProfileAndUser";
 import addEducation from "./education/addEducation";
 import deleteEducation from "./education/deleteEducation";
-import deleteProfileAndUser from "./deleteProfileAndUser";
+import addExperience from "./experience/addExperience";
+import deleteExperience from "./experience/deleteExperience";
+import getAllProfiles from "./getAllProfiles";
+import getCurrentUserProfile from "./getCurrentUserProfile";
+import getProfileByHandle from "./getProfileByHandle";
+import getProfileByUserId from "./getProfileByUserId";
 
 const router: Router = express.Router();
 

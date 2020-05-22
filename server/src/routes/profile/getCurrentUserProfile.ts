@@ -1,14 +1,14 @@
-import { Request, Response } from "express";
 import { ErrorObject } from "ajv";
+import { Request, Response } from "express";
 
-import logger from "../../helpers/logger";
 import ProfilesSchema from "../../../json-schemas/profiles.json";
-import validateRequest from "../../helpers/validateRequest";
 import {
-  NO_USER_PROFILE,
   NO_PROFILE,
+  NO_USER_PROFILE,
 } from "../../config/custom-error-messages";
 import { findProfileById } from "../../db/queries";
+import logger from "../../helpers/logger";
+import validateRequest from "../../helpers/validateRequest";
 import IProfile from "../../interfaces/IProfile";
 
 /**

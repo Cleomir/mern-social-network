@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 
-import IProfile from "../../interfaces/IProfile";
-import { findAllProfiles } from "../../db/queries";
 import { NO_PROFILE } from "../../config/custom-error-messages";
+import { findAllProfiles } from "../../db/queries";
 import logger from "../../helpers/logger";
+import IProfile from "../../interfaces/IProfile";
 
 /**
  * Query all profiles

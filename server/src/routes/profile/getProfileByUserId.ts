@@ -1,12 +1,12 @@
-import { Request, Response } from "express";
 import { ErrorObject } from "ajv";
+import { Request, Response } from "express";
 
-import IProfile from "../../interfaces/IProfile";
-import { findProfileById } from "../../db/queries";
+import ProfilesSchema from "../../../json-schemas/profiles.json";
 import { NO_PROFILE } from "../../config/custom-error-messages";
+import { findProfileById } from "../../db/queries";
 import logger from "../../helpers/logger";
 import validateRequest from "../../helpers/validateRequest";
-import ProfilesSchema from "../../../json-schemas/profiles.json";
+import IProfile from "../../interfaces/IProfile";
 
 /**
  * Query profile by user ID

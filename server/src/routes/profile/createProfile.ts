@@ -1,15 +1,15 @@
-import { Request, Response } from "express";
 import { ErrorObject } from "ajv";
+import { Request, Response } from "express";
 
-import logger from "../../helpers/logger";
 import ProfilesSchema from "../../../json-schemas/profiles.json";
-import validateRequest from "../../helpers/validateRequest";
-import { insertProfile } from "../../db/queries";
-import IProfile from "../../interfaces/IProfile";
 import {
   PROFILE_EXISTS,
   PROFILE_HANDLE_EXISTS,
 } from "../../config/custom-error-messages";
+import { insertProfile } from "../../db/queries";
+import logger from "../../helpers/logger";
+import validateRequest from "../../helpers/validateRequest";
+import IProfile from "../../interfaces/IProfile";
 
 /**
  * Query user profile

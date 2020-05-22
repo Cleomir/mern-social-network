@@ -1,13 +1,13 @@
+import { ErrorObject } from "ajv";
 import { Request, Response } from "express";
 
-import { removeProfileAndUser } from "../../db/queries";
+import ProfilesSchema from "../../../json-schemas/profiles.json";
 import {
   UNABLE_TO_REMOVE_PROFILE,
   USER_NOT_FOUND,
 } from "../../config/custom-error-messages";
+import { removeProfileAndUser } from "../../db/queries";
 import logger from "../../helpers/logger";
-import ProfilesSchema from "../../../json-schemas/profiles.json";
-import { ErrorObject } from "ajv";
 import validateRequest from "../../helpers/validateRequest";
 
 /**

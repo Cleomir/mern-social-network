@@ -1,13 +1,13 @@
-import { Request, Response } from "express";
 import { ErrorObject } from "ajv";
+import { Request, Response } from "express";
 
-import IPost from "../../interfaces/IPost";
-import validateRequest from "../../helpers/validateRequest";
 import PostsSchema from "../../../json-schemas/posts.json";
 import ProfilesSchema from "../../../json-schemas/profiles.json";
-import { addPost } from "../../db/queries";
 import { UNABLE_TO_CREATE_POST } from "../../config/custom-error-messages";
+import { addPost } from "../../db/queries";
 import logger from "../../helpers/logger";
+import validateRequest from "../../helpers/validateRequest";
+import IPost from "../../interfaces/IPost";
 
 /**
  * Create a new post

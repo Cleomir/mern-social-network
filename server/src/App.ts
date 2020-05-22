@@ -1,12 +1,12 @@
 import express, { Application, Request, Response } from "express";
-import passport from "passport";
-import helmet from "helmet";
 
-import users from "./routes/users";
-import profile from "./routes/profile";
-import posts from "./routes/posts";
+import helmet from "helmet";
+import passport from "passport";
 import jwtHandler from "./helpers/jwtHandler";
-import "./interfaces/merged/User";
+import posts from "./routes/posts";
+import profile from "./routes/profile";
+import users from "./routes/users";
+import "./interfaces/merged/User"; // Add id to Request.User object
 
 /**
  * Express instance
