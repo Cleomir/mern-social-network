@@ -2,7 +2,6 @@ import { ErrorObject } from "ajv";
 import { Request, Response } from "express";
 
 import PostsSchema from "../../../json-schemas/posts.json";
-import ProfilesSchema from "../../../json-schemas/profiles.json";
 import { UNABLE_TO_CREATE_POST } from "../../config/custom-error-messages";
 import { addPost } from "../../db/queries";
 import logger from "../../helpers/logger";
@@ -23,11 +22,10 @@ const createPost = async (req: Request, res: Response): Promise<any> => {
       name: req.body.name,
     };
 
-    const validationResult: ErrorObject[] | null | undefined = validateRequest(
-      PostsSchema,
-      { create: post },
-      ProfilesSchema
-    );
+    const validationResult:
+      | ErrorObject[]
+      | null
+      | undefined = validateRequest(PostsSchema, { create: post });
 
     // return validation errors
     if (validationResult && validationResult.length > 0) {
