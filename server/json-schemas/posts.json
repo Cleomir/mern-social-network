@@ -1,6 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "posts.json",
+  "definitions": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{24}$"
+    }
+  },
   "properties": {
     "create": {
       "type": "object",
@@ -17,10 +23,19 @@
           "minLength": 1
         },
         "user": {
-          "$ref": "profiles.json#/definitions/id"
+          "$ref": "#/definitions/id"
         }
       },
       "required": ["text", "user"]
+    },
+    "get": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/id"
+        }
+      },
+      "required": ["user"]
     }
   }
 }
