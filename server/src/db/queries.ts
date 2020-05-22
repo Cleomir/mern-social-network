@@ -12,6 +12,8 @@ import {
   USER_NOT_FOUND,
   NO_EXPERIENCE,
   NO_EDUCATION,
+  POST_NOT_FOUND,
+  FORBIDDEN_OPERATION,
 } from "../config/custom-error-messages";
 import IExperience from "../interfaces/IExperience";
 import IEducation from "../interfaces/IEducation";
@@ -72,8 +74,53 @@ export const addExperienceToProfile = async (
   }
 };
 
+/**
+ * Create a post
+ * @param post Post to be created
+ */
 export const addPost = async (post: IPost): Promise<Document> => {
   return new Post(post).save();
+};
+
+/**
+ * Query all posts in descending order
+ */
+export const findAllPosts = async (): Promise<Document[]> => {
+  return Post.find().sort({ date: -1 });
+};
+
+/**
+ * Query single post by ID
+ * @param postId Post ID
+ */
+export const findPostById = async (postId: string): Promise<IPost | null> => {
+  return (Post.findById(postId) as unknown) as IPost;
+};
+
+/**
+ * Query single post by ID
+ * @param postId Post ID
+ */
+export const removePost = async (
+  userId: string,
+  postId: string
+): Promise<Document> => {
+  try {
+    const post: IPost | null = await findPostById(postId);
+
+    if (!post) {
+      throw new Error(POST_NOT_FOUND);
+    }
+
+    // check post ownership
+    if (post.user.toString() !== userId) {
+      throw new Error(FORBIDDEN_OPERATION);
+    }
+
+    return ((post as unknown) as Document).remove();
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**
