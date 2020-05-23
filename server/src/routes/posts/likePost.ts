@@ -21,10 +21,9 @@ const likePost = async (req: Request, res: Response): Promise<any> => {
   try {
     const { id: postId } = req.params;
     const { id: userId } = req.user!;
-
     const validationResult: ErrorObject[] | null | undefined = validateRequest(
       PostsSchema,
-      { get: { user: postId } },
+      { get: { id: postId } },
       ProfilesSchema
     );
 

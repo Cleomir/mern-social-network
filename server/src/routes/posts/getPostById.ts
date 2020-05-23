@@ -22,7 +22,7 @@ const getPostById = async (req: Request, res: Response): Promise<any> => {
     const { id } = req.params;
     const validationResult: ErrorObject[] | null | undefined = validateRequest(
       PostsSchema,
-      { get: { user: id } },
+      { get: { id } },
       ProfilesSchema
     );
 

@@ -13,6 +13,7 @@ import logger from "../../helpers/logger";
 const getAllPosts = async (req: Request, res: Response): Promise<any> => {
   try {
     const posts: Document[] = await findAllPosts();
+
     logger.info(`Querying ${posts.length} posts from db...`);
 
     return res.status(200).json(posts);

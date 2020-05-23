@@ -21,7 +21,6 @@ const createPost = async (req: Request, res: Response): Promise<any> => {
       avatar: req.body.avatar,
       name: req.body.name,
     };
-
     const validationResult:
       | ErrorObject[]
       | null
