@@ -1,8 +1,6 @@
-export default interface IPost {
-  avatar?: string;
-  name?: string;
-  text: string;
-  user: string;
+import IComment from "./IComment";
+
+export default interface IPost extends IComment {
   likes?: { _id?: string; user: string }[];
-  comments?: string[];
+  comments?: IComment[];
 }
