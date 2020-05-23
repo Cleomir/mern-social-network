@@ -21,6 +21,7 @@ import IExperience from "../interfaces/IExperience";
 import IEducation from "../interfaces/IEducation";
 import IPost from "../interfaces/IPost";
 import Post from "./models/Post";
+import IComment from "../interfaces/IComment";
 
 /**
  * Add or append new education
@@ -188,6 +189,65 @@ export const RemoveLikeFromPost = async (
     }
 
     post.likes!.splice(userIdIndex, 1);
+
+    return ((post as unknown) as Document).save();
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Add comment to a post
+ * @param postId Post ID
+ * @param comment Comment to add
+ */
+export const addCommentToPost = async (
+  postId: string,
+  comment: IComment
+): Promise<Document> => {
+  try {
+    const post: IPost | null = await findPostById(postId);
+
+    if (!post) {
+      throw new Error(POST_NOT_FOUND);
+    }
+
+    // add comment to array
+    post.comments?.unshift(comment);
+
+    return ((post as unknown) as Document).save();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeCommentFromPost = async (
+  postId: string,
+  commentId: string,
+  userId: string
+): Promise<Document> => {
+  try {
+    const post: IPost | null = await findPostById(postId);
+
+    if (!post) {
+      throw new Error(POST_NOT_FOUND);
+    }
+
+    // check if user has commented the post
+    let commentIndex = -1;
+    if (post.comments) {
+      commentIndex = post.comments.findIndex(
+        (comment) =>
+          comment._id!.toString() === commentId &&
+          comment.user.toString() === userId
+      );
+    }
+
+    if (commentIndex === -1) {
+      throw new Error(FORBIDDEN_OPERATION);
+    }
+
+    post.comments!.splice(commentIndex, 1);
 
     return ((post as unknown) as Document).save();
   } catch (error) {
