@@ -14,6 +14,8 @@ import {
   NO_EDUCATION,
   POST_NOT_FOUND,
   FORBIDDEN_OPERATION,
+  POST_ALREADY_LIKED,
+  POST_NOT_LIKED,
 } from "../config/custom-error-messages";
 import IExperience from "../interfaces/IExperience";
 import IEducation from "../interfaces/IEducation";
@@ -118,6 +120,76 @@ export const removePost = async (
     }
 
     return ((post as unknown) as Document).remove();
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Like a post
+ * @param userId User ID
+ * @param postId Post ID
+ */
+export const addLikeToPost = async (
+  userId: string,
+  postId: string
+): Promise<Document> => {
+  try {
+    const post: IPost | null = await findPostById(postId);
+
+    if (!post) {
+      throw new Error(POST_NOT_FOUND);
+    }
+
+    // check if user has already liked the post
+    if (
+      post.likes &&
+      post.likes.findIndex(
+        (likedUserId) => likedUserId.user.toString() === userId
+      ) !== -1
+    ) {
+      throw new Error(POST_ALREADY_LIKED);
+    }
+
+    post.likes?.unshift({ user: userId });
+
+    return ((post as unknown) as Document).save();
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Unlike a post
+ * @param userId User ID
+ * @param postId Post ID
+ */
+export const RemoveLikeFromPost = async (
+  userId: string,
+  postId: string
+): Promise<Document> => {
+  try {
+    const post: IPost | null = await findPostById(postId);
+
+    if (!post) {
+      throw new Error(POST_NOT_FOUND);
+    }
+
+    // check if user didn't like the post yet
+    let userIdIndex = -1;
+    if (post.likes) {
+      userIdIndex = post.likes.findIndex(
+        (likedUserId) => likedUserId.user.toString() === userId
+      );
+    }
+
+    if (userIdIndex === -1) {
+      throw new Error(POST_NOT_LIKED);
+    }
+
+    post.likes!.splice(userIdIndex, 1);
+
+    return ((post as unknown) as Document).save();
   } catch (error) {
     throw error;
   }
