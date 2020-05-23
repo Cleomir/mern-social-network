@@ -7,6 +7,8 @@ import getPostById from "./getPostById";
 import deletePost from "./deletePost";
 import likePost from "./likePost";
 import unlikePost from "./unlikePost";
+import addComment from "./addComment";
+import deleteComment from "./deleteComment";
 
 /**
  * Default Express router
@@ -14,6 +16,16 @@ import unlikePost from "./unlikePost";
 const router: Router = express.Router();
 
 // mount routes
+router.delete(
+  "/comment/:post_id/:comment_id",
+  passport.authenticate("jwt", { session: false }),
+  deleteComment
+);
+router.post(
+  "/comment/:post_id",
+  passport.authenticate("jwt", { session: false }),
+  addComment
+);
 router.post(
   "/unlike/:id",
   passport.authenticate("jwt", { session: false }),
