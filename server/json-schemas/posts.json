@@ -31,11 +31,23 @@
     "get": {
       "type": "object",
       "properties": {
-        "user": {
+        "id": {
           "$ref": "#/definitions/id"
         }
       },
-      "required": ["user"]
+      "required": ["id"]
+    },
+    "deleteComment": {
+      "type": "object",
+      "properties": {
+        "postId": {
+          "$ref": "#/definitions/id"
+        },
+        "commentId": {
+          "$ref": "#/definitions/id"
+        }
+      },
+      "required": ["postId", "commentId"]
     }
   }
 }
