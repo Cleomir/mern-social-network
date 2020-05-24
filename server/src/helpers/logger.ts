@@ -1,20 +1,26 @@
 import winston from "winston";
+import { TransformableInfo } from "logform";
+import DailyRotateFile from "winston-daily-rotate-file";
 
 import { ENVIRONMENT } from "../config/env-variables";
 
-/**
- * Define logs configuration
- */
-const logger: winston.Logger = winston.createLogger({
-  level: "info",
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({
-      filename: "./server/logs/error.log",
-      level: "error",
-    }),
-    new winston.transports.File({ filename: "./server/logs/combined.log" }),
-  ],
+const { format } = winston;
+const logFormat = format.printf(
+  (info: TransformableInfo) =>
+    `${info.timestamp}.${info.level.toUpperCase()}: ${info.message}`
+);
+const rotator = new DailyRotateFile({
+  datePattern: "YYYY-MM-DD",
+  dirname: "server/logs",
+  filename: "log-%DATE%.log",
+  maxFiles: "30d",
+  maxSize: "50m",
+});
+
+const logger = winston.createLogger({
+  exceptionHandlers: [rotator],
+  format: format.combine(format.timestamp(), logFormat),
+  transports: [rotator],
 });
 
 logger.exitOnError = false;
