@@ -26,7 +26,8 @@
     "mongoose": "^5.9.15",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
-    "winston": "^3.2.1"
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.2"
   },
   "devDependencies": {
     "@microsoft/tsdoc": "^0.12.20",
