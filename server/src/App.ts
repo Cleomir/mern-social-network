@@ -7,12 +7,15 @@ import posts from "./routes/posts";
 import profile from "./routes/profile";
 import users from "./routes/users";
 import "./interfaces/merged/User"; // Add id to Request.User object
+import requestLogger from "./middleware/requestLogger";
 
 /**
  * Express instance
  */
 const app: Application = express();
-
+// log requests' body
+app.use(requestLogger());
+// remove sensible headers
 app.use(helmet());
 // json body parser
 app.use(express.json());
