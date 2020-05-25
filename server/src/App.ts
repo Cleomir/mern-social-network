@@ -13,12 +13,13 @@ import requestLogger from "./middleware/requestLogger";
  * Express instance
  */
 const app: Application = express();
-// log requests' body
-app.use(requestLogger());
+
 // remove sensible headers
 app.use(helmet());
 // json body parser
 app.use(express.json());
+// log requests' body
+app.use(requestLogger());
 // passport config
 app.use(passport.initialize());
 jwtHandler(passport);
