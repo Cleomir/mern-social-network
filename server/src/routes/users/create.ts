@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 import gravatar from "gravatar";
-import { ErrorObject } from "ajv";
 
 import { insertUser } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IUser from "../../interfaces/IUser";
-import UsersSchema from "../../../json-schemas/users.json";
-import validateRequest from "../../helpers/validateRequest";
-import { USER_NOT_SAVED } from "../../config/custom-error-messages";
+import { INTERNAL_SERVER_ERROR } from "../../config/custom-error-messages";
+import RequestValidator from "../../helpers/RequestValidator";
+import { ValidationResult } from "@hapi/joi";
 
 /**
  * Create new user
@@ -17,19 +16,18 @@ import { USER_NOT_SAVED } from "../../config/custom-error-messages";
  */
 const create = async (req: Request, res: Response): Promise<Response> => {
   try {
+    // request validation
     const { name, email, password } = req.body;
-    const validationResult: ErrorObject[] | null | undefined = validateRequest(
-      UsersSchema,
-      {
-        user: { name, email, password },
-      }
+    const validation: ValidationResult = RequestValidator.validateNewUser(
+      name,
+      email,
+      password
     );
-
-    // return validation errors
-    if (validationResult && validationResult.length > 0) {
-      return res.status(400).json({ errors: validationResult });
+    if (validation.error) {
+      return res.status(400).json({ message: validation.error.message });
     }
 
+    // get avatar and save user
     const avatar: string = gravatar.url(email, {
       s: "200",
       r: "pg",
@@ -42,11 +40,11 @@ const create = async (req: Request, res: Response): Promise<Response> => {
       avatar,
       date: new Date(),
     })) as unknown) as IUser;
-
     if (!user) {
-      return res.status(500).json({ message: USER_NOT_SAVED });
+      return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
     }
 
+    // server response
     return res.status(201).json({
       id: user.id,
       email: user.email,
@@ -54,8 +52,8 @@ const create = async (req: Request, res: Response): Promise<Response> => {
       date: user.date,
     });
   } catch (error) {
-    logger.error(`${USER_NOT_SAVED}\n`, error);
-    return res.status(500).json({ message: USER_NOT_SAVED });
+    logger.error(`${INTERNAL_SERVER_ERROR}\n`, error);
+    return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 
