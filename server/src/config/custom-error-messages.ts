@@ -1,4 +1,4 @@
-export const FORBIDDEN_OPERATION = "Forbidden operation";
+export const FORBIDDEN_OPERATION = "Operation not permitted";
 export const INVALID_CREDENTIALS = "email or password incorrect";
 export const NO_EDUCATION = "Education not found";
 export const NO_EXPERIENCE = "Experience not found";
@@ -13,12 +13,10 @@ export const UNABLE_TO_ADD_EDUCATION = "Could not add education";
 export const UNABLE_TO_ADD_EXPERIENCE = "Could not add experience";
 export const UNABLE_TO_ADD_LIKE_TO_POST = "Could not add like to post";
 export const UNABLE_TO_LOGIN = "Could not login";
-export const UNABLE_TO_REMOVE_COMMENT = "Could not remove comment";
 export const UNABLE_TO_REMOVE_EDUCATION = "Could not remove education";
 export const UNABLE_TO_REMOVE_EXPERIENCE = "Could not remove experience";
 export const UNABLE_TO_REMOVE_LIKE_FROM_POST =
   "Could not remove like from post";
-export const UNABLE_TO_REMOVE_POST = "Could not remove post";
 export const UNABLE_TO_REMOVE_PROFILE = "Could not remove profile";
 export const UNABLE_TO_RETRIEVE_POSTS = "Could not retrieve posts";
 export const USER_EXISTS = "User already exists";
