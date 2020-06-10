@@ -1,16 +1,14 @@
-import { ErrorObject } from "ajv";
 import { Request, Response } from "express";
 
-import PostsSchema from "../../../json-schemas/posts.json";
-import ProfilesSchema from "../../../json-schemas/profiles.json";
 import {
   POST_NOT_FOUND,
-  UNABLE_TO_ADD_COMMENT_TO_POST,
+  INTERNAL_SERVER_ERROR,
 } from "../../config/custom-error-messages";
 import { addCommentToPost } from "../../db/queries";
 import logger from "../../helpers/logger";
-import validateRequest from "../../helpers/validateRequest";
 import IComment from "../../interfaces/IComment";
+import { ValidationResult } from "@hapi/joi";
+import RequestValidator from "../../helpers/RequestValidator";
 
 /**
  * Add comment to a post
@@ -19,6 +17,7 @@ import IComment from "../../interfaces/IComment";
  */
 const addComment = async (req: Request, res: Response): Promise<any> => {
   try {
+    // request validation
     const { post_id } = req.params;
     const { id } = req.user!;
     const comment: IComment = {
@@ -27,17 +26,14 @@ const addComment = async (req: Request, res: Response): Promise<any> => {
       avatar: req.body.avatar,
       name: req.body.name,
     };
-    const validationResult: ErrorObject[] | null | undefined = validateRequest(
-      PostsSchema,
-      { create: comment },
-      ProfilesSchema
+    const validation: ValidationResult = RequestValidator.validateNewPostOrComment(
+      comment
     );
-
-    // return validation errors
-    if (validationResult && validationResult.length > 0) {
-      return res.status(400).json({ errors: validationResult });
+    if (validation.error) {
+      return res.status(400).json({ message: validation.error.message });
     }
 
+    // save comment
     await addCommentToPost(post_id, comment);
     logger.info(`User ${id} has added a comment to post ${post_id}`);
 
@@ -47,8 +43,8 @@ const addComment = async (req: Request, res: Response): Promise<any> => {
       return res.status(404).json({ message: POST_NOT_FOUND });
     }
 
-    logger.error(`${UNABLE_TO_ADD_COMMENT_TO_POST}\n`, error);
-    return res.status(500).json({ message: UNABLE_TO_ADD_COMMENT_TO_POST });
+    logger.error(`${INTERNAL_SERVER_ERROR}\n`, error);
+    return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 
