@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ValidationResult } from "@hapi/joi";
 
 import {
   POST_NOT_FOUND,
@@ -7,7 +8,6 @@ import {
 import { addCommentToPost } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IComment from "../../interfaces/IComment";
-import { ValidationResult } from "@hapi/joi";
 import RequestValidator from "../../helpers/RequestValidator";
 
 /**

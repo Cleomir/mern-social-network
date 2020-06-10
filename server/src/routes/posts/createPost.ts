@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
+import { ValidationResult } from "@hapi/joi";
 
 import { INTERNAL_SERVER_ERROR } from "../../config/custom-error-messages";
 import { addPost } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IPost from "../../interfaces/IPost";
-import { ValidationResult } from "@hapi/joi";
 import RequestValidator from "../../helpers/RequestValidator";
 
 /**
