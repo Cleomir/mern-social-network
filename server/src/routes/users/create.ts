@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import gravatar from "gravatar";
+import { ValidationResult } from "@hapi/joi";
 
 import { insertUser } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IUser from "../../interfaces/IUser";
 import { INTERNAL_SERVER_ERROR } from "../../config/custom-error-messages";
 import RequestValidator from "../../helpers/RequestValidator";
-import { ValidationResult } from "@hapi/joi";
 
 /**
  * Create new user
