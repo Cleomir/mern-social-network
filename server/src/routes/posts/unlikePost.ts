@@ -1,16 +1,14 @@
-import { ErrorObject } from "ajv";
 import { Request, Response } from "express";
+import { ValidationResult } from "@hapi/joi";
 
-import PostsSchema from "../../../json-schemas/posts.json";
-import ProfilesSchema from "../../../json-schemas/profiles.json";
 import {
   POST_NOT_FOUND,
   POST_NOT_LIKED,
-  UNABLE_TO_REMOVE_LIKE_FROM_POST,
+  INTERNAL_SERVER_ERROR,
 } from "../../config/custom-error-messages";
 import { RemoveLikeFromPost } from "../../db/queries";
 import logger from "../../helpers/logger";
-import validateRequest from "../../helpers/validateRequest";
+import RequestValidator from "../../helpers/RequestValidator";
 
 /**
  * Like a post
@@ -19,17 +17,12 @@ import validateRequest from "../../helpers/validateRequest";
  */
 const unlikePost = async (req: Request, res: Response): Promise<any> => {
   try {
+    // request validation
     const { id: postId } = req.params;
     const { id: userId } = req.user!;
-    const validationResult: ErrorObject[] | null | undefined = validateRequest(
-      PostsSchema,
-      { get: { id: postId } },
-      ProfilesSchema
-    );
-
-    // return validation errors
-    if (validationResult && validationResult.length > 0) {
-      return res.status(400).json({ errors: validationResult });
+    const validation: ValidationResult = RequestValidator.validateId(postId);
+    if (validation.error) {
+      return res.status(400).json({ message: validation.error.message });
     }
 
     await RemoveLikeFromPost(userId, postId);
@@ -44,8 +37,8 @@ const unlikePost = async (req: Request, res: Response): Promise<any> => {
       return res.status(403).json({ message: POST_NOT_LIKED });
     }
 
-    logger.error(`${UNABLE_TO_REMOVE_LIKE_FROM_POST}\n`, error);
-    return res.status(500).json({ message: UNABLE_TO_REMOVE_LIKE_FROM_POST });
+    logger.error(`${INTERNAL_SERVER_ERROR}\n`, error);
+    return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 
