@@ -1,12 +1,11 @@
-import { ErrorObject } from "ajv";
 import { Request, Response } from "express";
+import { ValidationResult } from "@hapi/joi";
 
-import ProfilesSchema from "../../../json-schemas/profiles.json";
 import { NO_PROFILE } from "../../config/custom-error-messages";
 import { findProfileById } from "../../db/queries";
 import logger from "../../helpers/logger";
-import validateRequest from "../../helpers/validateRequest";
 import IProfile from "../../interfaces/IProfile";
+import RequestValidator from "../../helpers/RequestValidator";
 
 /**
  * Query profile by user ID
@@ -18,18 +17,14 @@ const getProfileByUserId = async (
   res: Response
 ): Promise<Response> => {
   try {
+    // request validation
     const { user_id } = req.params;
-    const validationResult:
-      | ErrorObject[]
-      | null
-      | undefined = validateRequest(ProfilesSchema, { get: { user: user_id } });
-
-    // return validation errors
-    if (validationResult && validationResult.length > 0) {
-      return res.status(400).json({ errors: validationResult });
+    const validation: ValidationResult = RequestValidator.validateId(user_id);
+    if (validation.error) {
+      return res.status(400).json({ message: validation.error.message });
     }
-    const profile: IProfile | null = await findProfileById(user_id);
 
+    const profile: IProfile | null = await findProfileById(user_id);
     if (!profile) {
       return res.status(404).json({ message: NO_PROFILE });
     }

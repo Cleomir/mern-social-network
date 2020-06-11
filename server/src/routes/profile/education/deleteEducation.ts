@@ -1,14 +1,13 @@
-import { ErrorObject } from "ajv";
 import { Request, Response } from "express";
+import { ValidationResult } from "@hapi/joi";
 
-import ProfilesSchema from "../../../../json-schemas/profiles.json";
 import {
   NO_EDUCATION,
-  UNABLE_TO_REMOVE_EDUCATION,
+  INTERNAL_SERVER_ERROR,
 } from "../../../config/custom-error-messages";
 import { removeEducationFromProfile } from "../../../db/queries";
 import logger from "../../../helpers/logger";
-import validateRequest from "../../../helpers/validateRequest";
+import RequestValidator from "../../../helpers/RequestValidator";
 
 /**
  * Delete existing education
@@ -17,18 +16,12 @@ import validateRequest from "../../../helpers/validateRequest";
  */
 const deleteEducation = async (req: Request, res: Response): Promise<any> => {
   try {
+    // request validation
     const { id } = req.user!;
     const edu_id = req.params.edu_id;
-    const validationResult: ErrorObject[] | null | undefined = validateRequest(
-      ProfilesSchema,
-      {
-        delete: { id: edu_id },
-      }
-    );
-
-    // return validation errors
-    if (validationResult && validationResult.length > 0) {
-      return res.status(400).json({ errors: validationResult });
+    const validation: ValidationResult = RequestValidator.validateId(edu_id);
+    if (validation.error) {
+      return res.status(400).json({ message: validation.error.message });
     }
 
     await removeEducationFromProfile(id!, edu_id);
@@ -40,8 +33,8 @@ const deleteEducation = async (req: Request, res: Response): Promise<any> => {
       return res.status(404).json({ message: NO_EDUCATION });
     }
 
-    logger.error(`${UNABLE_TO_REMOVE_EDUCATION}\n`, error);
-    return res.status(500).json({ message: UNABLE_TO_REMOVE_EDUCATION });
+    logger.error(`${INTERNAL_SERVER_ERROR}\n`, error);
+    return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 

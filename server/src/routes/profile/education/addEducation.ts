@@ -1,12 +1,11 @@
-import { ErrorObject } from "ajv";
 import { Request, Response } from "express";
+import { ValidationResult } from "@hapi/joi";
 
-import ProfilesSchema from "../../../../json-schemas/profiles.json";
-import { UNABLE_TO_ADD_EDUCATION } from "../../../config/custom-error-messages";
+import { INTERNAL_SERVER_ERROR } from "../../../config/custom-error-messages";
 import { addEducationToProfile } from "../../../db/queries";
 import logger from "../../../helpers/logger";
-import validateRequest from "../../../helpers/validateRequest";
 import IEducation from "../../../interfaces/IEducation";
+import RequestValidator from "../../../helpers/RequestValidator";
 
 /**
  * Add new education
@@ -15,18 +14,12 @@ import IEducation from "../../../interfaces/IEducation";
  */
 const addEducation = async (req: Request, res: Response): Promise<any> => {
   try {
+    // request validation
     const { id } = req.user!;
     const education: IEducation[] = req.body.education;
-    const validationResult: ErrorObject[] | null | undefined = validateRequest(
-      ProfilesSchema,
-      {
-        education: { user: id, education },
-      }
-    );
-
-    // return validation errors
-    if (validationResult && validationResult.length > 0) {
-      return res.status(400).json({ errors: validationResult });
+    const validation: ValidationResult = RequestValidator.validateId(id);
+    if (validation.error) {
+      return res.status(400).json({ message: validation.error.message });
     }
 
     await addEducationToProfile(id!, education);
@@ -34,8 +27,8 @@ const addEducation = async (req: Request, res: Response): Promise<any> => {
 
     return res.status(200).end();
   } catch (error) {
-    logger.error(`${UNABLE_TO_ADD_EDUCATION}\n`, error);
-    return res.status(500).json({ message: UNABLE_TO_ADD_EDUCATION });
+    logger.error(`${INTERNAL_SERVER_ERROR}\n`, error);
+    return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 

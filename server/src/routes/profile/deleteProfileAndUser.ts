@@ -1,14 +1,13 @@
-import { ErrorObject } from "ajv";
 import { Request, Response } from "express";
+import { ValidationResult } from "@hapi/joi";
 
-import ProfilesSchema from "../../../json-schemas/profiles.json";
 import {
-  UNABLE_TO_REMOVE_PROFILE,
   USER_NOT_FOUND,
+  INTERNAL_SERVER_ERROR,
 } from "../../config/custom-error-messages";
 import { removeProfileAndUser } from "../../db/queries";
 import logger from "../../helpers/logger";
-import validateRequest from "../../helpers/validateRequest";
+import RequestValidator from "../../helpers/RequestValidator";
 
 /**
  * Delete Profile and User
@@ -17,18 +16,14 @@ import validateRequest from "../../helpers/validateRequest";
  */
 const deleteProfileAndUser = async (req: Request, res: Response) => {
   try {
+    // request validation
     const { id } = req.user!;
-    const validationResult: ErrorObject[] | null | undefined = validateRequest(
-      ProfilesSchema,
-      {
-        delete: { id },
-      }
-    );
-    // return validation errors
-    if (validationResult && validationResult.length > 0) {
-      return res.status(400).json({ errors: validationResult });
+    const validation: ValidationResult = RequestValidator.validateId(id);
+    if (validation.error) {
+      return res.status(400).json({ message: validation.error.message });
     }
 
+    // delete profile and user
     await removeProfileAndUser(id);
     logger.info(`User id ${id} has been deleted`);
 
@@ -37,8 +32,9 @@ const deleteProfileAndUser = async (req: Request, res: Response) => {
     if (error.message === USER_NOT_FOUND) {
       return res.status(403).json({ message: USER_NOT_FOUND });
     }
-    logger.error(`${UNABLE_TO_REMOVE_PROFILE}\n`, error);
-    return res.status(500).json({ message: UNABLE_TO_REMOVE_PROFILE });
+
+    logger.error(`${INTERNAL_SERVER_ERROR}\n`, error);
+    return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 
