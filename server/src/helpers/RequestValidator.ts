@@ -1,17 +1,43 @@
 import Joi, { ValidationResult } from "@hapi/joi";
 import IPost from "../interfaces/IPost";
 import IComment from "../interfaces/IComment";
+import IProfile from "../interfaces/IProfile";
+import IExperience from "../interfaces/IExperience";
+import IEducation from "../interfaces/IEducation";
 
 export default class RequestValidator {
   // validation rules
-  private static avatarPattern = Joi.string();
   private static emailPattern = Joi.string().email();
   private static idPattern = Joi.string()
     .pattern(/^[0-9a-f]{24}$/, "id")
     .required();
   private static namePattern = Joi.string().min(2);
   private static passwordPattern = Joi.string().min(8).max(20);
-  private static textPattern = Joi.string().min(1);
+  private static experiencePattern = Joi.object({
+    title: Joi.string().required(),
+    company: Joi.string().required(),
+    location: Joi.string(),
+    from: Joi.date().required(),
+    to: Joi.date(),
+    current: Joi.boolean().required(),
+    description: Joi.string(),
+  });
+  private static educationPattern = Joi.object({
+    school: Joi.string().required(),
+    degree: Joi.string().required(),
+    field_of_study: Joi.string(),
+    from: Joi.date().required(),
+    to: Joi.date(),
+    current: Joi.boolean().required(),
+    description: Joi.string(),
+  });
+  private static socialPattern = Joi.object({
+    youtube: Joi.string(),
+    twitter: Joi.string(),
+    facebook: Joi.string(),
+    linkedin: Joi.string(),
+    instagram: Joi.string(),
+  });
 
   public static validateNewUser(
     name: string,
@@ -39,9 +65,9 @@ export default class RequestValidator {
     post: IPost | IComment
   ): ValidationResult {
     return Joi.object({
-      avatar: this.avatarPattern,
+      avatar: Joi.string(),
       user: this.idPattern.required(),
-      test: this.textPattern.required(),
+      test: Joi.string().min(1),
       name: this.namePattern,
     }).validate(post);
   }
@@ -55,5 +81,36 @@ export default class RequestValidator {
 
   public static validateId(id: string): ValidationResult {
     return this.idPattern.validate(id);
+  }
+
+  public static validateCreateProfile(profile: IProfile) {
+    return Joi.object({
+      user: this.idPattern.required(),
+      handle: Joi.string().max(40).required(),
+      company: Joi.string(),
+      website: Joi.string(),
+      location: Joi.string(),
+      status: Joi.string().required(),
+      skills: Joi.array().items(Joi.string()).min(1).required(),
+      bio: Joi.string(),
+      github_username: Joi.string(),
+      experience: Joi.array().items(this.experiencePattern),
+      education: Joi.array().items(this.educationPattern),
+      social: this.socialPattern,
+    }).validate(profile);
+  }
+
+  public static validateExperience(user: string, experience: IExperience) {
+    return Joi.object({
+      user: this.idPattern.required(),
+      experience: Joi.array().items(this.experiencePattern).min(1).required(),
+    }).validate({ user, experience });
+  }
+
+  public static validateEducation(user: string, education: IEducation) {
+    return Joi.object({
+      user: this.idPattern.required(),
+      education: Joi.array().items(this.educationPattern).min(1).required(),
+    }).validate({ user, education });
   }
 }
