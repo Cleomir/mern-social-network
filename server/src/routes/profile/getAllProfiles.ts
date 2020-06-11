@@ -16,7 +16,6 @@ const getAllProfiles = async (
 ): Promise<Response> => {
   try {
     const profile: IProfile[] | null = await findAllProfiles();
-
     if (!profile) {
       return res.status(200).json({ message: NO_PROFILE });
     }
