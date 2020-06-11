@@ -11,14 +11,10 @@ export const PROFILE_EXISTS = "Profile already exists";
 export const PROFILE_HANDLE_EXISTS = "Profile handle already exists";
 export const UNABLE_TO_ADD_EDUCATION = "Could not add education";
 export const UNABLE_TO_ADD_EXPERIENCE = "Could not add experience";
-export const UNABLE_TO_ADD_LIKE_TO_POST = "Could not add like to post";
 export const UNABLE_TO_LOGIN = "Could not login";
 export const UNABLE_TO_REMOVE_EDUCATION = "Could not remove education";
 export const UNABLE_TO_REMOVE_EXPERIENCE = "Could not remove experience";
-export const UNABLE_TO_REMOVE_LIKE_FROM_POST =
-  "Could not remove like from post";
 export const UNABLE_TO_REMOVE_PROFILE = "Could not remove profile";
-export const UNABLE_TO_RETRIEVE_POSTS = "Could not retrieve posts";
 export const USER_EXISTS = "User already exists";
 export const USER_NOT_FOUND = "User not found";
 export const USER_NOT_SAVED = "Could not register the user";
