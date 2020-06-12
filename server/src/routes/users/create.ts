@@ -5,7 +5,10 @@ import { ValidationResult } from "@hapi/joi";
 import { insertUser } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IUser from "../../interfaces/IUser";
-import { INTERNAL_SERVER_ERROR } from "../../config/custom-error-messages";
+import {
+  INTERNAL_SERVER_ERROR,
+  USER_EXISTS,
+} from "../../config/custom-error-messages";
 import RequestValidator from "../../helpers/RequestValidator";
 
 /**
@@ -15,34 +18,36 @@ import RequestValidator from "../../helpers/RequestValidator";
  * @returns The response of the request
  */
 const create = async (req: Request, res: Response): Promise<Response> => {
-  try {
-    // request validation
-    const { name, email, password } = req.body;
-    const validation: ValidationResult = RequestValidator.validateNewUser(
-      name,
-      email,
-      password
+  // request validation
+  const { name, email, password } = req.body;
+  const validation: ValidationResult = RequestValidator.validateNewUser(
+    name,
+    email,
+    password
+  );
+  if (validation.error) {
+    logger.warn(
+      `Request with invalid parameters: name: ${name}, email: ${email}, password: ${password}`
     );
-    if (validation.error) {
-      return res.status(400).json({ message: validation.error.message });
-    }
+    return res.status(400).json({ message: validation.error.message });
+  }
 
-    // get avatar and save user
+  try {
+    // get gravatar and save user
+    logger.info(`Saving user ${name} with email ${email} into database...`);
     const avatar: string = gravatar.url(email, {
       s: "200",
       r: "pg",
       d: "mm",
     });
-    const user: IUser = ((await insertUser({
+    const user: IUser | undefined = await insertUser({
       name,
       email,
       password,
       avatar,
       date: new Date(),
-    })) as unknown) as IUser;
-    if (!user) {
-      return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
-    }
+    });
+    logger.info(`User ${name} with ${email} saved successfully.`);
 
     // server response
     return res.status(201).json({
@@ -52,7 +57,15 @@ const create = async (req: Request, res: Response): Promise<Response> => {
       date: user.date,
     });
   } catch (error) {
-    logger.error(`${INTERNAL_SERVER_ERROR}\n`, error);
+    if (error === USER_EXISTS) {
+      logger.info(`Email ${email} already exists`);
+      return res.status(403).json({ message: USER_EXISTS });
+    }
+
+    logger.error(
+      `Could not save user ${name} with email ${email}.\nError:\n`,
+      error
+    );
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
