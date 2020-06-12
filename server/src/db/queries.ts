@@ -377,14 +377,6 @@ export const removeProfileAndUser = async (userId: string): Promise<void> => {
 };
 
 /**
- * Query user by email
- * @param email - User's email
- */
-export const findUserByEmail = async (email: string): Promise<IUser | null> => {
-  return (User.findOne({ email }) as unknown) as IUser;
-};
-
-/**
  * Query user by id
  * @param email - User's email
  */
@@ -430,30 +422,26 @@ export const findProfileByHandle = async (
  * Save new user into Database
  * @param user - New user
  */
-export const insertUser = async (
-  user: IUser
-): Promise<Document | undefined> => {
-  try {
-    const { name, email, password, avatar, date } = user;
-    const existingUser = await findUserByEmail(user.email);
+export const insertUser = async (user: IUser): Promise<IUser> => {
+  const { name, email, password, avatar, date } = user;
+  const existingUser: Document | null = await User.findOne({ email: email });
 
-    if (existingUser) {
-      throw new Error(USER_EXISTS);
-    }
-
-    const hashedPassword: string = await hashPassword(password);
-    const newUser: Document = new User({
-      name,
-      email,
-      avatar,
-      password: hashedPassword,
-      date,
-    });
-
-    return newUser.save();
-  } catch (error) {
-    throw error;
+  if (existingUser) {
+    throw new Error(USER_EXISTS);
   }
+
+  const hashedPassword: string = await hashPassword(password);
+  const newUser: Document = new User({
+    name,
+    email,
+    avatar,
+    password: hashedPassword,
+    date,
+  });
+
+  await newUser.save();
+
+  return (newUser as unknown) as IUser;
 };
 
 /**
