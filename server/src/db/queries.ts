@@ -377,8 +377,16 @@ export const removeProfileAndUser = async (userId: string): Promise<void> => {
 };
 
 /**
- * Query user by id
+ * Query user by email
  * @param email - User's email
+ */
+export const findUserByEmail = async (email: string): Promise<IUser | null> => {
+  return (User.findOne({ email }) as unknown) as IUser;
+};
+
+/**
+ * Query user by id
+ * @param id - User's id
  */
 export const findUserById = async (id: string): Promise<IUser | null> => {
   return (User.findOne({ _id: id }) as unknown) as IUser;
