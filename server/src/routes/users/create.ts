@@ -47,9 +47,10 @@ const create = async (req: Request, res: Response): Promise<Response> => {
       avatar,
       date: new Date(),
     });
-    logger.info(`User ${name} with ${email} saved successfully.`);
+    logger.info(`User with ${email} saved successfully.`);
 
     // server response
+    logger.info(`Returning success response for email ${email}`);
     return res.status(201).json({
       id: user.id,
       email: user.email,
@@ -63,7 +64,7 @@ const create = async (req: Request, res: Response): Promise<Response> => {
     }
 
     logger.error(
-      `Could not save user ${name} with email ${email}.\nError:\n`,
+      `Could not create user ${name} with email ${email}.\nError:\n`,
       error
     );
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
