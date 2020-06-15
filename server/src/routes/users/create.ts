@@ -27,7 +27,7 @@ const create = async (req: Request, res: Response): Promise<Response> => {
   );
   if (validation.error) {
     logger.warn(
-      `Request with invalid parameters: name: ${name}, email: ${email}, password: ${password}`
+      `Attempt to create user with invalid parameters: name: ${name}, email: ${email}, password: ${password}`
     );
     return res.status(400).json({ message: validation.error.message });
   }
