@@ -67,6 +67,7 @@ const createProfile = async (req: Request, res: Response): Promise<any> => {
         profile.user
       }.\nError:\n${inspect(error, { depth: null })}`
     );
+    logger.error(`Returning error response...`);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
