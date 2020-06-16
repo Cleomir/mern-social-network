@@ -34,7 +34,7 @@ const deleteProfileAndUser = async (req: Request, res: Response) => {
     return res.status(200).end();
   } catch (error) {
     if (error.message === USER_NOT_FOUND) {
-      logger.warn(`Atempt to delete inexistent user with id ${id}`);
+      logger.warn(`Attempt to delete inexistent user with id ${id}`);
       return res.status(403).json({ message: USER_NOT_FOUND });
     }
 
