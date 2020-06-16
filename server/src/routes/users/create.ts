@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import gravatar from "gravatar";
 import { ValidationResult } from "@hapi/joi";
+import { inspect } from "util";
 
 import { insertUser } from "../../db/queries";
 import logger from "../../helpers/logger";
@@ -64,8 +65,10 @@ const create = async (req: Request, res: Response): Promise<Response> => {
     }
 
     logger.error(
-      `Could not create user ${name} with email ${email}.\nError:\n`,
-      error
+      `Could not create user ${name} with email ${email}.\nError:\n${inspect(
+        error,
+        { depth: null }
+      )}`
     );
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }

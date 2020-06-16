@@ -63,8 +63,9 @@ const createProfile = async (req: Request, res: Response): Promise<any> => {
     }
 
     logger.error(
-      `Could not create profile for user id ${profile.user}.\nError:\n`,
-      error
+      `Could not create profile for user id ${
+        profile.user
+      }.\nError:\n${inspect(error, { depth: null })}`
     );
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
+import { inspect } from "util";
 
 import { findUserByEmail } from "../../db/queries";
 import comparePassword from "../../helpers/comparePassword";
@@ -67,7 +68,11 @@ const login = async (
     logger.info(`Returning success response for email ${email}`);
     return res.status(200).json({ token });
   } catch (error) {
-    logger.error(`Could not login with email ${email}\nError:\n`, error);
+    logger.error(
+      `Could not login with email ${email}\nError:\n${inspect(error, {
+        depth: null,
+      })}`
+    );
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
