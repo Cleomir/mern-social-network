@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
+import { inspect } from "util";
 
 import {
   POST_NOT_FOUND,
@@ -16,34 +17,49 @@ import RequestValidator from "../../helpers/RequestValidator";
  * @param res Response object
  */
 const addComment = async (req: Request, res: Response): Promise<any> => {
-  try {
-    // request validation
-    const { post_id } = req.params;
-    const { id } = req.user!;
-    const comment: IComment = {
-      user: id,
-      text: req.body.text,
-      avatar: req.body.avatar,
-      name: req.body.name,
-    };
-    const validation: ValidationResult = RequestValidator.validateNewPostOrComment(
-      comment
+  // request validation
+  const { post_id } = req.params;
+  const { id } = req.user!;
+  const comment: IComment = {
+    user: id,
+    text: req.body.text,
+    avatar: req.body.avatar,
+    name: req.body.name,
+  };
+  const validation: ValidationResult = RequestValidator.validateNewPostOrComment(
+    comment
+  );
+  if (validation.error) {
+    logger.warn(
+      `Attempt to add comment with invalid parameters for id ${id}. Parameters: ${inspect(
+        comment,
+        { depth: null }
+      )}`
     );
-    if (validation.error) {
-      return res.status(400).json({ message: validation.error.message });
-    }
+    return res.status(400).json({ message: validation.error.message });
+  }
 
+  try {
     // save comment
+    logger.info(`Adding comment for user id ${id} on post ${post_id}...`);
     await addCommentToPost(post_id, comment);
-    logger.info(`User ${id} has added a comment to post ${post_id}`);
+    logger.info(`Comment added for user id ${id} on post ${post_id}`);
 
+    logger.info(`Returning success response for user id ${id}`);
     return res.status(200).end();
   } catch (error) {
     if (error.message === POST_NOT_FOUND) {
+      logger.error(`Post id ${post_id} not found`);
       return res.status(404).json({ message: POST_NOT_FOUND });
     }
 
-    logger.error(`${INTERNAL_SERVER_ERROR}\n`, error);
+    logger.error(
+      `Could not add comment for id ${id} on post ${post_id}\nError:\n${inspect(
+        error,
+        { depth: null }
+      )}`
+    );
+    logger.error(`Returning error response...`);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };

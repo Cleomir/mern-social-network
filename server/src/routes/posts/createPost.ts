@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
+import { inspect } from "util";
 
 import { INTERNAL_SERVER_ERROR } from "../../config/custom-error-messages";
 import { addPost } from "../../db/queries";
@@ -13,28 +14,48 @@ import RequestValidator from "../../helpers/RequestValidator";
  * @param res Response object
  */
 const createPost = async (req: Request, res: Response): Promise<any> => {
-  try {
-    // request validation
-    const post: IPost = {
-      text: req.body.text,
-      user: req.user!.id,
-      avatar: req.body.avatar,
-      name: req.body.name,
-    };
-    const validation: ValidationResult = RequestValidator.validateNewPostOrComment(
-      post
+  // request validation
+  const { id } = req.user!;
+  const post: IPost = {
+    text: req.body.text,
+    user: req.user!.id,
+    avatar: req.body.avatar,
+    name: req.body.name,
+  };
+  const validation: ValidationResult = RequestValidator.validateNewPostOrComment(
+    post
+  );
+  if (validation.error) {
+    logger.warn(
+      `Attempt to create post with invalid parameters for id ${id}. Parameters:\n ${inspect(
+        post,
+        {
+          depth: null,
+        }
+      )}`
     );
-    if (validation.error) {
-      return res.status(400).json({ message: validation.error.message });
-    }
+    return res.status(400).json({ message: validation.error.message });
+  }
 
+  try {
     // save post
+    logger.info(
+      `Creating new post for id ${id} with payload ${inspect(post, {
+        depth: null,
+      })}`
+    );
     const postDocument = await addPost(post);
-    logger.info(`User ${req.user!.id} has created post id ${postDocument._id}`);
+    logger.info(`User ${id} has created post id ${postDocument._id}`);
 
+    logger.info(`Returning success response for user id ${id}...`);
     return res.status(201).end();
   } catch (error) {
-    logger.error(`${INTERNAL_SERVER_ERROR}\n`, error);
+    logger.error(
+      `Could not create post for id ${id}\nError:\n${inspect(error, {
+        depth: null,
+      })}`
+    );
+    logger.error(`Returning error response...`);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
