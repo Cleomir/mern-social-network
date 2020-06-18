@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { Document } from "mongoose";
+import { inspect } from "util";
 
-import { UNABLE_TO_RETRIEVE_POSTS } from "../../config/custom-error-messages";
+import { INTERNAL_SERVER_ERROR } from "../../config/custom-error-messages";
 import { findAllPosts } from "../../db/queries";
 import logger from "../../helpers/logger";
 
@@ -12,14 +13,18 @@ import logger from "../../helpers/logger";
  */
 const getAllPosts = async (req: Request, res: Response): Promise<any> => {
   try {
+    logger.info(`Querying all posts...`);
     const posts: Document[] = await findAllPosts();
-
-    logger.info(`Querying ${posts.length} posts from db...`);
-
+    logger.info(
+      `Queried ${posts.length} posts from db.\nReturning success response...`
+    );
     return res.status(200).json(posts);
   } catch (error) {
-    logger.error(`${UNABLE_TO_RETRIEVE_POSTS}\n`, error);
-    return res.status(500).json({ message: UNABLE_TO_RETRIEVE_POSTS });
+    logger.error(
+      `Could not query posts\nError:\n${inspect(error, { depth: null })}`
+    );
+    logger.error(`Returning error response...`);
+    return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 

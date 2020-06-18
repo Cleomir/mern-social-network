@@ -59,7 +59,7 @@ const addComment = async (req: Request, res: Response): Promise<any> => {
         { depth: null }
       )}`
     );
-    logger.error(`Returning error response...`);
+    logger.error(`Returning error response for user id ${id}...`);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
