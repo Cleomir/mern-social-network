@@ -6,7 +6,7 @@ import {
   POST_NOT_FOUND,
   POST_NOT_LIKED,
   INTERNAL_SERVER_ERROR,
-} from "../../config/custom-error-messages";
+} from "../../config/customErrorMessages";
 import { RemoveLikeFromPost } from "../../db/queries";
 import logger from "../../helpers/logger";
 import RequestValidator from "../../helpers/RequestValidator";

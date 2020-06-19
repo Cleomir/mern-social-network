@@ -9,7 +9,7 @@ import IUser from "../../interfaces/IUser";
 import {
   INTERNAL_SERVER_ERROR,
   USER_EXISTS,
-} from "../../config/custom-error-messages";
+} from "../../config/customErrorMessages";
 import RequestValidator from "../../helpers/RequestValidator";
 
 /**

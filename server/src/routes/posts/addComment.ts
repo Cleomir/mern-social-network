@@ -5,7 +5,7 @@ import { inspect } from "util";
 import {
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
-} from "../../config/custom-error-messages";
+} from "../../config/customErrorMessages";
 import { addCommentToPost } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IComment from "../../interfaces/IComment";

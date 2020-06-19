@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Document } from "mongoose";
 import { inspect } from "util";
 
-import { INTERNAL_SERVER_ERROR } from "../../config/custom-error-messages";
+import { INTERNAL_SERVER_ERROR } from "../../config/customErrorMessages";
 import { findAllPosts } from "../../db/queries";
 import logger from "../../helpers/logger";
 

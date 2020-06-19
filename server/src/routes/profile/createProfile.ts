@@ -6,7 +6,7 @@ import {
   PROFILE_EXISTS,
   PROFILE_HANDLE_EXISTS,
   INTERNAL_SERVER_ERROR,
-} from "../../config/custom-error-messages";
+} from "../../config/customErrorMessages";
 import { insertProfile } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IProfile from "../../interfaces/IProfile";

@@ -4,7 +4,7 @@ import { ValidationResult } from "@hapi/joi";
 import {
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
-} from "../../config/custom-error-messages";
+} from "../../config/customErrorMessages";
 import { findPostById } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IPost from "../../interfaces/IPost";

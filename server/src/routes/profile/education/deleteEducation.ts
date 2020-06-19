@@ -5,7 +5,7 @@ import { inspect } from "util";
 import {
   NO_EDUCATION,
   INTERNAL_SERVER_ERROR,
-} from "../../../config/custom-error-messages";
+} from "../../../config/customErrorMessages";
 import { removeEducationFromProfile } from "../../../db/queries";
 import logger from "../../../helpers/logger";
 import RequestValidator from "../../../helpers/RequestValidator";

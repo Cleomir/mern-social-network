@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { inspect } from "util";
 
-import { NO_PROFILE } from "../../config/custom-error-messages";
+import { NO_PROFILE } from "../../config/customErrorMessages";
 import { findProfileByHandle } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IProfile from "../../interfaces/IProfile";

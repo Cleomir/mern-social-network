@@ -6,7 +6,7 @@ import {
   FORBIDDEN_OPERATION,
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
-} from "../../config/custom-error-messages";
+} from "../../config/customErrorMessages";
 import { removeCommentFromPost } from "../../db/queries";
 import logger from "../../helpers/logger";
 import RequestValidator from "../../helpers/RequestValidator";

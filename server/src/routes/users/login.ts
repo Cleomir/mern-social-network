@@ -12,7 +12,7 @@ import {
   USER_NOT_FOUND,
   INVALID_CREDENTIALS,
   INTERNAL_SERVER_ERROR,
-} from "../../config/custom-error-messages";
+} from "../../config/customErrorMessages";
 import RequestValidator from "../../helpers/RequestValidator";
 
 /**

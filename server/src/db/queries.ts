@@ -16,7 +16,7 @@ import {
   FORBIDDEN_OPERATION,
   POST_ALREADY_LIKED,
   POST_NOT_LIKED,
-} from "../config/custom-error-messages";
+} from "../config/customErrorMessages";
 import IExperience from "../interfaces/IExperience";
 import IEducation from "../interfaces/IEducation";
 import IPost from "../interfaces/IPost";

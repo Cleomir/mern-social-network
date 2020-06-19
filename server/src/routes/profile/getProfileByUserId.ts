@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 import { inspect } from "util";
 
-import { NO_PROFILE } from "../../config/custom-error-messages";
+import { NO_PROFILE } from "../../config/customErrorMessages";
 import { findProfileById } from "../../db/queries";
 import logger from "../../helpers/logger";
 import IProfile from "../../interfaces/IProfile";
