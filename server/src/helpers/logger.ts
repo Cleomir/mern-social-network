@@ -2,7 +2,7 @@ import winston from "winston";
 import { TransformableInfo } from "logform";
 import DailyRotateFile from "winston-daily-rotate-file";
 
-import { ENVIRONMENT } from "../config/env-variables";
+import { ENVIRONMENT } from "../config/envVariables";
 
 const { format } = winston;
 const logFormat = format.printf(

@@ -1,7 +1,7 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 
 import IJwtPayload from "../interfaces/IJwtPayload";
-import { JWT_SECRET } from "../config/env-variables";
+import { JWT_SECRET } from "../config/envVariables";
 
 const signJwtToken = (payload: IJwtPayload): string => {
   const options: SignOptions = { expiresIn: "1h" };

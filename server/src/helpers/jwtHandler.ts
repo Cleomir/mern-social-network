@@ -1,7 +1,7 @@
 import { PassportStatic } from "passport";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 
-import { JWT_SECRET } from "../config/env-variables";
+import { JWT_SECRET } from "../config/envVariables";
 
 const jwtHandler = (passport: PassportStatic): void => {
   const options = {
