@@ -1,4 +1,5 @@
 import request, { Response } from "supertest";
+import mongoose from "mongoose";
 import Chance from "chance";
 
 import app from "../../../src/App";
@@ -10,6 +11,10 @@ describe("Test /users path", () => {
 
   beforeAll(async () => {
     await ConnectToDB(DB_URL);
+  });
+
+  afterEach(async () => {
+    await mongoose.connection.db.dropCollection("users");
   });
 
   test("It should create a user and return status 200", async () => {
