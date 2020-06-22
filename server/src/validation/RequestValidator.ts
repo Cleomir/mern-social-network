@@ -83,7 +83,7 @@ export default class RequestValidator {
     return this.idPattern.validate(id);
   }
 
-  public static validateCreateProfile(profile: IProfile) {
+  public static validateCreateProfile(profile: IProfile): Joi.ValidationResult {
     return Joi.object({
       user: this.idPattern.required(),
       handle: Joi.string().max(40).required(),
@@ -100,14 +100,20 @@ export default class RequestValidator {
     }).validate(profile);
   }
 
-  public static validateExperience(user: string, experience: IExperience) {
+  public static validateExperience(
+    user: string,
+    experience: IExperience
+  ): Joi.ValidationResult {
     return Joi.object({
       user: this.idPattern.required(),
       experience: Joi.array().items(this.experiencePattern).min(1).required(),
     }).validate({ user, experience });
   }
 
-  public static validateEducation(user: string, education: IEducation) {
+  public static validateEducation(
+    user: string,
+    education: IEducation
+  ): Joi.ValidationResult {
     return Joi.object({
       user: this.idPattern.required(),
       education: Joi.array().items(this.educationPattern).min(1).required(),
