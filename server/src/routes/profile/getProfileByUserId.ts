@@ -4,9 +4,9 @@ import { inspect } from "util";
 
 import { NO_PROFILE } from "../../config/customErrorMessages";
 import { findProfileById } from "../../db/queries";
-import logger from "../../helpers/logger";
+import logger from "../../logger";
 import IProfile from "../../interfaces/IProfile";
-import RequestValidator from "../../helpers/RequestValidator";
+import RequestValidator from "../../validation/RequestValidator";
 
 /**
  * Query profile by user ID

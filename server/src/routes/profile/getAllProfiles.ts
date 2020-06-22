@@ -3,7 +3,7 @@ import { inspect } from "util";
 
 import { NO_PROFILE } from "../../config/customErrorMessages";
 import { findAllProfiles } from "../../db/queries";
-import logger from "../../helpers/logger";
+import logger from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 
 /**

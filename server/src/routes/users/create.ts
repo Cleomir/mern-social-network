@@ -4,13 +4,13 @@ import { ValidationResult } from "@hapi/joi";
 import { inspect } from "util";
 
 import { insertUser } from "../../db/queries";
-import logger from "../../helpers/logger";
+import logger from "../../logger";
 import IUser from "../../interfaces/IUser";
 import {
   INTERNAL_SERVER_ERROR,
   USER_EXISTS,
 } from "../../config/customErrorMessages";
-import RequestValidator from "../../helpers/RequestValidator";
+import RequestValidator from "../../validation/RequestValidator";
 
 /**
  * Create new user

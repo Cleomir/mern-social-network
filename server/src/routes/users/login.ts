@@ -3,17 +3,17 @@ import { ValidationResult } from "@hapi/joi";
 import { inspect } from "util";
 
 import { findUserByEmail } from "../../db/queries";
-import comparePassword from "../../helpers/comparePassword";
+import PasswordHandler from "../../authentication/password";
 import IUser from "../../interfaces/IUser";
-import logger from "../../helpers/logger";
-import signJwtToken from "../../helpers/signJwtToken";
+import logger from "../../logger";
+import JwtHandler from "../../authentication/jwt";
 import IJwtPayload from "../../interfaces/IJwtPayload";
 import {
   USER_NOT_FOUND,
   INVALID_CREDENTIALS,
   INTERNAL_SERVER_ERROR,
 } from "../../config/customErrorMessages";
-import RequestValidator from "../../helpers/RequestValidator";
+import RequestValidator from "../../validation/RequestValidator";
 
 /**
  * User login
@@ -47,7 +47,10 @@ const login = async (
     }
 
     // check if password match
-    const isMatch = await comparePassword(password, existingUser.password);
+    const isMatch = await PasswordHandler.compare(
+      password,
+      existingUser.password
+    );
     if (!isMatch) {
       logger.warn(`Login attempt with invalid parameters for email ${email}`);
       return res.status(400).json({ message: INVALID_CREDENTIALS });
@@ -61,7 +64,7 @@ const login = async (
       email: existingUser.email,
       avatar: existingUser.avatar,
     };
-    const token: string = signJwtToken(payload);
+    const token: string = JwtHandler.sign(payload);
     logger.info(`JWT generated successfully for email ${email}`);
 
     // server response

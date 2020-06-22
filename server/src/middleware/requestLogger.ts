@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { inspect } from "util";
 
-import logger from "../helpers/logger";
+import logger from "../logger";
 
 const requestLogger = () => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const { protocol, headers, method, body, originalUrl } = req;
     const inspectOptions = { depth: null };
 

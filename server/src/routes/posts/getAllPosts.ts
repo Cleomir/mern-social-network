@@ -4,14 +4,14 @@ import { inspect } from "util";
 
 import { INTERNAL_SERVER_ERROR } from "../../config/customErrorMessages";
 import { findAllPosts } from "../../db/queries";
-import logger from "../../helpers/logger";
+import logger from "../../logger";
 
 /**
  * Query all posts
  * @param req Request object
  * @param res Response object
  */
-const getAllPosts = async (req: Request, res: Response): Promise<any> => {
+const getAllPosts = async (req: Request, res: Response): Promise<Response> => {
   try {
     logger.info(`Querying all posts...`);
     const posts: Document[] = await findAllPosts();
