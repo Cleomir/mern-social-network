@@ -2,7 +2,7 @@ import express, { Application, Request, Response } from "express";
 
 import helmet from "helmet";
 import passport from "passport";
-import jwtHandler from "./helpers/jwtHandler";
+import JwtHandler from "./authentication/jwt";
 import posts from "./routes/posts";
 import profile from "./routes/profile";
 import users from "./routes/users";
@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(requestLogger());
 // passport config
 app.use(passport.initialize());
-jwtHandler(passport);
+JwtHandler.validate(passport);
 // mount root routes
 app.use("/users", users);
 app.use("/profiles", profile);
