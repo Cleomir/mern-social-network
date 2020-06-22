@@ -3,7 +3,7 @@ import { Document } from "mongoose";
 import User from "./models/User";
 import Profile from "./models/Profile";
 import IUser from "../interfaces/IUser";
-import hashPassword from "../helpers/hashPassword";
+import PasswordHandler from "../authentication/password";
 import IProfile from "../interfaces/IProfile";
 import {
   USER_EXISTS,
@@ -31,23 +31,18 @@ import IComment from "../interfaces/IComment";
 export const addEducationToProfile = async (
   userId: string,
   education: IEducation[]
-) => {
-  try {
-    const userProfile: IProfile | null = await findProfileById(userId);
-
-    if (!userProfile) {
-      throw new Error(USER_NOT_FOUND);
-    }
-
-    // check if user already has experience
-    userProfile.education
-      ? (userProfile.education = [...education, ...userProfile.education])
-      : (userProfile.education = [...education]);
-
-    return ((userProfile as unknown) as Document).save();
-  } catch (error) {
-    throw error;
+): Promise<Document> => {
+  const userProfile: IProfile | null = await findProfileById(userId);
+  if (!userProfile) {
+    throw new Error(USER_NOT_FOUND);
   }
+
+  // check if user already has experience
+  userProfile.education
+    ? (userProfile.education = [...education, ...userProfile.education])
+    : (userProfile.education = [...education]);
+
+  return ((userProfile as unknown) as Document).save();
 };
 
 /**
@@ -58,23 +53,18 @@ export const addEducationToProfile = async (
 export const addExperienceToProfile = async (
   userId: string,
   experience: IExperience[]
-) => {
-  try {
-    const userProfile: IProfile | null = await findProfileById(userId);
-
-    if (!userProfile) {
-      throw new Error(USER_NOT_FOUND);
-    }
-
-    // check if user already has experience
-    userProfile.experience
-      ? (userProfile.experience = [...experience, ...userProfile.experience])
-      : (userProfile.experience = [...experience]);
-
-    return ((userProfile as unknown) as Document).save();
-  } catch (error) {
-    throw error;
+): Promise<Document> => {
+  const userProfile: IProfile | null = await findProfileById(userId);
+  if (!userProfile) {
+    throw new Error(USER_NOT_FOUND);
   }
+
+  // check if user already has experience
+  userProfile.experience
+    ? (userProfile.experience = [...experience, ...userProfile.experience])
+    : (userProfile.experience = [...experience]);
+
+  return ((userProfile as unknown) as Document).save();
 };
 
 /**
@@ -108,22 +98,17 @@ export const removePost = async (
   userId: string,
   postId: string
 ): Promise<Document> => {
-  try {
-    const post: IPost | null = await findPostById(postId);
-
-    if (!post) {
-      throw new Error(POST_NOT_FOUND);
-    }
-
-    // check post ownership
-    if (post.user.toString() !== userId) {
-      throw new Error(FORBIDDEN_OPERATION);
-    }
-
-    return ((post as unknown) as Document).remove();
-  } catch (error) {
-    throw error;
+  const post: IPost | null = await findPostById(postId);
+  if (!post) {
+    throw new Error(POST_NOT_FOUND);
   }
+
+  // check post ownership
+  if (post.user.toString() !== userId) {
+    throw new Error(FORBIDDEN_OPERATION);
+  }
+
+  return ((post as unknown) as Document).remove();
 };
 
 /**
@@ -135,29 +120,23 @@ export const addLikeToPost = async (
   userId: string,
   postId: string
 ): Promise<Document> => {
-  try {
-    const post: IPost | null = await findPostById(postId);
-
-    if (!post) {
-      throw new Error(POST_NOT_FOUND);
-    }
-
-    // check if user has already liked the post
-    if (
-      post.likes &&
-      post.likes.findIndex(
-        (likedUserId) => likedUserId.user.toString() === userId
-      ) !== -1
-    ) {
-      throw new Error(POST_ALREADY_LIKED);
-    }
-
-    post.likes?.unshift({ user: userId });
-
-    return ((post as unknown) as Document).save();
-  } catch (error) {
-    throw error;
+  const post: IPost | null = await findPostById(postId);
+  if (!post) {
+    throw new Error(POST_NOT_FOUND);
   }
+
+  // check if user has already liked the post
+  if (
+    post.likes &&
+    post.likes.findIndex(
+      (likedUserId) => likedUserId.user.toString() === userId
+    ) !== -1
+  ) {
+    throw new Error(POST_ALREADY_LIKED);
+  }
+
+  post.likes?.unshift({ user: userId });
+  return ((post as unknown) as Document).save();
 };
 
 /**
@@ -168,31 +147,25 @@ export const addLikeToPost = async (
 export const RemoveLikeFromPost = async (
   userId: string,
   postId: string
-): Promise<Document> => {
-  try {
-    const post: IPost | null = await findPostById(postId);
+): Promise<Document | undefined> => {
+  const post: IPost | null = await findPostById(postId);
+  if (!post) {
+    throw new Error(POST_NOT_FOUND);
+  }
 
-    if (!post) {
-      throw new Error(POST_NOT_FOUND);
-    }
-
-    // check if user didn't like the post yet
-    let userIdIndex = -1;
-    if (post.likes) {
-      userIdIndex = post.likes.findIndex(
-        (likedUserId) => likedUserId.user.toString() === userId
-      );
-    }
+  // check if user didn't like the post yet
+  let userIdIndex = -1;
+  if (post.likes) {
+    userIdIndex = post.likes.findIndex(
+      (likedUserId) => likedUserId.user.toString() === userId
+    );
 
     if (userIdIndex === -1) {
       throw new Error(POST_NOT_LIKED);
     }
 
-    post.likes!.splice(userIdIndex, 1);
-
+    post.likes.splice(userIdIndex, 1);
     return ((post as unknown) as Document).save();
-  } catch (error) {
-    throw error;
   }
 };
 
@@ -205,53 +178,46 @@ export const addCommentToPost = async (
   postId: string,
   comment: IComment
 ): Promise<Document> => {
-  try {
-    const post: IPost | null = await findPostById(postId);
-
-    if (!post) {
-      throw new Error(POST_NOT_FOUND);
-    }
-
-    // add comment to array
-    post.comments?.unshift(comment);
-
-    return ((post as unknown) as Document).save();
-  } catch (error) {
-    throw error;
+  const post: IPost | null = await findPostById(postId);
+  if (!post) {
+    throw new Error(POST_NOT_FOUND);
   }
+
+  // add comment to array
+  post.comments?.unshift(comment);
+  return ((post as unknown) as Document).save();
 };
 
 export const removeCommentFromPost = async (
   postId: string,
   commentId: string,
   userId: string
-): Promise<Document> => {
-  try {
-    const post: IPost | null = await findPostById(postId);
+): Promise<Document | undefined> => {
+  const post: IPost | null = await findPostById(postId);
+  if (!post) {
+    throw new Error(POST_NOT_FOUND);
+  }
 
-    if (!post) {
-      throw new Error(POST_NOT_FOUND);
-    }
-
-    // check if user has commented the post
-    let commentIndex = -1;
-    if (post.comments) {
-      commentIndex = post.comments.findIndex(
-        (comment) =>
-          comment._id!.toString() === commentId &&
+  // check if user has commented the post
+  let commentIndex = -1;
+  if (post.comments) {
+    commentIndex = post.comments.findIndex((comment) => {
+      if (comment._id) {
+        return (
+          comment._id.toString() === commentId &&
           comment.user.toString() === userId
-      );
-    }
+        );
+      }
+
+      return;
+    });
 
     if (commentIndex === -1) {
       throw new Error(FORBIDDEN_OPERATION);
     }
 
-    post.comments!.splice(commentIndex, 1);
-
+    post.comments.splice(commentIndex, 1);
     return ((post as unknown) as Document).save();
-  } catch (error) {
-    throw error;
   }
 };
 
@@ -263,32 +229,24 @@ export const removeCommentFromPost = async (
 export const removeExperienceFromProfile = async (
   userId: string,
   experienceId: string
-) => {
-  try {
-    const userProfile: IProfile | null = await findProfileById(userId);
-
-    if (!userProfile) {
-      throw new Error(USER_NOT_FOUND);
-    }
-
-    if (!userProfile.experience) {
-      throw new Error(NO_EXPERIENCE);
-    }
-
-    const ExperienceIndex: number = userProfile.experience.findIndex(
-      (experience) => experience.id === experienceId
-    );
-
-    if (ExperienceIndex === -1) {
-      throw new Error(NO_EXPERIENCE);
-    }
-
-    userProfile.experience.splice(ExperienceIndex, 1);
-
-    return ((userProfile as unknown) as Document).save();
-  } catch (error) {
-    throw error;
+): Promise<Document> => {
+  const userProfile: IProfile | null = await findProfileById(userId);
+  if (!userProfile) {
+    throw new Error(USER_NOT_FOUND);
   }
+  if (!userProfile.experience) {
+    throw new Error(NO_EXPERIENCE);
+  }
+
+  const ExperienceIndex: number = userProfile.experience.findIndex(
+    (experience) => experience.id === experienceId
+  );
+  if (ExperienceIndex === -1) {
+    throw new Error(NO_EXPERIENCE);
+  }
+
+  userProfile.experience.splice(ExperienceIndex, 1);
+  return ((userProfile as unknown) as Document).save();
 };
 
 /**
@@ -299,68 +257,50 @@ export const removeExperienceFromProfile = async (
 export const removeEducationFromProfile = async (
   userId: string,
   educationId: string
-) => {
-  try {
-    const userProfile: IProfile | null = await findProfileById(userId);
-
-    if (!userProfile) {
-      throw new Error(USER_NOT_FOUND);
-    }
-
-    if (!userProfile.education) {
-      throw new Error(NO_EDUCATION);
-    }
-
-    const EducationIndex: number = userProfile.education.findIndex(
-      (education) => education.id === educationId
-    );
-
-    if (EducationIndex === -1) {
-      throw new Error(NO_EDUCATION);
-    }
-
-    userProfile.education.splice(EducationIndex, 1);
-
-    return ((userProfile as unknown) as Document).save();
-  } catch (error) {
-    throw error;
+): Promise<Document> => {
+  const userProfile: IProfile | null = await findProfileById(userId);
+  if (!userProfile) {
+    throw new Error(USER_NOT_FOUND);
   }
+  if (!userProfile.education) {
+    throw new Error(NO_EDUCATION);
+  }
+
+  const EducationIndex: number = userProfile.education.findIndex(
+    (education) => education.id === educationId
+  );
+  if (EducationIndex === -1) {
+    throw new Error(NO_EDUCATION);
+  }
+
+  userProfile.education.splice(EducationIndex, 1);
+  return ((userProfile as unknown) as Document).save();
 };
 
 /**
  * Remove profile from database
  * @param userId User's id
  */
-export const removeProfile = async (userId: string) => {
-  try {
-    const userProfile: IProfile | null = await findProfileById(userId);
-
-    if (!userProfile) {
-      throw new Error(USER_NOT_FOUND);
-    }
-
-    return ((userProfile as unknown) as Document).remove();
-  } catch (error) {
-    throw error;
+export const removeProfile = async (userId: string): Promise<Document> => {
+  const userProfile: IProfile | null = await findProfileById(userId);
+  if (!userProfile) {
+    throw new Error(USER_NOT_FOUND);
   }
+
+  return ((userProfile as unknown) as Document).remove();
 };
 
 /**
  * Remove user from database
  * @param userId User's id
  */
-export const removeUser = async (userId: string) => {
-  try {
-    const user: IUser | null = await findUserById(userId);
-
-    if (!user) {
-      throw new Error(USER_NOT_FOUND);
-    }
-
-    return ((user as unknown) as Document).remove();
-  } catch (error) {
-    throw error;
+export const removeUser = async (userId: string): Promise<Document> => {
+  const user: IUser | null = await findUserById(userId);
+  if (!user) {
+    throw new Error(USER_NOT_FOUND);
   }
+
+  return ((user as unknown) as Document).remove();
 };
 
 /**
@@ -368,12 +308,8 @@ export const removeUser = async (userId: string) => {
  * @param userId User's id
  */
 export const removeProfileAndUser = async (userId: string): Promise<void> => {
-  try {
-    await removeProfile(userId);
-    await removeUser(userId);
-  } catch (error) {
-    throw error;
-  }
+  await removeProfile(userId);
+  await removeUser(userId);
 };
 
 /**
@@ -438,7 +374,7 @@ export const insertUser = async (user: IUser): Promise<IUser> => {
     throw new Error(USER_EXISTS);
   }
 
-  const hashedPassword: string = await hashPassword(password);
+  const hashedPassword: string = await PasswordHandler.hash(password);
   const newUser: Document = new User({
     name,
     email,
@@ -448,7 +384,6 @@ export const insertUser = async (user: IUser): Promise<IUser> => {
   });
 
   await newUser.save();
-
   return (newUser as unknown) as IUser;
 };
 
@@ -457,26 +392,19 @@ export const insertUser = async (user: IUser): Promise<IUser> => {
  * @param userId User's id
  * @param fields profile fields
  */
-export const insertProfile = async (profile: IProfile) => {
-  try {
-    const existingProfile: IProfile | null = await findProfileById(
-      profile.user
-    );
-    if (existingProfile) {
-      throw new Error(PROFILE_EXISTS);
-    }
-
-    const existingHandle: IProfile | null = await findProfileByHandle(
-      profile.handle
-    );
-    if (existingHandle) {
-      throw new Error(PROFILE_HANDLE_EXISTS);
-    }
-
-    const newProfile: Document = new Profile(profile);
-
-    return newProfile.save();
-  } catch (error) {
-    throw error;
+export const insertProfile = async (profile: IProfile): Promise<Document> => {
+  const existingProfile: IProfile | null = await findProfileById(profile.user);
+  if (existingProfile) {
+    throw new Error(PROFILE_EXISTS);
   }
+
+  const existingHandle: IProfile | null = await findProfileByHandle(
+    profile.handle
+  );
+  if (existingHandle) {
+    throw new Error(PROFILE_HANDLE_EXISTS);
+  }
+
+  const newProfile: Document = new Profile(profile);
+  return newProfile.save();
 };
