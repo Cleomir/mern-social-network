@@ -4,12 +4,13 @@ import { ValidationResult } from "@hapi/joi";
 import {
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
 } from "../../config/customErrorMessages";
 import { findPostById } from "../../db/queries";
-import logger from "../../helpers/logger";
+import logger from "../../logger";
 import IPost from "../../interfaces/IPost";
 
-import RequestValidator from "../../helpers/RequestValidator";
+import RequestValidator from "../../validation/RequestValidator";
 import { inspect } from "util";
 
 /**
@@ -17,10 +18,14 @@ import { inspect } from "util";
  * @param req Request object
  * @param res Response object
  */
-const getPostById = async (req: Request, res: Response): Promise<any> => {
+const getPostById = async (req: Request, res: Response): Promise<unknown> => {
+  if (!req.user) {
+    return res.status(401).json({ message: UNAUTHORIZED });
+  }
+
   // request validation
   const { id: postId } = req.params;
-  const { id: userId } = req.user!;
+  const { id: userId } = req.user;
   const validation: ValidationResult = RequestValidator.validateId(postId);
   if (validation.error) {
     logger.error(

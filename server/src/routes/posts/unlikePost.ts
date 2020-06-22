@@ -6,20 +6,25 @@ import {
   POST_NOT_FOUND,
   POST_NOT_LIKED,
   INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
 } from "../../config/customErrorMessages";
 import { RemoveLikeFromPost } from "../../db/queries";
-import logger from "../../helpers/logger";
-import RequestValidator from "../../helpers/RequestValidator";
+import logger from "../../logger";
+import RequestValidator from "../../validation/RequestValidator";
 
 /**
  * Like a post
  * @param req Request object
  * @param res Response object
  */
-const unlikePost = async (req: Request, res: Response): Promise<any> => {
+const unlikePost = async (req: Request, res: Response): Promise<unknown> => {
+  if (!req.user) {
+    return res.status(401).json({ message: UNAUTHORIZED });
+  }
+
   // request validation
   const { id: postId } = req.params;
-  const { id: userId } = req.user!;
+  const { id: userId } = req.user;
   const validation: ValidationResult = RequestValidator.validateId(postId);
   if (validation.error) {
     logger.error(

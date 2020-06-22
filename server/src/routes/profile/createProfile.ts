@@ -6,21 +6,26 @@ import {
   PROFILE_EXISTS,
   PROFILE_HANDLE_EXISTS,
   INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
 } from "../../config/customErrorMessages";
 import { insertProfile } from "../../db/queries";
-import logger from "../../helpers/logger";
+import logger from "../../logger";
 import IProfile from "../../interfaces/IProfile";
-import RequestValidator from "../../helpers/RequestValidator";
+import RequestValidator from "../../validation/RequestValidator";
 
 /**
  * Query user profile
  * @param req - Request object
  * @param res - Response object
  */
-const createProfile = async (req: Request, res: Response): Promise<any> => {
+const createProfile = async (req: Request, res: Response): Promise<unknown> => {
+  if (!req.user) {
+    return res.status(401).json({ message: UNAUTHORIZED });
+  }
+
   // request validation
   const profile: IProfile = {
-    user: req.user!.id,
+    user: req.user.id,
     handle: req.body.handle,
     company: req.body.company,
     website: req.body.website,

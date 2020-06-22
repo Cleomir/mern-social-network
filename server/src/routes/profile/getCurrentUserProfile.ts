@@ -2,11 +2,15 @@ import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 import { inspect } from "util";
 
-import { NO_PROFILE, NO_USER_PROFILE } from "../../config/customErrorMessages";
+import {
+  NO_PROFILE,
+  NO_USER_PROFILE,
+  UNAUTHORIZED,
+} from "../../config/customErrorMessages";
 import { findProfileById } from "../../db/queries";
-import logger from "../../helpers/logger";
+import logger from "../../logger";
 import IProfile from "../../interfaces/IProfile";
-import RequestValidator from "../../helpers/RequestValidator";
+import RequestValidator from "../../validation/RequestValidator";
 
 /**
  * Query user profile
@@ -18,8 +22,12 @@ const getCurrentUserProfile = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
+  if (!req.user) {
+    return res.status(401).json({ message: UNAUTHORIZED });
+  }
+
   // request validation
-  const { id } = req.user!;
+  const { id } = req.user;
   const validation: ValidationResult = RequestValidator.validateId(id);
   if (validation.error) {
     logger.warn(`Attempt to query profile with invalid id ${id}`);
@@ -28,7 +36,7 @@ const getCurrentUserProfile = async (
 
   try {
     logger.info(`Querying user with profile ${id}...`);
-    const profile: IProfile | null = await findProfileById(id!);
+    const profile: IProfile | null = await findProfileById(id);
     if (!profile) {
       logger.info(`User profile with id ${id} not found`);
       return res.status(404).json({ message: NO_USER_PROFILE });

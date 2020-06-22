@@ -2,20 +2,27 @@ import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 import { inspect } from "util";
 
-import { INTERNAL_SERVER_ERROR } from "../../../config/customErrorMessages";
+import {
+  INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
+} from "../../../config/customErrorMessages";
 import { addExperienceToProfile } from "../../../db/queries";
-import logger from "../../../helpers/logger";
+import logger from "../../../logger";
 import IExperience from "../../../interfaces/IExperience";
-import RequestValidator from "../../../helpers/RequestValidator";
+import RequestValidator from "../../../validation/RequestValidator";
 
 /**
  * Add new experiences
  * @param req Request object
  * @param res Response object
  */
-const addExperience = async (req: Request, res: Response): Promise<any> => {
+const addExperience = async (req: Request, res: Response): Promise<unknown> => {
+  if (!req.user) {
+    return res.status(401).json({ message: UNAUTHORIZED });
+  }
+
   // request validation
-  const { id } = req.user!;
+  const { id } = req.user;
   const experience: IExperience[] = req.body.experience;
   const validation: ValidationResult = RequestValidator.validateId(id);
   if (validation.error) {
@@ -31,7 +38,7 @@ const addExperience = async (req: Request, res: Response): Promise<any> => {
   }
 
   try {
-    await addExperienceToProfile(id!, experience);
+    await addExperienceToProfile(id, experience);
     logger.info(`User id ${id} has added a new experience`, experience);
 
     logger.info(`Returning success response...`);

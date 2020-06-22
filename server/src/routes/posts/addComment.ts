@@ -5,21 +5,26 @@ import { inspect } from "util";
 import {
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
 } from "../../config/customErrorMessages";
 import { addCommentToPost } from "../../db/queries";
-import logger from "../../helpers/logger";
+import logger from "../../logger";
 import IComment from "../../interfaces/IComment";
-import RequestValidator from "../../helpers/RequestValidator";
+import RequestValidator from "../../validation/RequestValidator";
 
 /**
  * Add comment to a post
  * @param req Request object
  * @param res Response object
  */
-const addComment = async (req: Request, res: Response): Promise<any> => {
+const addComment = async (req: Request, res: Response): Promise<unknown> => {
+  if (!req.user) {
+    return res.status(401).json({ message: UNAUTHORIZED });
+  }
+
   // request validation
   const { post_id } = req.params;
-  const { id } = req.user!;
+  const { id } = req.user;
   const comment: IComment = {
     user: id,
     text: req.body.text,

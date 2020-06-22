@@ -5,19 +5,27 @@ import { inspect } from "util";
 import {
   NO_EDUCATION,
   INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
 } from "../../../config/customErrorMessages";
 import { removeEducationFromProfile } from "../../../db/queries";
-import logger from "../../../helpers/logger";
-import RequestValidator from "../../../helpers/RequestValidator";
+import logger from "../../../logger";
+import RequestValidator from "../../../validation/RequestValidator";
 
 /**
  * Delete existing education
  * @param req Request object
  * @param res Response object
  */
-const deleteEducation = async (req: Request, res: Response): Promise<any> => {
+const deleteEducation = async (
+  req: Request,
+  res: Response
+): Promise<unknown> => {
+  if (!req.user) {
+    return res.status(401).json({ message: UNAUTHORIZED });
+  }
+
   // request validation
-  const { id } = req.user!;
+  const { id } = req.user;
   const edu_id = req.params.edu_id;
   const validation: ValidationResult = RequestValidator.validateId(edu_id);
   if (validation.error) {
@@ -27,7 +35,7 @@ const deleteEducation = async (req: Request, res: Response): Promise<any> => {
 
   try {
     logger.info(`Deleting education for id ${id}...`);
-    await removeEducationFromProfile(id!, edu_id);
+    await removeEducationFromProfile(id, edu_id);
     logger.info(`User id ${id} has deleted education id: ${edu_id}`);
 
     logger.info(`Returning success response...`);

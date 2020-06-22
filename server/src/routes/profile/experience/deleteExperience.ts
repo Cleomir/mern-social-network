@@ -4,10 +4,11 @@ import { ValidationResult } from "@hapi/joi";
 import {
   NO_EXPERIENCE,
   INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
 } from "../../../config/customErrorMessages";
 import { removeExperienceFromProfile } from "../../../db/queries";
-import logger from "../../../helpers/logger";
-import RequestValidator from "../../../helpers/RequestValidator";
+import logger from "../../../logger";
+import RequestValidator from "../../../validation/RequestValidator";
 import { inspect } from "util";
 
 /**
@@ -15,9 +16,16 @@ import { inspect } from "util";
  * @param req Request object
  * @param res Response object
  */
-const deleteExperience = async (req: Request, res: Response): Promise<any> => {
+const deleteExperience = async (
+  req: Request,
+  res: Response
+): Promise<unknown> => {
+  if (!req.user) {
+    return res.status(401).json({ message: UNAUTHORIZED });
+  }
+
   // request validation
-  const { id } = req.user!;
+  const { id } = req.user;
   const exp_id = req.params.exp_id;
   const validation: ValidationResult = RequestValidator.validateId(exp_id);
   if (validation.error) {
@@ -27,7 +35,7 @@ const deleteExperience = async (req: Request, res: Response): Promise<any> => {
 
   try {
     logger.info(`Deleting experience for id ${id}...`);
-    await removeExperienceFromProfile(id!, exp_id);
+    await removeExperienceFromProfile(id, exp_id);
     logger.info(`User id ${id} has deleted experience id: ${exp_id}`);
 
     logger.info(`Returning success response...`);
