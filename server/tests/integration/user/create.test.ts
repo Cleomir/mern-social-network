@@ -1,10 +1,10 @@
 import request, { Response } from "supertest";
-import mongoose from "mongoose";
 import Chance from "chance";
 
 import app from "../../../src/App";
 import ConnectToDB from "../../../src/db/connection";
 import { DB_URL } from "../../../src/config/envVariables";
+import User from "../../../src/db/models/User";
 
 describe("Test /users path", () => {
   const chance = new Chance();
@@ -14,7 +14,7 @@ describe("Test /users path", () => {
   });
 
   afterEach(async () => {
-    await mongoose.connection.db.dropCollection("users");
+    await User.deleteMany({});
   });
 
   test("It should create a user and return status 200", async () => {
