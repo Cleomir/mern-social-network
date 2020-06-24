@@ -59,16 +59,15 @@ const create = async (req: Request, res: Response): Promise<Response> => {
       date: user.date,
     });
   } catch (error) {
-    if (error === USER_EXISTS) {
+    if (error.message === USER_EXISTS) {
       logger.info(`Email ${email} already exists`);
       return res.status(403).json({ message: USER_EXISTS });
     }
 
     logger.error(
-      `Could not create user ${name} with email ${email}.\nError:\n${inspect(
-        error,
-        { depth: null }
-      )}`
+      `Could not create user ${name} with email ${email}.\n${inspect(error, {
+        depth: null,
+      })}`
     );
     logger.error(`Returning error response...`);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
