@@ -6,7 +6,7 @@ import ConnectToDB from "../../../src/db/connection";
 import { DB_URL } from "../../../src/config/envVariables";
 import User from "../../../src/db/models/User";
 
-describe("Test /users path", () => {
+describe("Test /users/register path", () => {
   const chance = new Chance();
 
   beforeAll(async () => {
