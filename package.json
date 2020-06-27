@@ -11,7 +11,7 @@
     "watch:build": "webpack --watch --config ./server/webpack.dev.js",
     "watch:server": "nodemon ./server/dist/server-bundle.js",
     "test": "jest --forceExit --detectOpenHandles --coverage --runInBand",
-    "test:watch": "jest --watch --coverage",
+    "test:watch": "jest --watch --runInBand --detectOpenHandles --coverage",
     "docs": "npx typedoc"
   },
   "author": "Cleomir Machado Gomes",
