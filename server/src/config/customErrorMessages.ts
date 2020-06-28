@@ -11,7 +11,6 @@ export const POST_NOT_LIKED = "Post not liked yet";
 export const PROFILE_EXISTS = "Profile already exists";
 export const PROFILE_HANDLE_EXISTS = "Profile handle already exists";
 export const UNABLE_TO_LOGIN = "Could not login";
-export const UNAUTHORIZED = "unauthorized";
 export const USER_EXISTS = "User already exists";
 export const USER_NOT_FOUND = "User not found";
 export const USER_NOT_SAVED = "Could not register the user";
