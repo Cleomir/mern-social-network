@@ -18,7 +18,7 @@ export default class RequestValidator {
     company: Joi.string().required(),
     location: Joi.string(),
     from: Joi.date().required(),
-    to: Joi.date(),
+    to: Joi.date().greater(Joi.ref("from")).less("now"),
     current: Joi.boolean().required(),
     description: Joi.string(),
   });
@@ -27,7 +27,7 @@ export default class RequestValidator {
     degree: Joi.string().required(),
     field_of_study: Joi.string(),
     from: Joi.date().required(),
-    to: Joi.date(),
+    to: Joi.date().greater(Joi.ref("from")).less("now"),
     current: Joi.boolean().required(),
     description: Joi.string(),
   });
@@ -72,7 +72,10 @@ export default class RequestValidator {
     }).validate(post);
   }
 
-  public static validateDeleteComment(postId: string, commentId: string) {
+  public static validateDeleteComment(
+    postId: string,
+    commentId: string
+  ): Joi.ValidationResult {
     return Joi.object({
       postId: this.idPattern.required(),
       commentId: this.idPattern.required(),
@@ -91,11 +94,11 @@ export default class RequestValidator {
       website: Joi.string(),
       location: Joi.string(),
       status: Joi.string().required(),
-      skills: Joi.array().items(Joi.string()).min(1).required(),
+      skills: Joi.array().items(Joi.string()).min(1).max(50).required(),
       bio: Joi.string(),
       github_username: Joi.string(),
-      experience: Joi.array().items(this.experiencePattern),
-      education: Joi.array().items(this.educationPattern),
+      experience: Joi.array().items(this.experiencePattern).max(10),
+      education: Joi.array().items(this.educationPattern).max(5),
       social: this.socialPattern,
     }).validate(profile);
   }
