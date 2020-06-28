@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import passport from "passport";
 
-import createProfile from "./createProfile";
+import createProfile from "./create";
 import deleteProfileAndUser from "./deleteProfileAndUser";
 import addEducation from "./education/addEducation";
 import deleteEducation from "./education/deleteEducation";
