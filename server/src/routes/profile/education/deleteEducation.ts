@@ -5,7 +5,6 @@ import { inspect } from "util";
 import {
   NO_EDUCATION,
   INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
 } from "../../../config/customErrorMessages";
 import { removeEducationFromProfile } from "../../../db/queries";
 import logger from "../../../logger";
@@ -20,12 +19,9 @@ const deleteEducation = async (
   req: Request,
   res: Response
 ): Promise<unknown> => {
-  if (!req.user) {
-    return res.status(401).json({ message: UNAUTHORIZED });
-  }
-
   // request validation
-  const { id } = req.user;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { id } = req.user!;
   const edu_id = req.params.edu_id;
   const validation: ValidationResult = RequestValidator.validateId(edu_id);
   if (validation.error) {

@@ -4,7 +4,6 @@ import { ValidationResult } from "@hapi/joi";
 import {
   USER_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
 } from "../../config/customErrorMessages";
 import { removeProfileAndUser } from "../../db/queries";
 import logger from "../../logger";
@@ -20,12 +19,9 @@ const deleteProfileAndUser = async (
   req: Request,
   res: Response
 ): Promise<unknown> => {
-  if (!req.user) {
-    return res.status(401).json({ message: UNAUTHORIZED });
-  }
-
   // request validation
-  const { id } = req.user;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { id } = req.user!;
   const validation: ValidationResult = RequestValidator.validateId(id);
   if (validation.error) {
     logger.warn(`Attempt to delete profile with invalid id: ${id}`);

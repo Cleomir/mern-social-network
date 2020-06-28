@@ -6,7 +6,6 @@ import {
   PROFILE_EXISTS,
   PROFILE_HANDLE_EXISTS,
   INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
 } from "../../config/customErrorMessages";
 import { insertProfile } from "../../db/queries";
 import logger from "../../logger";
@@ -19,13 +18,10 @@ import RequestValidator from "../../validation/RequestValidator";
  * @param res - Response object
  */
 const createProfile = async (req: Request, res: Response): Promise<unknown> => {
-  if (!req.user) {
-    return res.status(401).json({ message: UNAUTHORIZED });
-  }
-
   // request validation
   const profile: IProfile = {
-    user: req.user.id,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    user: req.user!.id,
     handle: req.body.handle,
     company: req.body.company,
     website: req.body.website,

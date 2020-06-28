@@ -4,7 +4,6 @@ import { ValidationResult } from "@hapi/joi";
 import {
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
 } from "../../config/customErrorMessages";
 import { findPostById } from "../../db/queries";
 import logger from "../../logger";
@@ -19,13 +18,10 @@ import { inspect } from "util";
  * @param res Response object
  */
 const getPostById = async (req: Request, res: Response): Promise<unknown> => {
-  if (!req.user) {
-    return res.status(401).json({ message: UNAUTHORIZED });
-  }
-
   // request validation
   const { id: postId } = req.params;
-  const { id: userId } = req.user;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { id: userId } = req.user!;
   const validation: ValidationResult = RequestValidator.validateId(postId);
   if (validation.error) {
     logger.error(

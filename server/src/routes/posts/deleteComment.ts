@@ -6,7 +6,6 @@ import {
   FORBIDDEN_OPERATION,
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
 } from "../../config/customErrorMessages";
 import { removeCommentFromPost } from "../../db/queries";
 import logger from "../../logger";
@@ -18,13 +17,10 @@ import RequestValidator from "../../validation/RequestValidator";
  * @param res Response object
  */
 const deleteComment = async (req: Request, res: Response): Promise<unknown> => {
-  if (!req.user) {
-    return res.status(401).json({ message: UNAUTHORIZED });
-  }
-
   // request validation
   const { post_id, comment_id } = req.params;
-  const { id } = req.user;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { id } = req.user!;
   const validation: ValidationResult = RequestValidator.validateDeleteComment(
     post_id,
     comment_id

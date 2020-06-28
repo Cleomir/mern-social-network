@@ -2,10 +2,7 @@ import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 import { inspect } from "util";
 
-import {
-  INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
-} from "../../../config/customErrorMessages";
+import { INTERNAL_SERVER_ERROR } from "../../../config/customErrorMessages";
 import { addExperienceToProfile } from "../../../db/queries";
 import logger from "../../../logger";
 import IExperience from "../../../interfaces/IExperience";
@@ -17,12 +14,9 @@ import RequestValidator from "../../../validation/RequestValidator";
  * @param res Response object
  */
 const addExperience = async (req: Request, res: Response): Promise<unknown> => {
-  if (!req.user) {
-    return res.status(401).json({ message: UNAUTHORIZED });
-  }
-
   // request validation
-  const { id } = req.user;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { id } = req.user!;
   const experience: IExperience[] = req.body.experience;
   const validation: ValidationResult = RequestValidator.validateId(id);
   if (validation.error) {

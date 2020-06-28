@@ -4,7 +4,6 @@ import { ValidationResult } from "@hapi/joi";
 import {
   NO_EXPERIENCE,
   INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
 } from "../../../config/customErrorMessages";
 import { removeExperienceFromProfile } from "../../../db/queries";
 import logger from "../../../logger";
@@ -20,12 +19,9 @@ const deleteExperience = async (
   req: Request,
   res: Response
 ): Promise<unknown> => {
-  if (!req.user) {
-    return res.status(401).json({ message: UNAUTHORIZED });
-  }
-
   // request validation
-  const { id } = req.user;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { id } = req.user!;
   const exp_id = req.params.exp_id;
   const validation: ValidationResult = RequestValidator.validateId(exp_id);
   if (validation.error) {

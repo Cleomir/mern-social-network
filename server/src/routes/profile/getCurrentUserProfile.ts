@@ -2,11 +2,7 @@ import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 import { inspect } from "util";
 
-import {
-  NO_PROFILE,
-  NO_USER_PROFILE,
-  UNAUTHORIZED,
-} from "../../config/customErrorMessages";
+import { NO_PROFILE, NO_USER_PROFILE } from "../../config/customErrorMessages";
 import { findProfileById } from "../../db/queries";
 import logger from "../../logger";
 import IProfile from "../../interfaces/IProfile";
@@ -22,12 +18,9 @@ const getCurrentUserProfile = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  if (!req.user) {
-    return res.status(401).json({ message: UNAUTHORIZED });
-  }
-
   // request validation
-  const { id } = req.user;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { id } = req.user!;
   const validation: ValidationResult = RequestValidator.validateId(id);
   if (validation.error) {
     logger.warn(`Attempt to query profile with invalid id ${id}`);
