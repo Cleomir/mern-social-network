@@ -1,23 +1,24 @@
-import app from "./App";
-import { DB_URL, SERVER_PORT } from "./config/envVariables";
-import connectToDB from "./db/connection";
-import logger from "./logger";
+import { inspect } from "util";
 
-/**
- * Initial database connection
- */
+import app from "./App";
+import { env } from "./config/envVariables";
+import connectToDB from "./db/connection";
+import logger, { logObject } from "./logger";
+
+// bootstrap
 (async () => {
   try {
-    await connectToDB(DB_URL);
-    logger.info("Successfully connected to db");
+    await connectToDB(env.DB_URL);
+    logger.info("[DB] Connected");
   } catch (error) {
-    logger.error("Could not connect to db.", error);
+    logObject("error", `[DB] Connection error`, error);
   }
 })();
 
+const serverPort: number = +env.SERVER_PORT;
 /**
  * Start server
  */
-app.listen(SERVER_PORT, () =>
-  logger.info(`server listening on port ${SERVER_PORT}`)
+app.listen(serverPort, () =>
+  logger.info(`[NODE] Started on port ${serverPort}`)
 );

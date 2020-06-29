@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
 import gravatar from "gravatar";
 import { ValidationResult } from "@hapi/joi";
-import { inspect } from "util";
 
 import { insertUser } from "../../db/queries";
-import logger from "../../logger";
+import logger, { logObject } from "../../logger";
 import IUser from "../../interfaces/IUser";
 import {
   INTERNAL_SERVER_ERROR,
@@ -27,31 +26,30 @@ const create = async (req: Request, res: Response): Promise<Response> => {
     password
   );
   if (validation.error) {
-    logger.warn(
-      `Attempt to create user with invalid parameters: name: ${name}, email: ${email}, password: ${password}`
-    );
+    logger.warn(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
   }
 
   try {
     // get gravatar and save user
-    logger.info(`Saving user ${name} with email ${email} into database...`);
     const avatar: string = gravatar.url(email, {
       s: "200",
       r: "pg",
       d: "mm",
     });
-    const user: IUser | undefined = await insertUser({
-      name,
-      email,
-      password,
-      avatar,
-      date: new Date(),
-    });
-    logger.info(`User with ${email} saved successfully.`);
+    const user: IUser | undefined = await insertUser(
+      {
+        name,
+        email,
+        password,
+        avatar,
+        date: new Date(),
+      },
+      req.id
+    );
 
     // server response
-    logger.info(`Returning success response for email ${email}`);
+    logger.info(`[NODE][${req.id}] Response status 201`);
     return res.status(201).json({
       id: user.id,
       email: user.email,
@@ -60,16 +58,11 @@ const create = async (req: Request, res: Response): Promise<Response> => {
     });
   } catch (error) {
     if (error.message === USER_EXISTS) {
-      logger.info(`Email ${email} already exists`);
+      logger.info(`[NODE][${req.id}] Response status 403`);
       return res.status(403).json({ message: USER_EXISTS });
     }
 
-    logger.error(
-      `Could not create user ${name} with email ${email}.\n${inspect(error, {
-        depth: null,
-      })}`
-    );
-    logger.error(`Returning error response...`);
+    logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };

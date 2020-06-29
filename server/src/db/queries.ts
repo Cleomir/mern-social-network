@@ -22,6 +22,7 @@ import IEducation from "../interfaces/IEducation";
 import IPost from "../interfaces/IPost";
 import Post from "./models/Post";
 import IComment from "../interfaces/IComment";
+import logger from "../logger";
 
 /**
  * Add or append new education
@@ -366,11 +367,16 @@ export const findProfileByHandle = async (
  * Save new user into Database
  * @param user - New user
  */
-export const insertUser = async (user: IUser): Promise<IUser> => {
+export const insertUser = async (
+  user: IUser,
+  requestId: string
+): Promise<IUser> => {
   const { name, email, password, avatar, date } = user;
+  logger.info(`[DB][${requestId}] Querying email`);
   const existingUser: Document | null = await User.findOne({ email: email });
 
   if (existingUser) {
+    logger.warn(`[DB][${requestId}] Email already exists`);
     throw new Error(USER_EXISTS);
   }
 
@@ -383,7 +389,9 @@ export const insertUser = async (user: IUser): Promise<IUser> => {
     date,
   });
 
+  logger.info(`[DB][${requestId}] Saving new user`);
   await newUser.save();
+  logger.info(`[DB][${requestId}] User Saved`);
   return (newUser as unknown) as IUser;
 };
 
