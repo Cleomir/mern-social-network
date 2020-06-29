@@ -1,8 +1,9 @@
 import winston from "winston";
 import { TransformableInfo } from "logform";
 import DailyRotateFile from "winston-daily-rotate-file";
+import { inspect } from "util";
 
-import { ENVIRONMENT } from "../config/envVariables";
+import { env } from "../config/envVariables";
 
 const { format } = winston;
 const logFormat = format.printf(
@@ -25,12 +26,26 @@ const logger = winston.createLogger({
 
 logger.exitOnError = false;
 
-if (ENVIRONMENT !== "production") {
+if (env.NODE_ENV !== "production") {
   logger.add(
     new winston.transports.Console({
       format: winston.format.simple(),
     })
   );
 }
+
+export const logObject = (
+  level: "info" | "warn" | "error",
+  message: string,
+  object: Record<string, unknown>
+): void => {
+  if (level === "info") {
+    logger.info(`${message} ${inspect(object, { depth: null })}`);
+  } else if (level === "warn") {
+    logger.info(`${message} ${inspect(object, { depth: null })}`);
+  } else {
+    logger.error(`${message} ${inspect(object, { depth: null })}`);
+  }
+};
 
 export default logger;
