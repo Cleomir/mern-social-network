@@ -3,13 +3,13 @@ import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import jwt, { SignOptions } from "jsonwebtoken";
 
 import IJwtPayload from "../../interfaces/IJwtPayload";
-import { JWT_SECRET } from "../../config/envVariables";
+import { env } from "../../config/envVariables";
 
 export default class JwtHandler {
   public static validate(passport: PassportStatic): void {
     const options = {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: JWT_SECRET,
+      secretOrKey: env.JWT_SECRET,
     };
 
     passport.use(
@@ -25,6 +25,6 @@ export default class JwtHandler {
 
   public static sign(payload: IJwtPayload): string {
     const options: SignOptions = { expiresIn: "1h" };
-    return jwt.sign(payload, JWT_SECRET, options);
+    return jwt.sign(payload, env.JWT_SECRET, options);
   }
 }
