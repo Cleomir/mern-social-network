@@ -1,8 +1,26 @@
-import env from "dotenv";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import dotenv from "dotenv";
 
-env.config();
+if (process.env.NODE_ENV === "test") {
+  dotenv.config({ path: ".env.test" });
+} else {
+  dotenv.config();
+}
 
-export const DB_URL: string = process.env.MONGO_URL!;
-export const ENVIRONMENT: string = process.env.NODE_ENV!;
-export const SERVER_PORT: number = +process.env.SERVER_PORT!;
-export const JWT_SECRET: string = process.env.JWT_SECRET!;
+export const env: { [key: string]: string } = {
+  DB_URL: process.env.MONGO_URL!,
+  JWT_SECRET: process.env.JWT_SECRET!,
+  NODE_ENV: process.env.NODE_ENV!,
+  SERVER_PORT: process.env.SERVER_PORT!,
+};
+
+/**
+ * Check if all env variables are defined, otherwise an error is thrown
+ */
+export const checkForUndefinedEnvVariables = (): void => {
+  for (const key in env) {
+    if (!env[key]) {
+      throw new Error(`Env variable ${key} is undefined`);
+    }
+  }
+};
