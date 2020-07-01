@@ -4,6 +4,7 @@ import jwt, { SignOptions } from "jsonwebtoken";
 
 import IJwtPayload from "../../interfaces/IJwtPayload";
 import { env } from "../../config/envVariables";
+import logger from "../../logger";
 
 export default class JwtHandler {
   public static validate(passport: PassportStatic): void {
@@ -23,8 +24,12 @@ export default class JwtHandler {
     );
   }
 
-  public static sign(payload: IJwtPayload): string {
+  public static sign(payload: IJwtPayload, requestId: string): string {
     const options: SignOptions = { expiresIn: "1h" };
-    return jwt.sign(payload, env.JWT_SECRET, options);
+    logger.info(`[JWT][${requestId}] Generating JWT`);
+    const token: string = jwt.sign(payload, env.JWT_SECRET, options);
+    logger.info(`[JWT][${requestId}] JWT generated`);
+
+    return token;
   }
 }

@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import logger from "../../logger";
 
 export default class PasswordHandler {
   /**
@@ -7,9 +8,15 @@ export default class PasswordHandler {
    */
   public static async compare(
     plainPassword: string,
-    hashedPassword: string
+    hashedPassword: string,
+    requestId: string
   ): Promise<boolean> {
-    return bcrypt.compare(plainPassword, hashedPassword);
+    const match: boolean = await bcrypt.compare(plainPassword, hashedPassword);
+    if (!match) {
+      logger.info(`[BCRYPT][${requestId}] Password doesn't match`);
+    }
+    logger.info(`[BCRYPT][${requestId}] Password matches`);
+    return match;
   }
 
   /**

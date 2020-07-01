@@ -15,7 +15,6 @@ import RequestValidator from "../../validation/RequestValidator";
  * Create new user
  * @param req - Request object
  * @param res - Response object
- * @returns The response of the request
  */
 const create = async (req: Request, res: Response): Promise<Response> => {
   // request validation
@@ -37,7 +36,7 @@ const create = async (req: Request, res: Response): Promise<Response> => {
       r: "pg",
       d: "mm",
     });
-    const user: IUser | undefined = await insertUser(
+    const user: IUser = await insertUser(
       {
         name,
         email,
@@ -58,7 +57,7 @@ const create = async (req: Request, res: Response): Promise<Response> => {
     });
   } catch (error) {
     if (error.message === USER_EXISTS) {
-      logger.info(`[NODE][${req.id}] Response status 403`);
+      logger.error(`[NODE][${req.id}] Response status 403`);
       return res.status(403).json({ message: USER_EXISTS });
     }
 

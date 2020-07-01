@@ -295,8 +295,11 @@ export const removeProfile = async (userId: string): Promise<Document> => {
  * Remove user from database
  * @param userId User's id
  */
-export const removeUser = async (userId: string): Promise<Document> => {
-  const user: IUser | null = await findUserById(userId);
+export const removeUser = async (
+  userId: string,
+  requestId: string
+): Promise<Document> => {
+  const user: IUser | null = await findUserById(userId, requestId);
   if (!user) {
     throw new Error(USER_NOT_FOUND);
   }
@@ -308,25 +311,48 @@ export const removeUser = async (userId: string): Promise<Document> => {
  * Remove profile and user from database
  * @param userId User's id
  */
-export const removeProfileAndUser = async (userId: string): Promise<void> => {
+export const removeProfileAndUser = async (
+  userId: string,
+  requestId: string
+): Promise<void> => {
   await removeProfile(userId);
-  await removeUser(userId);
+  await removeUser(userId, requestId);
 };
 
 /**
  * Query user by email
  * @param email - User's email
  */
-export const findUserByEmail = async (email: string): Promise<IUser | null> => {
-  return (User.findOne({ email }) as unknown) as IUser;
+export const findUserByEmail = async (
+  email: string,
+  requestId: string
+): Promise<IUser> => {
+  logger.info(`[MONGO][${requestId}] Querying user email {${email}}`);
+  const user: Document | null = await User.findOne({ email });
+  if (!user) {
+    logger.info(`[MONGO][${requestId}] User not found`);
+    throw new Error(USER_NOT_FOUND);
+  }
+
+  return (user as unknown) as IUser;
 };
 
 /**
  * Query user by id
  * @param id - User's id
  */
-export const findUserById = async (id: string): Promise<IUser | null> => {
-  return (User.findOne({ _id: id }) as unknown) as IUser;
+export const findUserById = async (
+  id: string,
+  requestId: string
+): Promise<IUser> => {
+  logger.info(`[MONGO][${requestId}] Querying user id {${id}}`);
+  const user: Document | null = await User.findOne({ _id: id });
+  if (!user) {
+    logger.info(`[MONGO][${requestId}] User not found`);
+    throw new Error(USER_NOT_FOUND);
+  }
+
+  return (user as unknown) as IUser;
 };
 
 /**
@@ -372,11 +398,11 @@ export const insertUser = async (
   requestId: string
 ): Promise<IUser> => {
   const { name, email, password, avatar, date } = user;
-  logger.info(`[DB][${requestId}] Querying email`);
+  logger.info(`[MONGO][${requestId}] Querying email {${email}}`);
   const existingUser: Document | null = await User.findOne({ email: email });
 
   if (existingUser) {
-    logger.warn(`[DB][${requestId}] Email already exists`);
+    logger.error(`[MONGO][${requestId}] Email already exists`);
     throw new Error(USER_EXISTS);
   }
 
@@ -389,9 +415,9 @@ export const insertUser = async (
     date,
   });
 
-  logger.info(`[DB][${requestId}] Saving new user`);
+  logger.info(`[MONGO][${requestId}] Saving new user`);
   await newUser.save();
-  logger.info(`[DB][${requestId}] User Saved`);
+  logger.info(`[MONGO][${requestId}] User Saved`);
   return (newUser as unknown) as IUser;
 };
 

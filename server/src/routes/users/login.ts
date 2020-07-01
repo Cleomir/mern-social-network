@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
-import { inspect } from "util";
 
 import { findUserByEmail } from "../../db/queries";
 import PasswordHandler from "../../authentication/password";
 import IUser from "../../interfaces/IUser";
-import logger from "../../logger";
+import logger, { logObject } from "../../logger";
 import JwtHandler from "../../authentication/jwt";
 import IJwtPayload from "../../interfaces/IJwtPayload";
 import {
@@ -19,7 +18,6 @@ import RequestValidator from "../../validation/RequestValidator";
  * User login
  * @param req Request
  * @param res Response
- * @returns jwt token
  */
 const login = async (
   req: Request,
@@ -32,51 +30,42 @@ const login = async (
     password
   );
   if (validation.error) {
-    logger.warn(`Login attempt with invalid parameters for email ${email}`);
+    logger.warn(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
   }
 
   try {
-    // check if user exists
-    const existingUser: IUser | null = await findUserByEmail(email);
-    if (!existingUser) {
-      logger.warn(
-        `Login attempt for email that does not exist. Email: ${email}`
-      );
-      return res.status(404).json({ message: USER_NOT_FOUND });
-    }
-
     // check if password match
+    const existingUser: IUser = await findUserByEmail(email, req.id);
     const isMatch = await PasswordHandler.compare(
       password,
-      existingUser.password
+      existingUser.password,
+      req.id
     );
     if (!isMatch) {
-      logger.warn(`Login attempt with invalid parameters for email ${email}`);
+      logger.warn(`[NODE][${req.id}] Response status 400`);
       return res.status(400).json({ message: INVALID_CREDENTIALS });
     }
 
     // generate jwt
-    logger.info(`Generating JWT for email ${email}...`);
     const payload: IJwtPayload = {
       id: existingUser.id,
       name: existingUser.name,
       email: existingUser.email,
       avatar: existingUser.avatar,
     };
-    const token: string = JwtHandler.sign(payload);
-    logger.info(`JWT generated successfully for email ${email}`);
+    const token: string = JwtHandler.sign(payload, req.id);
 
     // server response
-    logger.info(`Returning success response for email ${email}`);
+    logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).json({ token });
   } catch (error) {
-    logger.error(
-      `Could not login with email ${email}\nError:\n${inspect(error, {
-        depth: null,
-      })}`
-    );
-    logger.error(`Returning error response...`);
+    if (error.message === USER_NOT_FOUND) {
+      logger.error(`[MONGO][${req.id}] Response status 404`);
+      return res.status(404).json({ message: USER_NOT_FOUND });
+    }
+
+    logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
