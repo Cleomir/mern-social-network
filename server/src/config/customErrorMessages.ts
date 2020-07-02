@@ -9,6 +9,7 @@ export const POST_ALREADY_LIKED = "Post already liked";
 export const POST_NOT_FOUND = "Could not find post";
 export const POST_NOT_LIKED = "Post not liked yet";
 export const PROFILE_EXISTS = "Profile already exists";
+export const PROFILE_NOT_FOUND = "Profile not found";
 export const PROFILE_HANDLE_EXISTS = "Profile handle already exists";
 export const UNABLE_TO_LOGIN = "Could not login";
 export const USER_EXISTS = "User already exists";
