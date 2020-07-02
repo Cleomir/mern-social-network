@@ -36,14 +36,21 @@ const login = async (
 
   try {
     // check if password match
-    const existingUser: IUser = await findUserByEmail(email, req.id);
+    const existingUser: IUser | undefined = await findUserByEmail(
+      email,
+      req.id
+    );
+    if (!existingUser) {
+      logger.error(`[NODE][${req.id}] Response status 404`);
+      return res.status(404).json({ message: USER_NOT_FOUND });
+    }
     const isMatch = await PasswordHandler.compare(
       password,
       existingUser.password,
       req.id
     );
     if (!isMatch) {
-      logger.warn(`[NODE][${req.id}] Response status 400`);
+      logger.error(`[NODE][${req.id}] Response status 400`);
       return res.status(400).json({ message: INVALID_CREDENTIALS });
     }
 
@@ -60,11 +67,6 @@ const login = async (
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).json({ token });
   } catch (error) {
-    if (error.message === USER_NOT_FOUND) {
-      logger.error(`[MONGO][${req.id}] Response status 404`);
-      return res.status(404).json({ message: USER_NOT_FOUND });
-    }
-
     logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
