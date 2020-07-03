@@ -15,7 +15,7 @@ import deleteComment from "./deleteComment";
  */
 const router: Router = express.Router();
 
-// mount routes
+// /posts routes
 router.delete(
   "/comment/:post_id/:comment_id",
   passport.authenticate("jwt", { session: false }),
