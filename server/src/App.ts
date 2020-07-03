@@ -4,7 +4,7 @@ import passport from "passport";
 
 import JwtHandler from "./authentication/jwt";
 import posts from "./routes/posts";
-import profile from "./routes/profile";
+import profiles from "./routes/profiles";
 import users from "./routes/users";
 import "./interfaces/merged/User"; // Add id to Request.User object
 import requestLogger from "./middleware/requestLogger";
@@ -23,7 +23,7 @@ JwtHandler.validate(passport);
 
 // mount root routes
 app.use("/users", users);
-app.use("/profiles", profile);
+app.use("/profiles", profiles);
 app.use("/posts", posts);
 
 // 404 handler
