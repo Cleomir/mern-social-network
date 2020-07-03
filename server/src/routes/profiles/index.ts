@@ -14,7 +14,7 @@ import getProfileByUserId from "./getProfileByUserId";
 
 const router: Router = express.Router();
 
-// mount "profile" routes
+// /profiles routes
 router.delete(
   "/experience/:exp_id",
   passport.authenticate("jwt", { session: false }),

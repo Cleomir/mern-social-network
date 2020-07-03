@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
-import { inspect } from "util";
 
 import { NO_PROFILE, NO_USER_PROFILE } from "../../config/customErrorMessages";
 import { findProfileById } from "../../db/queries";
-import logger from "../../logger";
+import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 import RequestValidator from "../../validation/RequestValidator";
 
@@ -23,27 +22,22 @@ const getCurrentUserProfile = async (
   const { id } = req.user!;
   const validation: ValidationResult = RequestValidator.validateId(id);
   if (validation.error) {
-    logger.warn(`Attempt to query profile with invalid id ${id}`);
+    logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
   }
 
   try {
     logger.info(`Querying user with profile ${id}...`);
-    const profile: IProfile | null = await findProfileById(id);
+    const profile: IProfile | null = await findProfileById(id, req.id);
     if (!profile) {
       logger.info(`User profile with id ${id} not found`);
       return res.status(404).json({ message: NO_USER_PROFILE });
     }
 
-    logger.info(`Returning success response...`);
+    logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).json(profile);
   } catch (error) {
-    logger.error(
-      `Could not query user profile with id ${id}\n${inspect(error, {
-        depth: null,
-      })}`
-    );
-    logger.error(`Returning error response...`);
+    logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: NO_PROFILE });
   }
 };

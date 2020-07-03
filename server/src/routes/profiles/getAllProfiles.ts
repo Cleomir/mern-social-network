@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
-import { inspect } from "util";
 
 import { NO_PROFILE } from "../../config/customErrorMessages";
 import { findAllProfiles } from "../../db/queries";
-import logger from "../../logger";
+import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 
 /**
@@ -16,18 +15,16 @@ const getAllProfiles = async (
   res: Response
 ): Promise<Response> => {
   try {
-    logger.info(`Querying all profiles...`);
-    const profile: IProfile[] | null = await findAllProfiles();
+    const profile: IProfile[] | undefined = await findAllProfiles(req.id);
     if (!profile) {
-      logger.error(`No profile found.`);
+      logger.warn(`[NODE][${req.id}] Response status 204`);
       return res.status(204).json({ message: NO_PROFILE });
     }
 
-    logger.info(`Returning success response...`);
+    logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).json(profile);
   } catch (error) {
-    logger.error(`${NO_PROFILE}\n${inspect(error, { depth: null })}`);
-    logger.error(`Returning error response...`);
+    logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: NO_PROFILE });
   }
 };
