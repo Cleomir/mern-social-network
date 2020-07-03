@@ -30,7 +30,7 @@ const login = async (
     password
   );
   if (validation.error) {
-    logger.warn(`[NODE][${req.id}] Response status 400`);
+    logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
   }
 
