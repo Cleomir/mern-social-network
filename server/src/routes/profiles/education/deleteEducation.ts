@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
-import { inspect } from "util";
 
 import {
   NO_EDUCATION,
   INTERNAL_SERVER_ERROR,
+  PROFILE_NOT_FOUND,
 } from "../../../config/customErrorMessages";
 import { removeEducationFromProfile } from "../../../db/queries";
-import logger from "../../../logger";
+import logger, { logObject } from "../../../logger";
 import RequestValidator from "../../../validation/RequestValidator";
 
 /**
@@ -22,32 +22,25 @@ const deleteEducation = async (
   // request validation
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { id } = req.user!;
-  const edu_id = req.params.edu_id;
+  const { edu_id } = req.params;
   const validation: ValidationResult = RequestValidator.validateId(edu_id);
   if (validation.error) {
-    logger.info(`Attempt to delete education with invalid id ${id}`);
+    logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
   }
 
   try {
-    logger.info(`Deleting education for id ${id}...`);
-    await removeEducationFromProfile(id, edu_id);
-    logger.info(`User id ${id} has deleted education id: ${edu_id}`);
+    await removeEducationFromProfile(id, edu_id, req.id);
 
-    logger.info(`Returning success response...`);
+    logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();
   } catch (error) {
-    if (error.message === NO_EDUCATION) {
-      logger.warn(`Could not find education for id ${id}`);
-      return res.status(404).json({ message: NO_EDUCATION });
+    if (error.message === PROFILE_NOT_FOUND || NO_EDUCATION) {
+      logger.error(`[NODE][${req.id}] Response status 404`);
+      return res.status(404).json({ message: error.message });
     }
 
-    logger.error(
-      `Could not delete education for id ${id}\nError:\n${inspect(error, {
-        depth: null,
-      })}`
-    );
-    logger.error(`Returning error response...`);
+    logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };

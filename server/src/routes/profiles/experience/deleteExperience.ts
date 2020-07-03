@@ -4,11 +4,11 @@ import { ValidationResult } from "@hapi/joi";
 import {
   NO_EXPERIENCE,
   INTERNAL_SERVER_ERROR,
+  PROFILE_NOT_FOUND,
 } from "../../../config/customErrorMessages";
 import { removeExperienceFromProfile } from "../../../db/queries";
-import logger from "../../../logger";
+import logger, { logObject } from "../../../logger";
 import RequestValidator from "../../../validation/RequestValidator";
-import { inspect } from "util";
 
 /**
  * Delete existing experience
@@ -25,28 +25,22 @@ const deleteExperience = async (
   const exp_id = req.params.exp_id;
   const validation: ValidationResult = RequestValidator.validateId(exp_id);
   if (validation.error) {
-    logger.warn(`Attempt to delete experience with invalid id ${id}`);
+    logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
   }
 
   try {
-    logger.info(`Deleting experience for id ${id}...`);
-    await removeExperienceFromProfile(id, exp_id);
-    logger.info(`User id ${id} has deleted experience id: ${exp_id}`);
+    await removeExperienceFromProfile(id, exp_id, req.id);
 
-    logger.info(`Returning success response...`);
+    logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();
   } catch (error) {
-    if (error.message === NO_EXPERIENCE) {
-      return res.status(404).json({ message: NO_EXPERIENCE });
+    if (error.message === PROFILE_NOT_FOUND || NO_EXPERIENCE) {
+      logger.info(`[NODE][${req.id}] Response status 404`);
+      return res.status(404).json({ message: error.message });
     }
 
-    logger.error(
-      `Could not delete experience for id ${id}\nError:\n${inspect(error, {
-        depth: null,
-      })}`
-    );
-    logger.error(`Returning error response...`);
+    logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };

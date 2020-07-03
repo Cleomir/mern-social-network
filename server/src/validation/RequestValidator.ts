@@ -39,6 +39,12 @@ export default class RequestValidator {
     instagram: Joi.string(),
   });
 
+  public static validateHandle(handle: string): Joi.ValidationResult {
+    return Joi.string()
+      .pattern(/^([0-9]*)[a-zA-Z]{1,}$/, "handle")
+      .validate(handle);
+  }
+
   public static validateNewUser(
     name: string,
     email: string,

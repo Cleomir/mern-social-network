@@ -35,7 +35,7 @@ export const addEducationToProfile = async (
   userId: string,
   education: IEducation[],
   requestId: string
-): Promise<Document> => {
+): Promise<void> => {
   const userProfile: IProfile | null = await findProfileById(userId, requestId);
   if (!userProfile) {
     throw new Error(USER_NOT_FOUND);
@@ -46,7 +46,9 @@ export const addEducationToProfile = async (
     ? (userProfile.education = [...education, ...userProfile.education])
     : (userProfile.education = [...education]);
 
-  return ((userProfile as unknown) as Document).save();
+  logger.info(`[MONGO][${requestId}] Saving new education`);
+  await ((userProfile as unknown) as Document).save();
+  logger.info(`[MONGO][${requestId}] Education saved`);
 };
 
 /**
@@ -59,10 +61,10 @@ export const addExperienceToProfile = async (
   userId: string,
   experience: IExperience[],
   requestId: string
-): Promise<Document> => {
+): Promise<void> => {
   const userProfile: IProfile | null = await findProfileById(userId, requestId);
   if (!userProfile) {
-    throw new Error(USER_NOT_FOUND);
+    throw new Error(PROFILE_NOT_FOUND);
   }
 
   // check if user already has experience
@@ -70,7 +72,9 @@ export const addExperienceToProfile = async (
     ? (userProfile.experience = [...experience, ...userProfile.experience])
     : (userProfile.experience = [...experience]);
 
-  return ((userProfile as unknown) as Document).save();
+  logger.info(`[MONGO][${requestId}] Saving new experience`);
+  await ((userProfile as unknown) as Document).save();
+  logger.info(`[MONGO][${requestId}] Experience saved`);
 };
 
 /**
@@ -237,12 +241,13 @@ export const removeExperienceFromProfile = async (
   userId: string,
   experienceId: string,
   requestId: string
-): Promise<Document> => {
+): Promise<void> => {
   const userProfile: IProfile | null = await findProfileById(userId, requestId);
   if (!userProfile) {
-    throw new Error(USER_NOT_FOUND);
+    throw new Error(PROFILE_NOT_FOUND);
   }
   if (!userProfile.experience) {
+    logger.info(`[MONGO][${requestId}] No experience found`);
     throw new Error(NO_EXPERIENCE);
   }
 
@@ -250,11 +255,16 @@ export const removeExperienceFromProfile = async (
     (experience) => experience.id === experienceId
   );
   if (ExperienceIndex === -1) {
+    logger.info(
+      `[MONGO][${requestId}] Experience id {${experienceId}} not found`
+    );
     throw new Error(NO_EXPERIENCE);
   }
 
+  logger.info(`[MONGO][${requestId}] Deleting experience id {${experienceId}}`);
   userProfile.experience.splice(ExperienceIndex, 1);
-  return ((userProfile as unknown) as Document).save();
+  await ((userProfile as unknown) as Document).save();
+  logger.info(`[MONGO][${requestId}] Experience deleted`);
 };
 
 /**
@@ -267,12 +277,13 @@ export const removeEducationFromProfile = async (
   userId: string,
   educationId: string,
   requestId: string
-): Promise<Document> => {
+): Promise<void> => {
   const userProfile: IProfile | null = await findProfileById(userId, requestId);
   if (!userProfile) {
-    throw new Error(USER_NOT_FOUND);
+    throw new Error(PROFILE_NOT_FOUND);
   }
   if (!userProfile.education) {
+    logger.info(`[MONGO][${requestId}] No education found`);
     throw new Error(NO_EDUCATION);
   }
 
@@ -280,11 +291,16 @@ export const removeEducationFromProfile = async (
     (education) => education.id === educationId
   );
   if (EducationIndex === -1) {
+    logger.info(
+      `[MONGO][${requestId}] Education id {${educationId}} not found`
+    );
     throw new Error(NO_EDUCATION);
   }
 
+  logger.info(`[MONGO][${requestId}] Deleting education id {${educationId}}`);
   userProfile.education.splice(EducationIndex, 1);
-  return ((userProfile as unknown) as Document).save();
+  await ((userProfile as unknown) as Document).save();
+  logger.info(`[MONGO][${requestId}] Education deleted`);
 };
 
 /**
@@ -347,12 +363,13 @@ export const findUserByEmail = async (
   email: string,
   requestId: string
 ): Promise<IUser | undefined> => {
-  logger.info(`[MONGO][${requestId}] Querying user`);
+  logger.info(`[MONGO][${requestId}] Querying user with email {${email}}`);
   const user: Document | null = await User.findOne({ email });
   if (!user) {
-    logger.info(`[MONGO][${requestId}] ${USER_NOT_FOUND}`);
+    logger.info(`[MONGO][${requestId}] User not found`);
     return;
   }
+  logger.info(`[MONGO][${requestId}] User found`);
 
   return (user as unknown) as IUser;
 };
@@ -378,12 +395,23 @@ export const findUserById = async (
 
 /**
  * Query all profiles
+ * @param requestId Id of the request
  */
-export const findAllProfiles = async (): Promise<IProfile[] | null> => {
-  return (Profile.find().populate("user", [
+export const findAllProfiles = async (
+  requestId: string
+): Promise<IProfile[] | undefined> => {
+  logger.info(`[MONGO][${requestId}] Querying all profiles`);
+  const profiles: Document[] = await Profile.find().populate("user", [
     "name",
     "avatar",
-  ]) as unknown) as IProfile[];
+  ]);
+  if (!profiles) {
+    logger.info(`[MONGO][${requestId}] No profiles found`);
+    return;
+  }
+  logger.info(`[MONGO][${requestId}] Profiles found`);
+
+  return (profiles as unknown) as IProfile[];
 };
 
 /**
@@ -410,14 +438,23 @@ export const findProfileById = async (
 /**
  * Query profile by handle
  * @param handle Url handle
+ * @param requestId Id of the request
  */
 export const findProfileByHandle = async (
-  handle: string
-): Promise<IProfile | null> => {
-  return (Profile.findOne({ handle }).populate("user", [
-    "name",
-    "avatar",
-  ]) as unknown) as IProfile;
+  handle: string,
+  requestId: string
+): Promise<IProfile | undefined> => {
+  logger.info(`[MONGO][${requestId}] Querying profile with handle {${handle}}`);
+  const profile: Document | null = await Profile.findOne({
+    handle,
+  }).populate("user", ["name", "avatar"]);
+  if (!profile) {
+    logger.info(`[MONGO][${requestId}] No profile found`);
+    return;
+  }
+  logger.info(`[MONGO][${requestId}] Profile found`);
+
+  return (profile as unknown) as IProfile;
 };
 
 /**
@@ -474,8 +511,9 @@ export const insertProfile = async (
   }
 
   // check handle
-  const existingHandle: IProfile | null = await findProfileByHandle(
-    profile.handle
+  const existingHandle: IProfile | undefined = await findProfileByHandle(
+    profile.handle,
+    requestId
   );
   if (existingHandle) {
     logger.error(`[MONGO][${requestId}] ${PROFILE_HANDLE_EXISTS}`);

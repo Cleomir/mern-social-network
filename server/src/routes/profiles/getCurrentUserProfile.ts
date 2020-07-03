@@ -27,10 +27,9 @@ const getCurrentUserProfile = async (
   }
 
   try {
-    logger.info(`Querying user with profile ${id}...`);
     const profile: IProfile | null = await findProfileById(id, req.id);
     if (!profile) {
-      logger.info(`User profile with id ${id} not found`);
+      logger.error(`[NODE][${req.id}] Response status 404`);
       return res.status(404).json({ message: NO_USER_PROFILE });
     }
 
