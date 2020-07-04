@@ -80,57 +80,89 @@ export const addExperienceToProfile = async (
 /**
  * Create a post
  * @param post Post to be created
+ * @param requestId Id of the request
  */
-export const addPost = async (post: IPost): Promise<Document> => {
-  return new Post(post).save();
+export const addPost = async (
+  post: IPost,
+  requestId: string
+): Promise<void> => {
+  logger.info(`[MONGO][${requestId}] Saving new post`);
+  await new Post(post).save();
+  logger.info(`[MONGO][${requestId}] Post saved`);
 };
 
 /**
  * Query all posts in descending order
+ * @param requestId Id of the request
  */
-export const findAllPosts = async (): Promise<Document[]> => {
-  return Post.find().sort({ date: -1 });
+export const findAllPosts = async (requestId: string): Promise<IPost[]> => {
+  logger.info(`[MONGO][${requestId}] Querying all posts`);
+  const posts: Document[] = await Post.find().sort({ date: -1 });
+  if (!posts || posts.length === 0) {
+    logger.info(`[MONGO][${requestId}] No post found`);
+  }
+  logger.info(`[MONGO][${requestId}] Posts found`);
+  return (posts as unknown) as IPost[];
 };
 
 /**
- * Query single post by ID
- * @param postId Post ID
+ * Query single post by id
+ * @param postId Post id
+ * @param requestId Id of the request
  */
-export const findPostById = async (postId: string): Promise<IPost | null> => {
-  return (Post.findById(postId) as unknown) as IPost;
+export const findPostById = async (
+  postId: string,
+  requestId: string
+): Promise<IPost | undefined> => {
+  logger.error(`[MONGO][${requestId}] Querying post id {${postId}}`);
+  const post: Document | null = await Post.findById(postId);
+  if (!post) {
+    logger.error(`[MONGO][${requestId}] Post not found {${postId}}`);
+    return;
+  }
+  logger.error(`[MONGO][${requestId}] Post found {${postId}}`);
+
+  return (post as unknown) as IPost;
 };
 
 /**
- * Query single post by ID
- * @param postId Post ID
+ * Query single post by id
+ * @param postId Post id
+ * @param requestId Id of the request
  */
 export const removePost = async (
   userId: string,
-  postId: string
-): Promise<Document> => {
-  const post: IPost | null = await findPostById(postId);
+  postId: string,
+  requestId: string
+): Promise<void> => {
+  const post: IPost | undefined = await findPostById(postId, requestId);
   if (!post) {
     throw new Error(POST_NOT_FOUND);
   }
 
   // check post ownership
   if (post.user.toString() !== userId) {
+    logger.error(`[MONGO][${requestId}] Post doesn't belong to user`);
     throw new Error(FORBIDDEN_OPERATION);
   }
 
-  return ((post as unknown) as Document).remove();
+  logger.error(`[MONGO][${requestId}] Removing post id {${postId}}`);
+  await ((post as unknown) as Document).remove();
+  logger.error(`[MONGO][${requestId}] Post removed`);
 };
 
 /**
  * Like a post
- * @param userId User ID
- * @param postId Post ID
+ * @param userId User id
+ * @param postId Post id
+ * @param requestId Id of the request
  */
 export const addLikeToPost = async (
   userId: string,
-  postId: string
-): Promise<Document> => {
-  const post: IPost | null = await findPostById(postId);
+  postId: string,
+  requestId: string
+): Promise<void> => {
+  const post: IPost | undefined = await findPostById(postId, requestId);
   if (!post) {
     throw new Error(POST_NOT_FOUND);
   }
@@ -142,23 +174,28 @@ export const addLikeToPost = async (
       (likedUserId) => likedUserId.user.toString() === userId
     ) !== -1
   ) {
+    logger.error(`[MONGO][${requestId}] Post already liked`);
     throw new Error(POST_ALREADY_LIKED);
   }
 
   post.likes?.unshift({ user: userId });
-  return ((post as unknown) as Document).save();
+  logger.info(`[MONGO][${requestId}] Adding like to post`);
+  await ((post as unknown) as Document).save();
+  logger.info(`[MONGO][${requestId}] Like added`);
 };
 
 /**
  * Unlike a post
- * @param userId User ID
- * @param postId Post ID
+ * @param userId User id
+ * @param postId Post id
+ * @param requestId Id of the request
  */
 export const RemoveLikeFromPost = async (
   userId: string,
-  postId: string
-): Promise<Document | undefined> => {
-  const post: IPost | null = await findPostById(postId);
+  postId: string,
+  requestId: string
+): Promise<void> => {
+  const post: IPost | undefined = await findPostById(postId, requestId);
   if (!post) {
     throw new Error(POST_NOT_FOUND);
   }
@@ -171,39 +208,54 @@ export const RemoveLikeFromPost = async (
     );
 
     if (userIdIndex === -1) {
+      logger.error(`[MONGO][${requestId}] Post not liked yet`);
       throw new Error(POST_NOT_LIKED);
     }
 
     post.likes.splice(userIdIndex, 1);
-    return ((post as unknown) as Document).save();
+    logger.error(`[MONGO][${requestId}] Removing like from post`);
+    await ((post as unknown) as Document).save();
+    logger.error(`[MONGO][${requestId}] Like removed`);
   }
 };
 
 /**
  * Add comment to a post
- * @param postId Post ID
+ * @param postId Post id
  * @param comment Comment to add
+ * @param requestId Id of the request
  */
 export const addCommentToPost = async (
   postId: string,
-  comment: IComment
-): Promise<Document> => {
-  const post: IPost | null = await findPostById(postId);
+  comment: IComment,
+  requestId: string
+): Promise<void> => {
+  const post: IPost | undefined = await findPostById(postId, requestId);
   if (!post) {
     throw new Error(POST_NOT_FOUND);
   }
 
-  // add comment to array
+  // add post
+  logger.info(`[MONGO][${requestId}] Saving comment`);
   post.comments?.unshift(comment);
-  return ((post as unknown) as Document).save();
+  await ((post as unknown) as Document).save();
+  logger.info(`[MONGO][${requestId}] Comment saved`);
 };
 
+/**
+ * Remove a comment from a post
+ * @param postId Post id
+ * @param commentId Comment id
+ * @param userId User id
+ * @param requestId Id of the request
+ */
 export const removeCommentFromPost = async (
   postId: string,
   commentId: string,
-  userId: string
-): Promise<Document | undefined> => {
-  const post: IPost | null = await findPostById(postId);
+  userId: string,
+  requestId: string
+): Promise<void> => {
+  const post: IPost | undefined = await findPostById(postId, requestId);
   if (!post) {
     throw new Error(POST_NOT_FOUND);
   }
@@ -221,13 +273,19 @@ export const removeCommentFromPost = async (
 
       return;
     });
-
     if (commentIndex === -1) {
+      logger.error(
+        `[MONGO][${requestId}] Comment doesn't exist or belongs to another user`
+      );
       throw new Error(FORBIDDEN_OPERATION);
     }
 
+    logger.info(
+      `[MONGO][${requestId}] Deleting comment id {${commentId}} from post id {${postId}}`
+    );
     post.comments.splice(commentIndex, 1);
-    return ((post as unknown) as Document).save();
+    await ((post as unknown) as Document).save();
+    logger.info(`[MONGO][${requestId}] Comment deleted`);
   }
 };
 
@@ -247,7 +305,7 @@ export const removeExperienceFromProfile = async (
     throw new Error(PROFILE_NOT_FOUND);
   }
   if (!userProfile.experience) {
-    logger.info(`[MONGO][${requestId}] No experience found`);
+    logger.error(`[MONGO][${requestId}] No experience found`);
     throw new Error(NO_EXPERIENCE);
   }
 
@@ -255,7 +313,7 @@ export const removeExperienceFromProfile = async (
     (experience) => experience.id === experienceId
   );
   if (ExperienceIndex === -1) {
-    logger.info(
+    logger.error(
       `[MONGO][${requestId}] Experience id {${experienceId}} not found`
     );
     throw new Error(NO_EXPERIENCE);
@@ -283,7 +341,7 @@ export const removeEducationFromProfile = async (
     throw new Error(PROFILE_NOT_FOUND);
   }
   if (!userProfile.education) {
-    logger.info(`[MONGO][${requestId}] No education found`);
+    logger.error(`[MONGO][${requestId}] No education found`);
     throw new Error(NO_EDUCATION);
   }
 
@@ -291,7 +349,7 @@ export const removeEducationFromProfile = async (
     (education) => education.id === educationId
   );
   if (EducationIndex === -1) {
-    logger.info(
+    logger.error(
       `[MONGO][${requestId}] Education id {${educationId}} not found`
     );
     throw new Error(NO_EDUCATION);
@@ -389,6 +447,7 @@ export const findUserById = async (
     logger.info(`[MONGO][${requestId}] User not found`);
     return;
   }
+  logger.info(`[MONGO][${requestId}] User found`);
 
   return (user as unknown) as IUser;
 };
@@ -415,7 +474,7 @@ export const findAllProfiles = async (
 };
 
 /**
- * Query profile by ID
+ * Query profile by id
  * @param id User's id
  * @param requestId Id of the request
  */
@@ -466,15 +525,16 @@ export const insertUser = async (
   user: IUser,
   requestId: string
 ): Promise<IUser> => {
+  // query user
   const { name, email, password, avatar, date } = user;
   logger.info(`[MONGO][${requestId}] Querying email {${email}}`);
   const existingUser: Document | null = await User.findOne({ email: email });
-
   if (existingUser) {
     logger.error(`[MONGO][${requestId}] Email already exists`);
     throw new Error(USER_EXISTS);
   }
 
+  // save user
   const hashedPassword: string = await PasswordHandler.hash(password);
   const newUser: Document = new User({
     name,
@@ -483,7 +543,6 @@ export const insertUser = async (
     password: hashedPassword,
     date,
   });
-
   logger.info(`[MONGO][${requestId}] Saving new user`);
   await newUser.save();
   logger.info(`[MONGO][${requestId}] User Saved`);

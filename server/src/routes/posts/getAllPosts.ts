@@ -1,29 +1,27 @@
 import { Request, Response } from "express";
-import { Document } from "mongoose";
-import { inspect } from "util";
 
 import { INTERNAL_SERVER_ERROR } from "../../config/customErrorMessages";
 import { findAllPosts } from "../../db/queries";
-import logger from "../../logger";
+import logger, { logObject } from "../../logger";
+import IPost from "../../interfaces/IPost";
 
 /**
  * Query all posts
  * @param req Request object
  * @param res Response object
  */
-const getAllPosts = async (req: Request, res: Response): Promise<Response> => {
+const getAllPosts = async (req: Request, res: Response): Promise<unknown> => {
   try {
-    logger.info(`Querying all posts...`);
-    const posts: Document[] = await findAllPosts();
-    logger.info(
-      `Queried ${posts.length} posts from db.\nReturning success response...`
-    );
+    const posts: IPost[] = await findAllPosts(req.id);
+    if (!posts || posts.length === 0) {
+      logger.info(`[NODE][${req.id}] Response status 204`);
+      return res.status(204).end();
+    }
+
+    logger.info(`[NODE][${req.id}] Response status 201`);
     return res.status(200).json(posts);
   } catch (error) {
-    logger.error(
-      `Could not query posts\nError:\n${inspect(error, { depth: null })}`
-    );
-    logger.error(`Returning error response...`);
+    logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };

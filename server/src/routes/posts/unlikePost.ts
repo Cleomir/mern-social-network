@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
-import { inspect } from "util";
 
 import {
   POST_NOT_FOUND,
@@ -8,7 +7,7 @@ import {
   INTERNAL_SERVER_ERROR,
 } from "../../config/customErrorMessages";
 import { RemoveLikeFromPost } from "../../db/queries";
-import logger from "../../logger";
+import logger, { logObject } from "../../logger";
 import RequestValidator from "../../validation/RequestValidator";
 
 /**
@@ -18,43 +17,32 @@ import RequestValidator from "../../validation/RequestValidator";
  */
 const unlikePost = async (req: Request, res: Response): Promise<unknown> => {
   // request validation
-  const { id: postId } = req.params;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { id: userId } = req.user!;
+  const { id: postId } = req.params;
   const validation: ValidationResult = RequestValidator.validateId(postId);
   if (validation.error) {
-    logger.error(
-      `Attempt to unlike post with invalid parameters. User id: ${userId} post id: ${postId}`
-    );
+    logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
   }
 
   try {
-    logger.info(`Removing like from post id ${postId} with user id ${userId}`);
-    await RemoveLikeFromPost(userId, postId);
-    logger.info(`Like removed from post id ${postId} with user id ${userId}`);
+    // remove like from post
+    await RemoveLikeFromPost(userId, postId, req.id);
 
-    logger.info(`Returning success response for user id ${userId}...`);
+    logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();
   } catch (error) {
     if (error.message === POST_NOT_FOUND) {
-      logger.error(`Post id ${postId} not found`);
+      logger.error(`[NODE][${req.id}] Response status 404`);
       return res.status(404).json({ message: POST_NOT_FOUND });
     }
     if (error.message === POST_NOT_LIKED) {
-      logger.error(
-        `Attempt to remove a like from a post id ${postId} which is not yet liked by user id ${userId}`
-      );
+      logger.error(`[NODE][${req.id}] Response status 403`);
       return res.status(403).json({ message: POST_NOT_LIKED });
     }
 
-    logger.error(
-      `Could not unlike post id ${postId} with user id ${userId}\n${inspect(
-        error,
-        { depth: null }
-      )}`
-    );
-    logger.error(`Returning error response for user id ${userId}...`);
+    logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
