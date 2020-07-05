@@ -2,15 +2,15 @@ import request, { Response } from "supertest";
 import Chance from "chance";
 
 import app from "../../../src/App";
-import ConnectToDB from "../../../src/db/connection";
-import { DB_URL } from "../../../src/config/envVariables";
-import User from "../../../src/db/models/User";
+import ConnectToDB from "../../../src/database/connection";
+import { env } from "../../../src/config/envVariables";
+import User from "../../../src/database/models/User";
 
 describe("Test /profiles path", () => {
   const chance = new Chance();
 
   beforeAll(async () => {
-    await ConnectToDB(DB_URL);
+    await ConnectToDB(env.DB_URL);
   });
 
   afterEach(async () => {
