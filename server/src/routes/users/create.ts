@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import gravatar from "gravatar";
 import { ValidationResult } from "@hapi/joi";
 
-import { insertUser } from "../../db/queries";
+import { insertUser } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import IUser from "../../interfaces/IUser";
 import {

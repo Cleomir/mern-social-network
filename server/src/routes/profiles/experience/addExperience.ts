@@ -5,7 +5,7 @@ import {
   INTERNAL_SERVER_ERROR,
   PROFILE_NOT_FOUND,
 } from "../../../config/customErrorMessages";
-import { addExperienceToProfile } from "../../../db/queries";
+import { addExperienceToProfile } from "../../../database/queries";
 import logger, { logObject } from "../../../logger";
 import RequestValidator from "../../../validation/RequestValidator";
 

@@ -5,7 +5,7 @@ import {
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
 } from "../../config/customErrorMessages";
-import { addCommentToPost } from "../../db/queries";
+import { addCommentToPost } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import IComment from "../../interfaces/IComment";
 import RequestValidator from "../../validation/RequestValidator";

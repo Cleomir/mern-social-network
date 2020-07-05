@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 
 import { INTERNAL_SERVER_ERROR } from "../../../config/customErrorMessages";
-import { addEducationToProfile } from "../../../db/queries";
+import { addEducationToProfile } from "../../../database/queries";
 import logger, { logObject } from "../../../logger";
 import RequestValidator from "../../../validation/RequestValidator";
 

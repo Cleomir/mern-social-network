@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { NO_PROFILE } from "../../config/customErrorMessages";
-import { findProfileByHandle } from "../../db/queries";
+import { findProfileByHandle } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 import { ValidationResult } from "@hapi/joi";

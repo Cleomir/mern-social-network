@@ -1,6 +1,6 @@
 import app from "./App";
 import { env } from "./config/envVariables";
-import connectToDB from "./db/connection";
+import connectToDB from "./database/connection";
 import logger, { logObject } from "./logger";
 
 // bootstrap

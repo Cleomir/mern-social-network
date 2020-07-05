@@ -5,7 +5,7 @@ import {
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
 } from "../../config/customErrorMessages";
-import { findPostById } from "../../db/queries";
+import { findPostById } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import IPost from "../../interfaces/IPost";
 

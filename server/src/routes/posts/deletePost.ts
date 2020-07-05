@@ -6,7 +6,7 @@ import {
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
 } from "../../config/customErrorMessages";
-import { removePost } from "../../db/queries";
+import { removePost } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import RequestValidator from "../../validation/RequestValidator";
 

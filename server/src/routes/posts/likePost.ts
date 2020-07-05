@@ -6,7 +6,7 @@ import {
   POST_ALREADY_LIKED,
   INTERNAL_SERVER_ERROR,
 } from "../../config/customErrorMessages";
-import { addLikeToPost } from "../../db/queries";
+import { addLikeToPost } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import RequestValidator from "../../validation/RequestValidator";
 

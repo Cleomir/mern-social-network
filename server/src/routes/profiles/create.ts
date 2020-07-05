@@ -6,7 +6,7 @@ import {
   PROFILE_HANDLE_EXISTS,
   INTERNAL_SERVER_ERROR,
 } from "../../config/customErrorMessages";
-import { insertProfile } from "../../db/queries";
+import { insertProfile } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 import RequestValidator from "../../validation/RequestValidator";

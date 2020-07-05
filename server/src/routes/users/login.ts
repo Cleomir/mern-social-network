@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 
-import { findUserByEmail } from "../../db/queries";
+import { findUserByEmail } from "../../database/queries";
 import PasswordHandler from "../../authentication/password";
 import IUser from "../../interfaces/IUser";
 import logger, { logObject } from "../../logger";
