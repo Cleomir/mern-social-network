@@ -17,7 +17,7 @@ export const env: { [key: string]: string } = {
 /**
  * Check if all env variables are defined, otherwise an error is thrown
  */
-export const checkForUndefinedEnvVariables = (): void => {
+export const checkUndefinedEnv = (): void => {
   for (const key in env) {
     if (!env[key]) {
       throw new Error(`Env variable ${key} is undefined`);
