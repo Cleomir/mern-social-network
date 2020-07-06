@@ -24,6 +24,7 @@ import IPost from "../interfaces/IPost";
 import Post from "./models/Post";
 import IComment from "../interfaces/IComment";
 import logger from "../logger";
+import { IFindUser, ISaveDocument } from "../interfaces/IDatabaseFunctions";
 
 /**
  * Add or append new education
@@ -523,12 +524,14 @@ export const findProfileByHandle = async (
  */
 export const insertUser = async (
   user: IUser,
+  findUserFunc: IFindUser,
+  saveUserFunc: ISaveDocument,
   requestId: string
 ): Promise<IUser> => {
   // query user
   const { name, email, password, avatar, date } = user;
   logger.info(`[MONGO][${requestId}] Querying email {${email}}`);
-  const existingUser: Document | null = await User.findOne({ email: email });
+  const existingUser: IUser | null = await findUserFunc({ email: email });
   if (existingUser) {
     logger.error(`[MONGO][${requestId}] Email already exists`);
     throw new Error(USER_EXISTS);
@@ -544,9 +547,29 @@ export const insertUser = async (
     date,
   });
   logger.info(`[MONGO][${requestId}] Saving new user`);
-  await newUser.save();
+  await saveUserFunc(newUser);
   logger.info(`[MONGO][${requestId}] User Saved`);
   return (newUser as unknown) as IUser;
+};
+
+/**
+ * Database save function for easy mocking
+ * @param document Mongo Document to be saved
+ */
+export const saveDocument = async (document: Document): Promise<void> => {
+  await document.save();
+};
+
+/**
+ * Database findOne function for easy mocking
+ * @param whereClause Query where clause
+ */
+export const findOneUser = async (
+  whereClause: Record<string, unknown>
+): Promise<IUser | null> => {
+  const user: Document | null = await User.findOne(whereClause);
+
+  return (user as unknown) as IUser;
 };
 
 /**
