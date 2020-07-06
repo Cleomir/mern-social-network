@@ -3,6 +3,7 @@ coverage
 server/logs
 server/dist
 .env
+.env.test
 .vscode
 dist
 docs
