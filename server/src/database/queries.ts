@@ -24,7 +24,11 @@ import IPost from "../interfaces/IPost";
 import Post from "./models/Post";
 import IComment from "../interfaces/IComment";
 import logger from "../logger";
-import { IFindUser, ISaveDocument } from "../interfaces/IDatabaseFunctions";
+import {
+  IFindOneUser,
+  ISaveOneDocument,
+  IFindOneProfile,
+} from "../interfaces/function-types/IDatabase";
 
 /**
  * Add or append new education
@@ -35,9 +39,13 @@ import { IFindUser, ISaveDocument } from "../interfaces/IDatabaseFunctions";
 export const addEducationToProfile = async (
   userId: string,
   education: IEducation[],
+  findProfileFunc: IFindOneProfile,
   requestId: string
 ): Promise<void> => {
-  const userProfile: IProfile | null = await findProfileById(userId, requestId);
+  const userProfile: IProfile | undefined = await findProfileFunc(
+    { user: userId },
+    requestId
+  );
   if (!userProfile) {
     throw new Error(USER_NOT_FOUND);
   }
@@ -61,9 +69,13 @@ export const addEducationToProfile = async (
 export const addExperienceToProfile = async (
   userId: string,
   experience: IExperience[],
+  findProfileFunc: IFindOneProfile,
   requestId: string
 ): Promise<void> => {
-  const userProfile: IProfile | null = await findProfileById(userId, requestId);
+  const userProfile: IProfile | undefined = await findProfileFunc(
+    { user: userId },
+    requestId
+  );
   if (!userProfile) {
     throw new Error(PROFILE_NOT_FOUND);
   }
@@ -299,9 +311,13 @@ export const removeCommentFromPost = async (
 export const removeExperienceFromProfile = async (
   userId: string,
   experienceId: string,
+  findProfileFunc: IFindOneProfile,
   requestId: string
 ): Promise<void> => {
-  const userProfile: IProfile | null = await findProfileById(userId, requestId);
+  const userProfile: IProfile | undefined = await findProfileFunc(
+    { user: userId },
+    requestId
+  );
   if (!userProfile) {
     throw new Error(PROFILE_NOT_FOUND);
   }
@@ -335,9 +351,13 @@ export const removeExperienceFromProfile = async (
 export const removeEducationFromProfile = async (
   userId: string,
   educationId: string,
+  findProfileFunc: IFindOneProfile,
   requestId: string
 ): Promise<void> => {
-  const userProfile: IProfile | null = await findProfileById(userId, requestId);
+  const userProfile: IProfile | undefined = await findProfileFunc(
+    { user: userId },
+    requestId
+  );
   if (!userProfile) {
     throw new Error(PROFILE_NOT_FOUND);
   }
@@ -369,9 +389,13 @@ export const removeEducationFromProfile = async (
  */
 export const removeProfile = async (
   userId: string,
+  findProfileFunc: IFindOneProfile,
   requestId: string
 ): Promise<void> => {
-  const userProfile: IProfile | null = await findProfileById(userId, requestId);
+  const userProfile: IProfile | undefined = await findProfileFunc(
+    { user: userId },
+    requestId
+  );
   if (!userProfile) {
     throw new Error(PROFILE_NOT_FOUND);
   }
@@ -409,7 +433,7 @@ export const removeProfileAndUser = async (
   userId: string,
   requestId: string
 ): Promise<void> => {
-  await removeProfile(userId, requestId);
+  await removeProfile(userId, findOneProfile, requestId);
   await removeUser(userId, requestId);
 };
 
@@ -475,57 +499,14 @@ export const findAllProfiles = async (
 };
 
 /**
- * Query profile by id
- * @param id User's id
- * @param requestId Id of the request
- */
-export const findProfileById = async (
-  id: string,
-  requestId: string
-): Promise<IProfile | null> => {
-  logger.error(`[MONGO][${requestId}] Querying profile by id`);
-  const profile: Document | null = await Profile.findOne({
-    user: id,
-  }).populate("user", ["name", "avatar"]);
-  if (!profile) {
-    logger.error(`[MONGO][${requestId}] Profile not found`);
-  }
-  logger.error(`[MONGO][${requestId}] Profile found`);
-
-  return (profile as unknown) as IProfile;
-};
-
-/**
- * Query profile by handle
- * @param handle Url handle
- * @param requestId Id of the request
- */
-export const findProfileByHandle = async (
-  handle: string,
-  requestId: string
-): Promise<IProfile | undefined> => {
-  logger.info(`[MONGO][${requestId}] Querying profile with handle {${handle}}`);
-  const profile: Document | null = await Profile.findOne({
-    handle,
-  }).populate("user", ["name", "avatar"]);
-  if (!profile) {
-    logger.info(`[MONGO][${requestId}] No profile found`);
-    return;
-  }
-  logger.info(`[MONGO][${requestId}] Profile found`);
-
-  return (profile as unknown) as IProfile;
-};
-
-/**
  * Save new user into Database
  * @param user - New user
  * @param requestId Id of the request
  */
 export const insertUser = async (
   user: IUser,
-  findUserFunc: IFindUser,
-  saveUserFunc: ISaveDocument,
+  findUserFunc: IFindOneUser,
+  saveUserFunc: ISaveOneDocument,
   requestId: string
 ): Promise<IUser> => {
   // query user
@@ -553,6 +534,45 @@ export const insertUser = async (
 };
 
 /**
+ * Save new Profile
+ * @param userId User's id
+ * @param fields profile fields
+ * @param requestId Id of the request
+ */
+export const insertProfile = async (
+  profile: IProfile,
+  findProfileFunc: IFindOneProfile,
+  saveDocumentFunc: ISaveOneDocument,
+  requestId: string
+): Promise<void> => {
+  // check profile id
+  const existingProfile: IProfile | undefined = await findProfileFunc(
+    { user: profile.user },
+    requestId
+  );
+  if (existingProfile) {
+    logger.error(`[MONGO][${requestId}] ${PROFILE_EXISTS}`);
+    throw new Error(PROFILE_EXISTS);
+  }
+
+  // check handle
+  const existingHandle: IProfile | undefined = await findProfileFunc(
+    { handle: profile.handle },
+    requestId
+  );
+  if (existingHandle) {
+    logger.error(`[MONGO][${requestId}] ${PROFILE_HANDLE_EXISTS}`);
+    throw new Error(PROFILE_HANDLE_EXISTS);
+  }
+
+  // save profile
+  logger.info(`[MONGO][${requestId}] Saving new profile`);
+  const newProfile: Document = new Profile(profile);
+  await saveDocumentFunc(newProfile);
+  logger.info(`[MONGO][${requestId}] Profile saved`);
+};
+
+/**
  * Database save function for easy mocking
  * @param document Mongo Document to be saved
  */
@@ -573,38 +593,22 @@ export const findOneUser = async (
 };
 
 /**
- * Save new Profile
- * @param userId User's id
- * @param fields profile fields
+ * Query a profile
+ * @param id User's id
  * @param requestId Id of the request
  */
-export const insertProfile = async (
-  profile: IProfile,
+export const findOneProfile = async (
+  whereClause: Record<string, unknown>,
   requestId: string
-): Promise<void> => {
-  // check profile id
-  const existingProfile: IProfile | null = await findProfileById(
-    profile.user,
-    requestId
-  );
-  if (existingProfile) {
-    logger.error(`[MONGO][${requestId}] ${PROFILE_EXISTS}`);
-    throw new Error(PROFILE_EXISTS);
+): Promise<IProfile | undefined> => {
+  logger.error(`[MONGO][${requestId}] Querying profile by id`);
+  const profile: Document | null = await Profile.findOne(
+    whereClause
+  ).populate("user", ["name", "avatar"]);
+  if (!profile) {
+    logger.error(`[MONGO][${requestId}] Profile not found`);
   }
+  logger.error(`[MONGO][${requestId}] Profile found`);
 
-  // check handle
-  const existingHandle: IProfile | undefined = await findProfileByHandle(
-    profile.handle,
-    requestId
-  );
-  if (existingHandle) {
-    logger.error(`[MONGO][${requestId}] ${PROFILE_HANDLE_EXISTS}`);
-    throw new Error(PROFILE_HANDLE_EXISTS);
-  }
-
-  // save profile
-  logger.info(`[MONGO][${requestId}] Saving new profile`);
-  const newProfile: Document = new Profile(profile);
-  await newProfile.save();
-  logger.info(`[MONGO][${requestId}] Profile saved`);
+  return (profile as unknown) as IProfile;
 };
