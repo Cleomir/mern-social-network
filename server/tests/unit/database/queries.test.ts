@@ -13,7 +13,7 @@ import IProfile from "../../../src/interfaces/IProfile";
 describe("Test database/queries.ts file", () => {
   const chance = new Chance();
 
-  test("It should be able to insert an user", async () => {
+  test("insertUser() should insert an user", async () => {
     const requestId: string = uuid();
     const user: IUser = {
       name: chance.name(),
@@ -27,7 +27,7 @@ describe("Test database/queries.ts file", () => {
 
     await insertUser(user, findUserMock, saveUserMock, requestId);
 
-    expect(findUserMock).toHaveBeenCalledWith({ email: user.email });
+    expect(findUserMock).toHaveBeenCalledWith({ email: user.email }, requestId);
     expect(saveUserMock).toHaveBeenCalled();
   });
 
