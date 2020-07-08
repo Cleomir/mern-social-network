@@ -31,7 +31,7 @@ describe("Test database/queries.ts file", () => {
     expect(saveUserMock).toHaveBeenCalled();
   });
 
-  test(`It should throw "${USER_EXISTS}" if user exists`, async () => {
+  test(`insertUser() should throw "${USER_EXISTS}" if user exists`, async () => {
     const requestId: string = uuid();
     const user: IUser = {
       name: chance.name(),
@@ -48,7 +48,7 @@ describe("Test database/queries.ts file", () => {
     ).rejects.toThrow(USER_EXISTS);
   });
 
-  test("It should be able to insert a profile", async () => {
+  test("insertProfile() should be able to insert a profile", async () => {
     // arrange
     const requestId: string = uuid();
     const userId = chance.guid({ version: 4 });
@@ -133,7 +133,7 @@ describe("Test database/queries.ts file", () => {
     expect(saveProfileMock).toHaveBeenCalled();
   });
 
-  test(`It should throw ${PROFILE_EXISTS} if profile exits`, async () => {
+  test(`insertProfile() should throw ${PROFILE_EXISTS} if profile exits`, async () => {
     // arrange
     const requestId: string = uuid();
     const userId = chance.guid({ version: 4 });
@@ -210,7 +210,7 @@ describe("Test database/queries.ts file", () => {
     ).rejects.toThrow(PROFILE_EXISTS);
   });
 
-  test(`It should throw ${PROFILE_HANDLE_EXISTS} if profile handle exits`, async () => {
+  test(`insertProfile() should throw ${PROFILE_HANDLE_EXISTS} if profile handle exits`, async () => {
     // arrange
     const requestId: string = uuid();
     const userId = chance.guid({ version: 4 });
