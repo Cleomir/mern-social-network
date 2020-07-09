@@ -1,10 +1,10 @@
-import { Document } from "mongoose";
+import { Document } from 'mongoose'
 
-import User from "./models/User";
-import Profile from "./models/Profile";
-import IUser from "../interfaces/IUser";
-import PasswordHandler from "../authentication/password";
-import IProfile from "../interfaces/IProfile";
+import User from './models/User'
+import Profile from './models/Profile'
+import IUser from '../interfaces/IUser'
+import PasswordHandler from '../authentication/password'
+import IProfile from '../interfaces/IProfile'
 import {
   USER_EXISTS,
   PROFILE_HANDLE_EXISTS,
@@ -17,20 +17,20 @@ import {
   POST_ALREADY_LIKED,
   POST_NOT_LIKED,
   PROFILE_NOT_FOUND,
-} from "../config/customErrorMessages";
-import IExperience from "../interfaces/IExperience";
-import IEducation from "../interfaces/IEducation";
-import IPost from "../interfaces/IPost";
-import Post from "./models/Post";
-import IComment from "../interfaces/IComment";
-import logger from "../logger";
+} from '../config/customErrorMessages'
+import IExperience from '../interfaces/IExperience'
+import IEducation from '../interfaces/IEducation'
+import IPost from '../interfaces/IPost'
+import Post from './models/Post'
+import IComment from '../interfaces/IComment'
+import logger from '../logger'
 import {
   IFindOneUser,
   ISaveOneDocument,
   IFindOneProfile,
   IDeleteOneDocument,
   IFindOnePost,
-} from "../interfaces/function-types/IDatabase";
+} from '../interfaces/function-types/IDatabase'
 
 /**
  * Add or append new education
@@ -48,20 +48,20 @@ export const addEducationToProfile = async (
   const userProfile: IProfile | undefined = await findOneProfileFunc(
     { user: userId },
     requestId
-  );
+  )
   if (!userProfile) {
-    throw new Error(USER_NOT_FOUND);
+    throw new Error(USER_NOT_FOUND)
   }
 
   // check if user already has experience
   userProfile.education
     ? (userProfile.education = [...education, ...userProfile.education])
-    : (userProfile.education = [...education]);
+    : (userProfile.education = [...education])
 
-  logger.info(`[MONGO][${requestId}] Saving new education`);
-  await saveOneDocumentFunc((userProfile as unknown) as Document);
-  logger.info(`[MONGO][${requestId}] Education saved`);
-};
+  logger.info(`[MONGO][${requestId}] Saving new education`)
+  await saveOneDocumentFunc((userProfile as unknown) as Document)
+  logger.info(`[MONGO][${requestId}] Education saved`)
+}
 
 /**
  * Add or append new work experience
@@ -79,20 +79,20 @@ export const addExperienceToProfile = async (
   const userProfile: IProfile | undefined = await findOneProfileFunc(
     { user: userId },
     requestId
-  );
+  )
   if (!userProfile) {
-    throw new Error(PROFILE_NOT_FOUND);
+    throw new Error(PROFILE_NOT_FOUND)
   }
 
   // check if user already has experience
   userProfile.experience
     ? (userProfile.experience = [...experience, ...userProfile.experience])
-    : (userProfile.experience = [...experience]);
+    : (userProfile.experience = [...experience])
 
-  logger.info(`[MONGO][${requestId}] Saving new experience`);
-  await saveOneDocumentFunc((userProfile as unknown) as Document);
-  logger.info(`[MONGO][${requestId}] Experience saved`);
-};
+  logger.info(`[MONGO][${requestId}] Saving new experience`)
+  await saveOneDocumentFunc((userProfile as unknown) as Document)
+  logger.info(`[MONGO][${requestId}] Experience saved`)
+}
 
 /**
  * Create a post
@@ -104,24 +104,10 @@ export const addPost = async (
   saveOneDocumentFunc: ISaveOneDocument,
   requestId: string
 ): Promise<void> => {
-  logger.info(`[MONGO][${requestId}] Saving new post`);
-  await saveOneDocumentFunc(new Post(post));
-  logger.info(`[MONGO][${requestId}] Post saved`);
-};
-
-/**
- * Query all posts in descending order
- * @param requestId Id of the request
- */
-export const findAllPosts = async (requestId: string): Promise<IPost[]> => {
-  logger.info(`[MONGO][${requestId}] Querying all posts`);
-  const posts: Document[] = await Post.find().sort({ date: -1 });
-  if (!posts || posts.length === 0) {
-    logger.info(`[MONGO][${requestId}] No post found`);
-  }
-  logger.info(`[MONGO][${requestId}] Posts found`);
-  return (posts as unknown) as IPost[];
-};
+  logger.info(`[MONGO][${requestId}] Saving new post`)
+  await saveOneDocumentFunc(new Post(post))
+  logger.info(`[MONGO][${requestId}] Post saved`)
+}
 
 /**
  * Query single post by id
@@ -135,22 +121,22 @@ export const removePost = async (
   deleteOneDocumentFunc: IDeleteOneDocument,
   requestId: string
 ): Promise<void> => {
-  const post: IPost | undefined = await findOnePostFunc(postId, requestId);
+  const post: IPost | undefined = await findOnePostFunc(postId, requestId)
   if (!post) {
-    throw new Error(POST_NOT_FOUND);
+    throw new Error(POST_NOT_FOUND)
   }
 
   // check post ownership
   if (post.user.toString() !== userId) {
-    logger.error(`[MONGO][${requestId}] Post doesn't belong to user`);
-    throw new Error(FORBIDDEN_OPERATION);
+    logger.error(`[MONGO][${requestId}] Post doesn't belong to user`)
+    throw new Error(FORBIDDEN_OPERATION)
   }
 
-  logger.error(`[MONGO][${requestId}] Removing post id {${postId}}`);
+  logger.error(`[MONGO][${requestId}] Removing post id {${postId}}`)
   //await ((post as unknown) as Document).remove();
-  await deleteOneDocumentFunc((post as unknown) as Document);
-  logger.error(`[MONGO][${requestId}] Post removed`);
-};
+  await deleteOneDocumentFunc((post as unknown) as Document)
+  logger.error(`[MONGO][${requestId}] Post removed`)
+}
 
 /**
  * Like a post
@@ -165,9 +151,9 @@ export const addLikeToPost = async (
   saveOneDocumentFunc: ISaveOneDocument,
   requestId: string
 ): Promise<void> => {
-  const post: IPost | undefined = await findOnePostFunc(postId, requestId);
+  const post: IPost | undefined = await findOnePostFunc(postId, requestId)
   if (!post) {
-    throw new Error(POST_NOT_FOUND);
+    throw new Error(POST_NOT_FOUND)
   }
 
   // check if user has already liked the post
@@ -177,15 +163,15 @@ export const addLikeToPost = async (
       (likedUserId) => likedUserId.user.toString() === userId
     ) !== -1
   ) {
-    logger.error(`[MONGO][${requestId}] Post already liked`);
-    throw new Error(POST_ALREADY_LIKED);
+    logger.error(`[MONGO][${requestId}] Post already liked`)
+    throw new Error(POST_ALREADY_LIKED)
   }
 
-  post.likes?.unshift({ user: userId });
-  logger.info(`[MONGO][${requestId}] Adding like to post`);
-  await saveOneDocumentFunc((post as unknown) as Document);
-  logger.info(`[MONGO][${requestId}] Like added`);
-};
+  post.likes?.unshift({ user: userId })
+  logger.info(`[MONGO][${requestId}] Adding like to post`)
+  await saveOneDocumentFunc((post as unknown) as Document)
+  logger.info(`[MONGO][${requestId}] Like added`)
+}
 
 /**
  * Unlike a post
@@ -200,29 +186,29 @@ export const RemoveLikeFromPost = async (
   saveOneDocumentFunc: ISaveOneDocument,
   requestId: string
 ): Promise<void> => {
-  const post: IPost | undefined = await findOnePostFunc(postId, requestId);
+  const post: IPost | undefined = await findOnePostFunc(postId, requestId)
   if (!post) {
-    throw new Error(POST_NOT_FOUND);
+    throw new Error(POST_NOT_FOUND)
   }
 
   // check if user didn't like the post yet
-  let userIdIndex = -1;
+  let userIdIndex = -1
   if (post.likes) {
     userIdIndex = post.likes.findIndex(
       (likedUserId) => likedUserId.user.toString() === userId
-    );
+    )
 
     if (userIdIndex === -1) {
-      logger.error(`[MONGO][${requestId}] Post not liked yet`);
-      throw new Error(POST_NOT_LIKED);
+      logger.error(`[MONGO][${requestId}] Post not liked yet`)
+      throw new Error(POST_NOT_LIKED)
     }
 
-    post.likes.splice(userIdIndex, 1);
-    logger.error(`[MONGO][${requestId}] Removing like from post`);
-    await saveOneDocumentFunc((post as unknown) as Document);
-    logger.error(`[MONGO][${requestId}] Like removed`);
+    post.likes.splice(userIdIndex, 1)
+    logger.error(`[MONGO][${requestId}] Removing like from post`)
+    await saveOneDocumentFunc((post as unknown) as Document)
+    logger.error(`[MONGO][${requestId}] Like removed`)
   }
-};
+}
 
 /**
  * Add comment to a post
@@ -237,17 +223,17 @@ export const addCommentToPost = async (
   saveOneDocumentFunc: ISaveOneDocument,
   requestId: string
 ): Promise<void> => {
-  const post: IPost | undefined = await findOnePostFunc(postId, requestId);
+  const post: IPost | undefined = await findOnePostFunc(postId, requestId)
   if (!post) {
-    throw new Error(POST_NOT_FOUND);
+    throw new Error(POST_NOT_FOUND)
   }
 
   // add post
-  logger.info(`[MONGO][${requestId}] Saving comment`);
-  post.comments?.unshift(comment);
-  await saveOneDocumentFunc((post as unknown) as Document);
-  logger.info(`[MONGO][${requestId}] Comment saved`);
-};
+  logger.info(`[MONGO][${requestId}] Saving comment`)
+  post.comments?.unshift(comment)
+  await saveOneDocumentFunc((post as unknown) as Document)
+  logger.info(`[MONGO][${requestId}] Comment saved`)
+}
 
 /**
  * Remove a comment from a post
@@ -264,39 +250,39 @@ export const removeCommentFromPost = async (
   saveOneDocumentFunc: ISaveOneDocument,
   requestId: string
 ): Promise<void> => {
-  const post: IPost | undefined = await findOnePostFunc(postId, requestId);
+  const post: IPost | undefined = await findOnePostFunc(postId, requestId)
   if (!post) {
-    throw new Error(POST_NOT_FOUND);
+    throw new Error(POST_NOT_FOUND)
   }
 
   // check if user has commented the post
-  let commentIndex = -1;
+  let commentIndex = -1
   if (post.comments) {
     commentIndex = post.comments.findIndex((comment) => {
       if (comment._id) {
         return (
           comment._id.toString() === commentId &&
           comment.user.toString() === userId
-        );
+        )
       }
 
-      return;
-    });
+      return
+    })
     if (commentIndex === -1) {
       logger.error(
         `[MONGO][${requestId}] Comment doesn't exist or belongs to another user`
-      );
-      throw new Error(FORBIDDEN_OPERATION);
+      )
+      throw new Error(FORBIDDEN_OPERATION)
     }
 
     logger.info(
       `[MONGO][${requestId}] Deleting comment id {${commentId}} from post id {${postId}}`
-    );
-    post.comments.splice(commentIndex, 1);
-    await saveOneDocumentFunc((post as unknown) as Document);
-    logger.info(`[MONGO][${requestId}] Comment deleted`);
+    )
+    post.comments.splice(commentIndex, 1)
+    await saveOneDocumentFunc((post as unknown) as Document)
+    logger.info(`[MONGO][${requestId}] Comment deleted`)
   }
-};
+}
 
 /**
  * Remove work experience
@@ -314,30 +300,30 @@ export const removeExperienceFromProfile = async (
   const userProfile: IProfile | undefined = await findOneProfileFunc(
     { user: userId },
     requestId
-  );
+  )
   if (!userProfile) {
-    throw new Error(PROFILE_NOT_FOUND);
+    throw new Error(PROFILE_NOT_FOUND)
   }
   if (!userProfile.experience) {
-    logger.error(`[MONGO][${requestId}] No experience found`);
-    throw new Error(NO_EXPERIENCE);
+    logger.error(`[MONGO][${requestId}] No experience found`)
+    throw new Error(NO_EXPERIENCE)
   }
 
   const ExperienceIndex: number = userProfile.experience.findIndex(
     (experience) => experience.id === experienceId
-  );
+  )
   if (ExperienceIndex === -1) {
     logger.error(
       `[MONGO][${requestId}] Experience id {${experienceId}} not found`
-    );
-    throw new Error(NO_EXPERIENCE);
+    )
+    throw new Error(NO_EXPERIENCE)
   }
 
-  logger.info(`[MONGO][${requestId}] Deleting experience id {${experienceId}}`);
-  userProfile.experience.splice(ExperienceIndex, 1);
-  await saveOneDocumentFunc((userProfile as unknown) as Document);
-  logger.info(`[MONGO][${requestId}] Experience deleted`);
-};
+  logger.info(`[MONGO][${requestId}] Deleting experience id {${experienceId}}`)
+  userProfile.experience.splice(ExperienceIndex, 1)
+  await saveOneDocumentFunc((userProfile as unknown) as Document)
+  logger.info(`[MONGO][${requestId}] Experience deleted`)
+}
 
 /**
  * Remove education
@@ -355,30 +341,30 @@ export const removeEducationFromProfile = async (
   const userProfile: IProfile | undefined = await findOneProfileFunc(
     { user: userId },
     requestId
-  );
+  )
   if (!userProfile) {
-    throw new Error(PROFILE_NOT_FOUND);
+    throw new Error(PROFILE_NOT_FOUND)
   }
   if (!userProfile.education) {
-    logger.error(`[MONGO][${requestId}] No education found`);
-    throw new Error(NO_EDUCATION);
+    logger.error(`[MONGO][${requestId}] No education found`)
+    throw new Error(NO_EDUCATION)
   }
 
   const EducationIndex: number = userProfile.education.findIndex(
     (education) => education.id === educationId
-  );
+  )
   if (EducationIndex === -1) {
     logger.error(
       `[MONGO][${requestId}] Education id {${educationId}} not found`
-    );
-    throw new Error(NO_EDUCATION);
+    )
+    throw new Error(NO_EDUCATION)
   }
 
-  logger.info(`[MONGO][${requestId}] Deleting education id {${educationId}}`);
-  userProfile.education.splice(EducationIndex, 1);
-  await saveOneDocumentFunc((userProfile as unknown) as Document);
-  logger.info(`[MONGO][${requestId}] Education deleted`);
-};
+  logger.info(`[MONGO][${requestId}] Deleting education id {${educationId}}`)
+  userProfile.education.splice(EducationIndex, 1)
+  await saveOneDocumentFunc((userProfile as unknown) as Document)
+  logger.info(`[MONGO][${requestId}] Education deleted`)
+}
 
 /**
  * Remove profile from database
@@ -394,15 +380,15 @@ export const removeProfile = async (
   const userProfile: IProfile | undefined = await findOneProfileFunc(
     { user: userId },
     requestId
-  );
+  )
   if (!userProfile) {
-    throw new Error(PROFILE_NOT_FOUND);
+    throw new Error(PROFILE_NOT_FOUND)
   }
 
-  logger.info(`[MONGO][${requestId}] Deleting user profile`);
-  await deleteOneDocumentFunc((userProfile as unknown) as Document);
-  logger.info(`[MONGO][${requestId}] Profile deleted`);
-};
+  logger.info(`[MONGO][${requestId}] Deleting user profile`)
+  await deleteOneDocumentFunc((userProfile as unknown) as Document)
+  logger.info(`[MONGO][${requestId}] Profile deleted`)
+}
 
 /**
  * Remove user from database
@@ -418,15 +404,15 @@ export const removeUser = async (
   const user: IUser | undefined = await findOneUserFunc(
     { _id: userId },
     requestId
-  );
+  )
   if (!user) {
-    throw new Error(USER_NOT_FOUND);
+    throw new Error(USER_NOT_FOUND)
   }
 
-  logger.info(`[MONGO][${requestId}] Deleting user`);
-  await deleteOneDocumentFunc((user as unknown) as Document);
-  logger.info(`[MONGO][${requestId}] User deleted`);
-};
+  logger.info(`[MONGO][${requestId}] Deleting user`)
+  await deleteOneDocumentFunc((user as unknown) as Document)
+  logger.info(`[MONGO][${requestId}] User deleted`)
+}
 
 /**
  * Remove profile and user from database
@@ -445,30 +431,9 @@ export const removeProfileAndUser = async (
     findOneProfileFunc,
     deleteOneDocumentFunc,
     requestId
-  );
-  await removeUser(userId, findOneUserFunc, deleteOneDocumentFunc, requestId);
-};
-
-/**
- * Query all profiles
- * @param requestId Id of the request
- */
-export const findAllProfiles = async (
-  requestId: string
-): Promise<IProfile[] | undefined> => {
-  logger.info(`[MONGO][${requestId}] Querying all profiles`);
-  const profiles: Document[] = await Profile.find().populate("user", [
-    "name",
-    "avatar",
-  ]);
-  if (!profiles) {
-    logger.info(`[MONGO][${requestId}] No profiles found`);
-    return;
-  }
-  logger.info(`[MONGO][${requestId}] Profiles found`);
-
-  return (profiles as unknown) as IProfile[];
-};
+  )
+  await removeUser(userId, findOneUserFunc, deleteOneDocumentFunc, requestId)
+}
 
 /**
  * Save new user into Database
@@ -482,31 +447,31 @@ export const insertUser = async (
   requestId: string
 ): Promise<IUser> => {
   // query user
-  const { name, email, password, avatar, date } = user;
-  logger.info(`[MONGO][${requestId}] Querying email {${email}}`);
+  const { name, email, password, avatar, date } = user
+  logger.info(`[MONGO][${requestId}] Querying email {${email}}`)
   const existingUser: IUser | undefined = await findOneUserFunc(
     { email: email },
     requestId
-  );
+  )
   if (existingUser) {
-    logger.error(`[MONGO][${requestId}] Email already exists`);
-    throw new Error(USER_EXISTS);
+    logger.error(`[MONGO][${requestId}] Email already exists`)
+    throw new Error(USER_EXISTS)
   }
 
   // save user
-  const hashedPassword: string = await PasswordHandler.hash(password);
+  const hashedPassword: string = await PasswordHandler.hash(password)
   const newUser: Document = new User({
     name,
     email,
     avatar,
     password: hashedPassword,
     date,
-  });
-  logger.info(`[MONGO][${requestId}] Saving new user`);
-  await saveOneUserFunc(newUser);
-  logger.info(`[MONGO][${requestId}] User Saved`);
-  return (newUser as unknown) as IUser;
-};
+  })
+  logger.info(`[MONGO][${requestId}] Saving new user`)
+  await saveOneUserFunc(newUser)
+  logger.info(`[MONGO][${requestId}] User Saved`)
+  return (newUser as unknown) as IUser
+}
 
 /**
  * Save new Profile
@@ -524,97 +489,25 @@ export const insertProfile = async (
   const existingProfile: IProfile | undefined = await findOneProfileFunc(
     { user: profile.user },
     requestId
-  );
+  )
   if (existingProfile) {
-    logger.error(`[MONGO][${requestId}] ${PROFILE_EXISTS}`);
-    throw new Error(PROFILE_EXISTS);
+    logger.error(`[MONGO][${requestId}] ${PROFILE_EXISTS}`)
+    throw new Error(PROFILE_EXISTS)
   }
 
   // check handle
   const existingHandle: IProfile | undefined = await findOneProfileFunc(
     { handle: profile.handle },
     requestId
-  );
+  )
   if (existingHandle) {
-    logger.error(`[MONGO][${requestId}] ${PROFILE_HANDLE_EXISTS}`);
-    throw new Error(PROFILE_HANDLE_EXISTS);
+    logger.error(`[MONGO][${requestId}] ${PROFILE_HANDLE_EXISTS}`)
+    throw new Error(PROFILE_HANDLE_EXISTS)
   }
 
   // save profile
-  logger.info(`[MONGO][${requestId}] Saving new profile`);
-  const newProfile: Document = new Profile(profile);
-  await saveOneDocumentFunc(newProfile);
-  logger.info(`[MONGO][${requestId}] Profile saved`);
-};
-
-/**
- * Database save function for easy mocking
- * @param document Mongo Document to be saved
- */
-export const saveOneDocument = async (document: Document): Promise<void> => {
-  await document.save();
-};
-
-export const deleteOneDocument = async (document: Document): Promise<void> => {
-  await document.remove();
-};
-
-/**
- * Database findOne function for easy mocking
- * @param whereClause Query where clause
- */
-export const findOneUser = async (
-  whereClause: Record<string, unknown>,
-  requestId: string
-): Promise<IUser | undefined> => {
-  logger.info(`[MONGO][${requestId}] Querying user with {${whereClause}}`);
-  const user: Document | null = await User.findOne(whereClause);
-  if (!user) {
-    logger.info(`[MONGO][${requestId}] User not found`);
-    return;
-  }
-  logger.info(`[MONGO][${requestId}] User found`);
-
-  return (user as unknown) as IUser;
-};
-
-/**
- * Query a profile
- * @param id User's id
- * @param requestId Id of the request
- */
-export const findOneProfile = async (
-  whereClause: Record<string, unknown>,
-  requestId: string
-): Promise<IProfile | undefined> => {
-  logger.error(`[MONGO][${requestId}] Querying profile by id`);
-  const profile: Document | null = await Profile.findOne(
-    whereClause
-  ).populate("user", ["name", "avatar"]);
-  if (!profile) {
-    logger.error(`[MONGO][${requestId}] Profile not found`);
-  }
-  logger.error(`[MONGO][${requestId}] Profile found`);
-
-  return (profile as unknown) as IProfile;
-};
-
-/**
- * Query a post by post id
- * @param id Post id
- * @param requestId Id of the request
- */
-export const findOnePost = async (
-  id: string,
-  requestId: string
-): Promise<IPost | undefined> => {
-  logger.error(`[MONGO][${requestId}] Querying post with {${id}}`);
-  const post: Document | null = await Post.findById(id);
-  if (!post) {
-    logger.error(`[MONGO][${requestId}] Post not found {${id}}`);
-    return;
-  }
-  logger.error(`[MONGO][${requestId}] Post found {${id}}`);
-
-  return (post as unknown) as IPost;
-};
+  logger.info(`[MONGO][${requestId}] Saving new profile`)
+  const newProfile: Document = new Profile(profile)
+  await saveOneDocumentFunc(newProfile)
+  logger.info(`[MONGO][${requestId}] Profile saved`)
+}
