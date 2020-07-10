@@ -9,6 +9,11 @@ import {
 import { removeProfileAndUser } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import RequestValidator from "../../validation/RequestValidator";
+import {
+  findOneProfile,
+  findOneUser,
+  deleteOneDocument,
+} from "../../database/dbDirectCalls";
 
 /**
  * Delete Profile and User
@@ -30,7 +35,13 @@ const deleteProfileAndUser = async (
 
   try {
     // delete profile and user
-    await removeProfileAndUser(id, req.id);
+    await removeProfileAndUser(
+      id,
+      findOneProfile,
+      findOneUser,
+      deleteOneDocument,
+      req.id
+    );
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();

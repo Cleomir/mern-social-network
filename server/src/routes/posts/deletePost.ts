@@ -9,6 +9,7 @@ import {
 import { removePost } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import RequestValidator from "../../validation/RequestValidator";
+import { findOnePost, deleteOneDocument } from "../../database/dbDirectCalls";
 
 /**
  * Delete a post by ID
@@ -28,7 +29,7 @@ const deletePost = async (req: Request, res: Response): Promise<unknown> => {
 
   try {
     // delete post
-    await removePost(userId, postId, req.id);
+    await removePost(userId, postId, findOnePost, deleteOneDocument, req.id);
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();

@@ -2,7 +2,7 @@ import express, { Application, Request, Response } from "express";
 import helmet from "helmet";
 import passport from "passport";
 
-import JwtHandler from "./authentication/jwt";
+import { validateJWT } from "./authentication/jwt";
 import posts from "./routes/posts";
 import profiles from "./routes/profiles";
 import users from "./routes/users";
@@ -19,7 +19,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(requestLogger());
 app.use(passport.initialize());
-JwtHandler.validate(passport);
+validateJWT(passport);
 
 // mount root routes
 app.use("/users", users);

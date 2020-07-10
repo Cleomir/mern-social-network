@@ -9,6 +9,7 @@ import {
 import { RemoveLikeFromPost } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import RequestValidator from "../../validation/RequestValidator";
+import { findOnePost, saveOneDocument } from "../../database/dbDirectCalls";
 
 /**
  * Like a post
@@ -28,7 +29,13 @@ const unlikePost = async (req: Request, res: Response): Promise<unknown> => {
 
   try {
     // remove like from post
-    await RemoveLikeFromPost(userId, postId, req.id);
+    await RemoveLikeFromPost(
+      userId,
+      postId,
+      findOnePost,
+      saveOneDocument,
+      req.id
+    );
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();

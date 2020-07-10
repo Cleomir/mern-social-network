@@ -5,6 +5,10 @@ import { INTERNAL_SERVER_ERROR } from "../../../config/customErrorMessages";
 import { addEducationToProfile } from "../../../database/queries";
 import logger, { logObject } from "../../../logger";
 import RequestValidator from "../../../validation/RequestValidator";
+import {
+  findOneProfile,
+  saveOneDocument,
+} from "../../../database/dbDirectCalls";
 
 /**
  * Add new education
@@ -23,7 +27,13 @@ const addEducation = async (req: Request, res: Response): Promise<unknown> => {
   }
 
   try {
-    await addEducationToProfile(id, education, req.id);
+    await addEducationToProfile(
+      id,
+      education,
+      findOneProfile,
+      saveOneDocument,
+      req.id
+    );
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();

@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 
 import { NO_PROFILE } from "../../config/customErrorMessages";
-import { findProfileByHandle } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 import { ValidationResult } from "@hapi/joi";
 import RequestValidator from "../../validation/RequestValidator";
+import { findOneProfile } from "../../database/dbDirectCalls";
 
 /**
  * Query profile by handle
@@ -25,8 +25,8 @@ const getProfileByHandle = async (
   }
 
   // find profile
-  const profile: IProfile | undefined = await findProfileByHandle(
-    handle,
+  const profile: IProfile | undefined = await findOneProfile(
+    { handle },
     req.id
   );
   if (!profile) {

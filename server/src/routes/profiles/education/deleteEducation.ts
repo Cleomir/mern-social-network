@@ -9,6 +9,10 @@ import {
 import { removeEducationFromProfile } from "../../../database/queries";
 import logger, { logObject } from "../../../logger";
 import RequestValidator from "../../../validation/RequestValidator";
+import {
+  findOneProfile,
+  saveOneDocument,
+} from "../../../database/dbDirectCalls";
 
 /**
  * Delete existing education
@@ -30,7 +34,13 @@ const deleteEducation = async (
   }
 
   try {
-    await removeEducationFromProfile(id, edu_id, req.id);
+    await removeEducationFromProfile(
+      id,
+      edu_id,
+      findOneProfile,
+      saveOneDocument,
+      req.id
+    );
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();

@@ -6,6 +6,7 @@ import { addPost } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import IPost from "../../interfaces/IPost";
 import RequestValidator from "../../validation/RequestValidator";
+import { saveOneDocument } from "../../database/dbDirectCalls";
 
 /**
  * Create a new post
@@ -32,7 +33,7 @@ const createPost = async (req: Request, res: Response): Promise<unknown> => {
 
   try {
     // save post
-    await addPost(post, req.id);
+    await addPost(post, saveOneDocument, req.id);
 
     logger.info(`[NODE][${req.id}] Response status 201`);
     return res.status(201).end();

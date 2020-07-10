@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 
-import { findUserByEmail } from "../../database/queries";
-import PasswordHandler from "../../authentication/password";
+import { comparePassword } from "../../authentication/password";
 import IUser from "../../interfaces/IUser";
 import logger, { logObject } from "../../logger";
-import JwtHandler from "../../authentication/jwt";
+import { signJWT } from "../../authentication/jwt";
 import IJwtPayload from "../../interfaces/IJwtPayload";
 import {
   USER_NOT_FOUND,
@@ -13,6 +12,7 @@ import {
   INTERNAL_SERVER_ERROR,
 } from "../../config/customErrorMessages";
 import RequestValidator from "../../validation/RequestValidator";
+import { findOneUser } from "../../database/dbDirectCalls";
 
 /**
  * User login
@@ -36,15 +36,15 @@ const login = async (
 
   try {
     // check if password match
-    const existingUser: IUser | undefined = await findUserByEmail(
-      email,
+    const existingUser: IUser | undefined = await findOneUser(
+      { email },
       req.id
     );
     if (!existingUser) {
       logger.error(`[NODE][${req.id}] Response status 404`);
       return res.status(404).json({ message: USER_NOT_FOUND });
     }
-    const isMatch = await PasswordHandler.compare(
+    const isMatch = await comparePassword(
       password,
       existingUser.password,
       req.id
@@ -61,7 +61,7 @@ const login = async (
       email: existingUser.email,
       avatar: existingUser.avatar,
     };
-    const token: string = JwtHandler.sign(payload, req.id);
+    const token: string = signJWT(payload, req.id);
 
     // server response
     logger.info(`[NODE][${req.id}] Response status 200`);

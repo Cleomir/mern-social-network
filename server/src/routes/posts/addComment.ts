@@ -9,6 +9,7 @@ import { addCommentToPost } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import IComment from "../../interfaces/IComment";
 import RequestValidator from "../../validation/RequestValidator";
+import { findOnePost, saveOneDocument } from "../../database/dbDirectCalls";
 
 /**
  * Add comment to a post
@@ -36,7 +37,13 @@ const addComment = async (req: Request, res: Response): Promise<unknown> => {
 
   try {
     // save comment
-    await addCommentToPost(post_id, comment, req.id);
+    await addCommentToPost(
+      post_id,
+      comment,
+      findOnePost,
+      saveOneDocument,
+      req.id
+    );
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();

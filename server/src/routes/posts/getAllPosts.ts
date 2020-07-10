@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { INTERNAL_SERVER_ERROR } from "../../config/customErrorMessages";
-import { findAllPosts } from "../../database/queries";
+import { findAllPosts } from "../../database/dbDirectCalls";
 import logger, { logObject } from "../../logger";
 import IPost from "../../interfaces/IPost";
 

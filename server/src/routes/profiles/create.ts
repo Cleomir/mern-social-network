@@ -10,6 +10,7 @@ import { insertProfile } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 import RequestValidator from "../../validation/RequestValidator";
+import { findOneProfile, saveOneDocument } from "../../database/dbDirectCalls";
 
 /**
  * Query user profile
@@ -43,7 +44,7 @@ const createProfile = async (req: Request, res: Response): Promise<unknown> => {
 
   try {
     // save profile
-    await insertProfile(profile, req.id);
+    await insertProfile(profile, findOneProfile, saveOneDocument, req.id);
 
     logger.info(`[NODE][${req.id}] Response status 201`);
     return res.status(201).end();

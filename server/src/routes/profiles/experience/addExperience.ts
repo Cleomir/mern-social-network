@@ -8,6 +8,10 @@ import {
 import { addExperienceToProfile } from "../../../database/queries";
 import logger, { logObject } from "../../../logger";
 import RequestValidator from "../../../validation/RequestValidator";
+import {
+  findOneProfile,
+  saveOneDocument,
+} from "../../../database/dbDirectCalls";
 
 /**
  * Add new experiences
@@ -26,7 +30,13 @@ const addExperience = async (req: Request, res: Response): Promise<unknown> => {
   }
 
   try {
-    await addExperienceToProfile(id, experience, req.id);
+    await addExperienceToProfile(
+      id,
+      experience,
+      findOneProfile,
+      saveOneDocument,
+      req.id
+    );
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();

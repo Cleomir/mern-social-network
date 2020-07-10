@@ -10,6 +10,7 @@ import {
   USER_EXISTS,
 } from "../../config/customErrorMessages";
 import RequestValidator from "../../validation/RequestValidator";
+import { findOneUser, saveOneDocument } from "../../database/dbDirectCalls";
 
 /**
  * Create new user
@@ -44,6 +45,8 @@ const create = async (req: Request, res: Response): Promise<Response> => {
         avatar,
         date: new Date(),
       },
+      findOneUser,
+      saveOneDocument,
       req.id
     );
 

@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 
 import { NO_PROFILE } from "../../config/customErrorMessages";
-import { findProfileById } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 import RequestValidator from "../../validation/RequestValidator";
+import { findOneProfile } from "../../database/dbDirectCalls";
 
 /**
  * Query profile by user ID
@@ -25,7 +25,10 @@ const getProfileByUserId = async (
   }
 
   try {
-    const profile: IProfile | null = await findProfileById(user_id, req.id);
+    const profile: IProfile | undefined = await findOneProfile(
+      { user: user_id },
+      req.id
+    );
     if (!profile) {
       logger.error(`[NODE][${req.id}] Response status 404`);
       return res.status(404).json({ message: NO_PROFILE });

@@ -9,6 +9,7 @@ import {
 import { addLikeToPost } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import RequestValidator from "../../validation/RequestValidator";
+import { findOnePost, saveOneDocument } from "../../database/dbDirectCalls";
 
 /**
  * Like a post
@@ -28,7 +29,7 @@ const likePost = async (req: Request, res: Response): Promise<unknown> => {
 
   try {
     // add like to post
-    await addLikeToPost(userId, postId, req.id);
+    await addLikeToPost(userId, postId, findOnePost, saveOneDocument, req.id);
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();

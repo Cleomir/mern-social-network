@@ -5,7 +5,7 @@ import {
   POST_NOT_FOUND,
   INTERNAL_SERVER_ERROR,
 } from "../../config/customErrorMessages";
-import { findPostById } from "../../database/queries";
+import { findOnePost } from "../../database/dbDirectCalls";
 import logger, { logObject } from "../../logger";
 import IPost from "../../interfaces/IPost";
 
@@ -27,7 +27,7 @@ const getPostById = async (req: Request, res: Response): Promise<unknown> => {
 
   try {
     // find post
-    const post: IPost | undefined = await findPostById(postId, req.id);
+    const post: IPost | undefined = await findOnePost(postId, req.id);
     if (!post) {
       logger.error(`[NODE][${req.id}] Response status 404`);
       return res.status(404).json({ message: POST_NOT_FOUND });

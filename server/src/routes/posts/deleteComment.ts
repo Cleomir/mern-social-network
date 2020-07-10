@@ -9,6 +9,7 @@ import {
 import { removeCommentFromPost } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import RequestValidator from "../../validation/RequestValidator";
+import { findOnePost, saveOneDocument } from "../../database/dbDirectCalls";
 
 /**
  * Delete a comment from a post
@@ -19,7 +20,7 @@ const deleteComment = async (req: Request, res: Response): Promise<unknown> => {
   // request validation
   const { post_id, comment_id } = req.params;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { id } = req.user!;
+  const { id: user_id } = req.user!;
   const validation: ValidationResult = RequestValidator.validateDeleteComment(
     post_id,
     comment_id
@@ -31,7 +32,14 @@ const deleteComment = async (req: Request, res: Response): Promise<unknown> => {
 
   try {
     // delete comment
-    await removeCommentFromPost(post_id, comment_id, id, req.id);
+    await removeCommentFromPost(
+      post_id,
+      comment_id,
+      user_id,
+      findOnePost,
+      saveOneDocument,
+      req.id
+    );
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();

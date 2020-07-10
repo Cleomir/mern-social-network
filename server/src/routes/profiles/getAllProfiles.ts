@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { NO_PROFILE } from "../../config/customErrorMessages";
-import { findAllProfiles } from "../../database/queries";
+import { findAllProfiles } from "../../database/dbDirectCalls";
 import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 
