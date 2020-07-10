@@ -30,7 +30,7 @@ import {
   IFindOneProfile,
   IDeleteOneDocument,
   IFindOnePost,
-} from '../interfaces/function-types/IDatabase'
+} from '../interfaces/function-types/Database'
 
 /**
  * Add or append new education
