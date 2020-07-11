@@ -2,26 +2,29 @@ import Chance from "chance";
 import { v4 as uuid } from "uuid";
 
 import IUser from "../../../src/interfaces/IUser";
-import { insertUser, insertProfile } from "../../../src/database/queries";
+import {
+  insertUser,
+  insertProfile,
+  removeUser,
+  removeProfile,
+} from "../../../src/database/queries";
 import {
   USER_EXISTS,
   PROFILE_EXISTS,
   PROFILE_HANDLE_EXISTS,
+  USER_NOT_FOUND,
+  PROFILE_NOT_FOUND,
 } from "../../../src/config/customErrorMessages";
 import IProfile from "../../../src/interfaces/IProfile";
+import { createProfileMock } from "../../helpers/createProfileMock";
+import { createUserMock } from "../../helpers/createUserMock";
 
 describe("Test database/queries.ts file", () => {
   const chance = new Chance();
 
   test("insertUser() should insert an user", async () => {
     const requestId: string = uuid();
-    const user: IUser = {
-      name: chance.name(),
-      avatar: chance.url(),
-      date: new Date(),
-      email: chance.email(),
-      password: chance.string(),
-    };
+    const user: IUser = createUserMock();
     const findUserMock = jest.fn();
     const saveUserMock = jest.fn();
 
@@ -33,13 +36,7 @@ describe("Test database/queries.ts file", () => {
 
   test(`insertUser() should throw "${USER_EXISTS}" if user exists`, async () => {
     const requestId: string = uuid();
-    const user: IUser = {
-      name: chance.name(),
-      avatar: chance.url(),
-      date: new Date(),
-      email: chance.email(),
-      password: chance.string(),
-    };
+    const user: IUser = createUserMock();
     const findUserMock = jest.fn(async () => user);
     const saveUserMock = jest.fn();
 
@@ -49,84 +46,20 @@ describe("Test database/queries.ts file", () => {
   });
 
   test("insertProfile() should be able to insert a profile", async () => {
-    // arrange
     const requestId: string = uuid();
-    const userId = chance.guid({ version: 4 });
-    const handle = chance.string({ length: 20 });
-    const company = chance.string();
-    const website = chance.string();
-    const location = chance.string();
-    const status = chance.string();
-    const skills = [];
-    const bio = chance.string();
-    const github_username = chance.string();
-    const from = chance.timestamp();
-    const to = chance.integer({ min: from, max: Date.now() });
-    const experience = [];
-    const education = [];
-    const social = {
-      youtube: chance.string(),
-      twitter: chance.string(),
-      facebook: chance.string(),
-      linkedin: chance.string(),
-      instagram: chance.string(),
-    };
-
-    // generate random skills
-    for (let index = 0; index < chance.integer({ min: 1, max: 50 }); index++) {
-      skills.push(chance.string());
-    }
-
-    // generate random experiences
-    for (let index = 0; index < chance.integer({ min: 0, max: 10 }); index++) {
-      experience.push({
-        title: chance.string(),
-        company: chance.string(),
-        location: chance.string(),
-        from: new Date(from),
-        to: new Date(to),
-        current: chance.bool(),
-        description: chance.string(),
-      });
-    }
-
-    // generate random education
-    for (let index = 0; index < chance.integer({ min: 0, max: 5 }); index++) {
-      education.push({
-        school: chance.string(),
-        degree: chance.string(),
-        field_of_study: chance.string(),
-        from: new Date(from),
-        to: new Date(to),
-        current: chance.bool(),
-        description: chance.string(),
-      });
-    }
-    const profile: IProfile = {
-      user: userId,
-      handle,
-      company,
-      website,
-      location,
-      status,
-      skills,
-      bio,
-      github_username,
-      education,
-      experience,
-      social,
-    };
+    const profile: IProfile = createProfileMock();
     const findProfileMock = jest.fn();
     const saveProfileMock = jest.fn();
 
-    // act
     await insertProfile(profile, findProfileMock, saveProfileMock, requestId);
 
-    // assert
-    expect(findProfileMock).toHaveBeenCalledWith({ user: userId }, requestId);
+    expect(findProfileMock).toHaveBeenCalledWith(
+      { user: profile.user },
+      requestId
+    );
     expect(findProfileMock).toHaveBeenLastCalledWith(
       {
-        handle: handle,
+        handle: profile.handle,
       },
       requestId
     );
@@ -134,159 +67,78 @@ describe("Test database/queries.ts file", () => {
   });
 
   test(`insertProfile() should throw ${PROFILE_EXISTS} if profile exits`, async () => {
-    // arrange
     const requestId: string = uuid();
-    const userId = chance.guid({ version: 4 });
-    const handle = chance.string({ length: 20 });
-    const company = chance.string();
-    const website = chance.string();
-    const location = chance.string();
-    const status = chance.string();
-    const skills = [];
-    const bio = chance.string();
-    const github_username = chance.string();
-    const from = chance.timestamp();
-    const to = chance.integer({ min: from, max: Date.now() });
-    const experience = [];
-    const education = [];
-    const social = {
-      youtube: chance.string(),
-      twitter: chance.string(),
-      facebook: chance.string(),
-      linkedin: chance.string(),
-      instagram: chance.string(),
-    };
-
-    // generate random skills
-    for (let index = 0; index < chance.integer({ min: 1, max: 50 }); index++) {
-      skills.push(chance.string());
-    }
-
-    // generate random experiences
-    for (let index = 0; index < chance.integer({ min: 0, max: 10 }); index++) {
-      experience.push({
-        title: chance.string(),
-        company: chance.string(),
-        location: chance.string(),
-        from: new Date(from),
-        to: new Date(to),
-        current: chance.bool(),
-        description: chance.string(),
-      });
-    }
-
-    // generate random education
-    for (let index = 0; index < chance.integer({ min: 0, max: 5 }); index++) {
-      education.push({
-        school: chance.string(),
-        degree: chance.string(),
-        field_of_study: chance.string(),
-        from: new Date(from),
-        to: new Date(to),
-        current: chance.bool(),
-        description: chance.string(),
-      });
-    }
-    const profile: IProfile = {
-      user: userId,
-      handle,
-      company,
-      website,
-      location,
-      status,
-      skills,
-      bio,
-      github_username,
-      education,
-      experience,
-      social,
-    };
+    const profile: IProfile = createProfileMock();
     const findProfileMock = jest.fn(async () => profile);
     const saveProfileMock = jest.fn();
 
-    // assert
     await expect(() =>
       insertProfile(profile, findProfileMock, saveProfileMock, requestId)
     ).rejects.toThrow(PROFILE_EXISTS);
   });
 
   test(`insertProfile() should throw ${PROFILE_HANDLE_EXISTS} if profile handle exits`, async () => {
-    // arrange
     const requestId: string = uuid();
-    const userId = chance.guid({ version: 4 });
-    const handle = chance.string({ length: 20 });
-    const company = chance.string();
-    const website = chance.string();
-    const location = chance.string();
-    const status = chance.string();
-    const skills = [];
-    const bio = chance.string();
-    const github_username = chance.string();
-    const from = chance.timestamp();
-    const to = chance.integer({ min: from, max: Date.now() });
-    const experience = [];
-    const education = [];
-    const social = {
-      youtube: chance.string(),
-      twitter: chance.string(),
-      facebook: chance.string(),
-      linkedin: chance.string(),
-      instagram: chance.string(),
-    };
-
-    // generate random skills
-    for (let index = 0; index < chance.integer({ min: 1, max: 50 }); index++) {
-      skills.push(chance.string());
-    }
-
-    // generate random experiences
-    for (let index = 0; index < chance.integer({ min: 0, max: 10 }); index++) {
-      experience.push({
-        title: chance.string(),
-        company: chance.string(),
-        location: chance.string(),
-        from: new Date(from),
-        to: new Date(to),
-        current: chance.bool(),
-        description: chance.string(),
-      });
-    }
-
-    // generate random education
-    for (let index = 0; index < chance.integer({ min: 0, max: 5 }); index++) {
-      education.push({
-        school: chance.string(),
-        degree: chance.string(),
-        field_of_study: chance.string(),
-        from: new Date(from),
-        to: new Date(to),
-        current: chance.bool(),
-        description: chance.string(),
-      });
-    }
-    const profile: IProfile = {
-      user: userId,
-      handle,
-      company,
-      website,
-      location,
-      status,
-      skills,
-      bio,
-      github_username,
-      education,
-      experience,
-      social,
-    };
+    const profile: IProfile = createProfileMock();
     const findProfileMock = jest
       .fn()
       .mockReturnValueOnce(undefined)
       .mockReturnValueOnce(profile);
     const saveProfileMock = jest.fn();
 
-    // assert
     await expect(() =>
       insertProfile(profile, findProfileMock, saveProfileMock, requestId)
     ).rejects.toThrow(PROFILE_HANDLE_EXISTS);
+  });
+
+  test(`removeUser() should be able to delete an user`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const user: IUser = createUserMock();
+    const findUserMock = jest.fn(async () => user);
+    const deleteUserMock = jest.fn();
+
+    await removeUser(userId, findUserMock, deleteUserMock, requestId);
+
+    expect(findUserMock).toHaveBeenLastCalledWith({ _id: userId }, requestId);
+    expect(deleteUserMock).toHaveBeenCalled();
+  });
+
+  test(`removeUser() should throw ${USER_NOT_FOUND} if user doesn't exist`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const findUserMock = jest.fn();
+    const deleteUserMock = jest.fn();
+
+    await expect(() =>
+      removeUser(userId, findUserMock, deleteUserMock, requestId)
+    ).rejects.toThrow(USER_NOT_FOUND);
+  });
+
+  test(`removeProfile () should be able to delete a profile`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const profile: IProfile = createProfileMock();
+    const findProfileMock = jest.fn(async () => profile);
+    const deleteUserMock = jest.fn();
+
+    await removeProfile(userId, findProfileMock, deleteUserMock, requestId);
+
+    expect(findProfileMock).toHaveBeenLastCalledWith(
+      { user: userId },
+      requestId
+    );
+    expect(deleteUserMock).toHaveBeenCalled();
+  });
+
+  test(`removeProfile() should throw ${PROFILE_NOT_FOUND} if profile doesn't exist`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const findProfileMock = jest.fn();
+    const deleteUserMock = jest.fn();
+
+    await expect(() =>
+      removeProfile(userId, findProfileMock, deleteUserMock, requestId)
+    ).rejects.toThrow(PROFILE_NOT_FOUND);
   });
 });
