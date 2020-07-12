@@ -7,6 +7,7 @@ import {
   insertProfile,
   removeUser,
   removeProfile,
+  removeProfileAndUser,
 } from "../../../src/database/queries";
 import {
   USER_EXISTS,
@@ -140,5 +141,27 @@ describe("Test database/queries.ts file", () => {
     await expect(() =>
       removeProfile(userId, findProfileMock, deleteUserMock, requestId)
     ).rejects.toThrow(PROFILE_NOT_FOUND);
+  });
+
+  test(`removeProfileAndUser() should delete a user and its profile`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const user: IUser = createUserMock();
+    const profile: IProfile = createProfileMock();
+    const findProfileMock = jest.fn(async () => profile);
+    const findUserMock = jest.fn(async () => user);
+    const deleteDocumentMock = jest.fn();
+
+    await removeProfileAndUser(
+      userId,
+      findProfileMock,
+      findUserMock,
+      deleteDocumentMock,
+      requestId
+    );
+
+    expect(findProfileMock).toBeCalled();
+    expect(findUserMock).toBeCalled();
+    expect(deleteDocumentMock).toBeCalledTimes(2);
   });
 });
