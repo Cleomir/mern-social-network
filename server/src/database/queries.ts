@@ -338,6 +338,7 @@ export const removeEducationFromProfile = async (
   saveOneDocumentFunc: ISaveOneDocument,
   requestId: string
 ): Promise<void> => {
+  // find profile
   const userProfile: IProfile | undefined = await findOneProfileFunc(
     { user: userId },
     requestId
@@ -350,6 +351,7 @@ export const removeEducationFromProfile = async (
     throw new Error(NO_EDUCATION);
   }
 
+  // remove education
   const EducationIndex: number = userProfile.education.findIndex(
     (education) => education.id === educationId
   );
@@ -359,9 +361,10 @@ export const removeEducationFromProfile = async (
     );
     throw new Error(NO_EDUCATION);
   }
-
   logger.info(`[MONGO][${requestId}] Deleting education id {${educationId}}`);
   userProfile.education.splice(EducationIndex, 1);
+
+  // save profile
   await saveOneDocumentFunc((userProfile as unknown) as Document);
   logger.info(`[MONGO][${requestId}] Education deleted`);
 };
