@@ -8,6 +8,7 @@ import {
   removeUser,
   removeProfile,
   removeProfileAndUser,
+  removeEducationFromProfile,
 } from "../../../src/database/queries";
 import {
   USER_EXISTS,
@@ -15,10 +16,12 @@ import {
   PROFILE_HANDLE_EXISTS,
   USER_NOT_FOUND,
   PROFILE_NOT_FOUND,
+  NO_EDUCATION,
 } from "../../../src/config/customErrorMessages";
 import IProfile from "../../../src/interfaces/IProfile";
-import { createProfileMock } from "../../helpers/createProfileMock";
-import { createUserMock } from "../../helpers/createUserMock";
+import createProfileMock from "../../helpers/createProfileMock";
+import createUserMock from "../../helpers/createUserMock";
+import addEducationToProfileMock from "../../helpers/addEducationToProfileMock";
 
 describe("Test database/queries.ts file", () => {
   const chance = new Chance();
@@ -163,5 +166,83 @@ describe("Test database/queries.ts file", () => {
     expect(findProfileMock).toBeCalled();
     expect(findUserMock).toBeCalled();
     expect(deleteDocumentMock).toBeCalledTimes(2);
+  });
+
+  test(`removeEducationFromProfile() should delete an education from a profile`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const educationId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    let profile: IProfile = createProfileMock();
+    profile = addEducationToProfileMock(profile, educationId);
+    const findProfileMock = jest.fn(async () => profile);
+    const saveDocumentMock = jest.fn();
+
+    await removeEducationFromProfile(
+      userId,
+      educationId,
+      findProfileMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findProfileMock).toBeCalledWith({ user: userId }, requestId);
+    expect(saveDocumentMock).toBeCalled();
+  });
+
+  test(`removeEducationFromProfile() should throw ${PROFILE_NOT_FOUND} if profile doesn't exist`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const educationId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const findProfileMock = jest.fn();
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      removeEducationFromProfile(
+        userId,
+        educationId,
+        findProfileMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(PROFILE_NOT_FOUND);
+  });
+
+  test(`removeEducationFromProfile() should throw ${NO_EDUCATION} if education doesn't exist`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const educationId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const profile: IProfile = createProfileMock();
+    const findProfileMock = jest.fn(async () => profile);
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      removeEducationFromProfile(
+        userId,
+        educationId,
+        findProfileMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(NO_EDUCATION);
+  });
+
+  test(`removeEducationFromProfile() should throw ${NO_EDUCATION} if education id is not found`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const educationId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    let profile: IProfile = createProfileMock();
+    profile = addEducationToProfileMock(profile, educationId);
+    const findProfileMock = jest.fn(async () => profile);
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      removeEducationFromProfile(
+        userId,
+        uuid(),
+        findProfileMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(NO_EDUCATION);
   });
 });
