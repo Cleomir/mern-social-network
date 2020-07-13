@@ -36,7 +36,7 @@ const addEducation = async (req: Request, res: Response): Promise<unknown> => {
     );
 
     logger.info(`[NODE][${req.id}] Response status 200`);
-    return res.status(200).end();
+    return res.status(201).end();
   } catch (error) {
     logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });

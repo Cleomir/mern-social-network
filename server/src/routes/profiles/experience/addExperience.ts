@@ -39,7 +39,7 @@ const addExperience = async (req: Request, res: Response): Promise<unknown> => {
     );
 
     logger.info(`[NODE][${req.id}] Response status 200`);
-    return res.status(200).end();
+    return res.status(201).end();
   } catch (error) {
     if (error.message === PROFILE_NOT_FOUND) {
       logger.error(`[NODE][${req.id}] Response status 404`);
