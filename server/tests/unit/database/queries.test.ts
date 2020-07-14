@@ -9,6 +9,8 @@ import {
   removeProfile,
   removeProfileAndUser,
   removeEducationFromProfile,
+  removeExperienceFromProfile,
+  addEducationToProfile,
 } from "../../../src/database/queries";
 import {
   USER_EXISTS,
@@ -17,11 +19,13 @@ import {
   USER_NOT_FOUND,
   PROFILE_NOT_FOUND,
   NO_EDUCATION,
+  NO_EXPERIENCE,
 } from "../../../src/config/customErrorMessages";
 import IProfile from "../../../src/interfaces/IProfile";
 import createProfileMock from "../../helpers/createProfileMock";
 import createUserMock from "../../helpers/createUserMock";
-import addEducationToProfileMock from "../../helpers/addEducationToProfileMock";
+import createEducationMock from "../../helpers/createEducationMock";
+import createExperienceMock from "../../helpers/createExperienceMock";
 
 describe("Test database/queries.ts file", () => {
   const chance = new Chance();
@@ -172,8 +176,8 @@ describe("Test database/queries.ts file", () => {
     const userId = chance.guid({ version: 4 });
     const educationId = chance.guid({ version: 4 });
     const requestId: string = uuid();
-    let profile: IProfile = createProfileMock();
-    profile = addEducationToProfileMock(profile, educationId);
+    const profile: IProfile = createProfileMock();
+    profile.education = [createEducationMock(educationId)];
     const findProfileMock = jest.fn(async () => profile);
     const saveDocumentMock = jest.fn();
 
@@ -230,8 +234,8 @@ describe("Test database/queries.ts file", () => {
     const userId = chance.guid({ version: 4 });
     const educationId = chance.guid({ version: 4 });
     const requestId: string = uuid();
-    let profile: IProfile = createProfileMock();
-    profile = addEducationToProfileMock(profile, educationId);
+    const profile: IProfile = createProfileMock();
+    profile.education = [createEducationMock(educationId)];
     const findProfileMock = jest.fn(async () => profile);
     const saveDocumentMock = jest.fn();
 
@@ -244,5 +248,142 @@ describe("Test database/queries.ts file", () => {
         requestId
       )
     ).rejects.toThrow(NO_EDUCATION);
+  });
+
+  test(`removeExperienceFromProfile() should delete an experience from a profile`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const experienceId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const profile: IProfile = createProfileMock();
+    profile.experience = [createExperienceMock(experienceId)];
+    const findProfileMock = jest.fn(async () => profile);
+    const saveDocumentMock = jest.fn();
+
+    await removeExperienceFromProfile(
+      userId,
+      experienceId,
+      findProfileMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findProfileMock).toBeCalledWith({ user: userId }, requestId);
+    expect(saveDocumentMock).toBeCalled();
+  });
+
+  test(`removeExperienceFromProfile() should throw ${PROFILE_NOT_FOUND} if profile doesn't exist`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const experienceId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const findProfileMock = jest.fn();
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      removeExperienceFromProfile(
+        userId,
+        experienceId,
+        findProfileMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(PROFILE_NOT_FOUND);
+  });
+
+  test(`removeExperienceFromProfile() should throw ${NO_EXPERIENCE} if experience doesn't exist`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const experienceId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const profile: IProfile = createProfileMock();
+    const findProfileMock = jest.fn(async () => profile);
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      removeExperienceFromProfile(
+        userId,
+        experienceId,
+        findProfileMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(NO_EXPERIENCE);
+  });
+
+  test(`removeExperienceFromProfile() should throw ${NO_EXPERIENCE} if education id is not found`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const experienceId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const profile: IProfile = createProfileMock();
+    profile.experience = [createExperienceMock(experienceId)];
+    const findProfileMock = jest.fn(async () => profile);
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      removeExperienceFromProfile(
+        userId,
+        uuid(),
+        findProfileMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(NO_EXPERIENCE);
+  });
+
+  test(`addEducationToProfile() should add an experience to a profile`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const profile: IProfile = createProfileMock();
+    const educationMock = [createEducationMock()];
+    const findProfileMock = jest.fn(async () => profile);
+    const saveDocumentMock = jest.fn();
+
+    await addEducationToProfile(
+      userId,
+      educationMock,
+      findProfileMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findProfileMock).toBeCalledWith({ user: userId }, requestId);
+    expect(saveDocumentMock).toBeCalled();
+  });
+
+  test(`addEducationToProfile() should add multiple experiences to a profile`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const profile: IProfile = createProfileMock();
+    const educationMock = [createEducationMock()];
+    profile.education = [createEducationMock()];
+    const findProfileMock = jest.fn(async () => profile);
+    const saveDocumentMock = jest.fn();
+
+    await addEducationToProfile(
+      userId,
+      educationMock,
+      findProfileMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findProfileMock).toBeCalledWith({ user: userId }, requestId);
+    expect(saveDocumentMock).toBeCalled();
+  });
+
+  test(`addEducationToProfile() should throw ${USER_NOT_FOUND} if profile is not found`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const educationMock = [createEducationMock()];
+    const findProfileMock = jest.fn();
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      addEducationToProfile(
+        userId,
+        educationMock,
+        findProfileMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(USER_NOT_FOUND);
   });
 });
