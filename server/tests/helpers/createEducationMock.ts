@@ -1,7 +1,7 @@
 import Chance from "chance";
 import IEducation from "../../src/interfaces/IEducation";
 
-const createEducationMock = (educationId: string): IEducation => {
+const createEducationMock = (educationId?: string): IEducation => {
   const chance = new Chance();
   const from = chance.timestamp();
   const to = chance.integer({ min: from, max: Date.now() });
