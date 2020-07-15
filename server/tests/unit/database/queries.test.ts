@@ -11,6 +11,8 @@ import {
   removeEducationFromProfile,
   removeExperienceFromProfile,
   addEducationToProfile,
+  addExperienceToProfile,
+  addPost,
 } from "../../../src/database/queries";
 import {
   USER_EXISTS,
@@ -26,6 +28,8 @@ import createProfileMock from "../../helpers/createProfileMock";
 import createUserMock from "../../helpers/createUserMock";
 import createEducationMock from "../../helpers/createEducationMock";
 import createExperienceMock from "../../helpers/createExperienceMock";
+import createPostMock from "../../helpers/createPostMock";
+import IPost from "../../../src/interfaces/IPost";
 
 describe("Test database/queries.ts file", () => {
   const chance = new Chance();
@@ -167,9 +171,9 @@ describe("Test database/queries.ts file", () => {
       requestId
     );
 
-    expect(findProfileMock).toBeCalled();
-    expect(findUserMock).toBeCalled();
-    expect(deleteDocumentMock).toBeCalledTimes(2);
+    expect(findProfileMock).toHaveBeenCalled();
+    expect(findUserMock).toHaveBeenCalled();
+    expect(deleteDocumentMock).toHaveBeenCalledTimes(2);
   });
 
   test(`removeEducationFromProfile() should delete an education from a profile`, async () => {
@@ -189,8 +193,8 @@ describe("Test database/queries.ts file", () => {
       requestId
     );
 
-    expect(findProfileMock).toBeCalledWith({ user: userId }, requestId);
-    expect(saveDocumentMock).toBeCalled();
+    expect(findProfileMock).toHaveBeenCalledWith({ user: userId }, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
   });
 
   test(`removeEducationFromProfile() should throw ${PROFILE_NOT_FOUND} if profile doesn't exist`, async () => {
@@ -267,8 +271,8 @@ describe("Test database/queries.ts file", () => {
       requestId
     );
 
-    expect(findProfileMock).toBeCalledWith({ user: userId }, requestId);
-    expect(saveDocumentMock).toBeCalled();
+    expect(findProfileMock).toHaveBeenCalledWith({ user: userId }, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
   });
 
   test(`removeExperienceFromProfile() should throw ${PROFILE_NOT_FOUND} if profile doesn't exist`, async () => {
@@ -328,7 +332,7 @@ describe("Test database/queries.ts file", () => {
     ).rejects.toThrow(NO_EXPERIENCE);
   });
 
-  test(`addEducationToProfile() should add an experience to a profile`, async () => {
+  test(`addEducationToProfile() should add an education to a profile`, async () => {
     const userId = chance.guid({ version: 4 });
     const requestId: string = uuid();
     const profile: IProfile = createProfileMock();
@@ -344,11 +348,11 @@ describe("Test database/queries.ts file", () => {
       requestId
     );
 
-    expect(findProfileMock).toBeCalledWith({ user: userId }, requestId);
-    expect(saveDocumentMock).toBeCalled();
+    expect(findProfileMock).toHaveBeenCalledWith({ user: userId }, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
   });
 
-  test(`addEducationToProfile() should add multiple experiences to a profile`, async () => {
+  test(`addEducationToProfile() should add multiple educations to a profile`, async () => {
     const userId = chance.guid({ version: 4 });
     const requestId: string = uuid();
     const profile: IProfile = createProfileMock();
@@ -365,8 +369,8 @@ describe("Test database/queries.ts file", () => {
       requestId
     );
 
-    expect(findProfileMock).toBeCalledWith({ user: userId }, requestId);
-    expect(saveDocumentMock).toBeCalled();
+    expect(findProfileMock).toHaveBeenCalledWith({ user: userId }, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
   });
 
   test(`addEducationToProfile() should throw ${USER_NOT_FOUND} if profile is not found`, async () => {
@@ -385,5 +389,75 @@ describe("Test database/queries.ts file", () => {
         requestId
       )
     ).rejects.toThrow(USER_NOT_FOUND);
+  });
+
+  test(`addExperienceToProfile() should add an experience to a profile`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const profile: IProfile = createProfileMock();
+    const experienceMock = [createExperienceMock()];
+    const findProfileMock = jest.fn(async () => profile);
+    const saveDocumentMock = jest.fn();
+
+    await addExperienceToProfile(
+      userId,
+      experienceMock,
+      findProfileMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findProfileMock).toHaveBeenCalledWith({ user: userId }, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
+  });
+
+  test(`addExperienceToProfile() should add multiple experiences to a profile`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const profile: IProfile = createProfileMock();
+    const experienceMock = [createExperienceMock()];
+    profile.experience = [createExperienceMock()];
+    const findProfileMock = jest.fn(async () => profile);
+    const saveDocumentMock = jest.fn();
+
+    await addExperienceToProfile(
+      userId,
+      experienceMock,
+      findProfileMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findProfileMock).toHaveBeenCalledWith({ user: userId }, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
+  });
+
+  test(`addExperienceToProfile() should throw ${PROFILE_NOT_FOUND} if profile is not found`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const requestId: string = uuid();
+    const experienceMock = [createExperienceMock()];
+    const findProfileMock = jest.fn();
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      addExperienceToProfile(
+        userId,
+        experienceMock,
+        findProfileMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(PROFILE_NOT_FOUND);
+  });
+
+  test(`addPost() should create a post`, async () => {
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    const post: IPost = createPostMock(postId);
+    const saveDocumentMock = jest.fn();
+
+    await addPost(post, saveDocumentMock, requestId);
+
+    expect(saveDocumentMock).toHaveBeenCalled();
   });
 });
