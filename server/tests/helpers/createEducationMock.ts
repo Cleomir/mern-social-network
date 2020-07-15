@@ -6,8 +6,6 @@ const createEducationMock = (educationId?: string): IEducation => {
   const from = chance.timestamp();
   const to = chance.integer({ min: from, max: Date.now() });
 
-  // generate random education
-
   return {
     id: educationId,
     school: chance.string(),
