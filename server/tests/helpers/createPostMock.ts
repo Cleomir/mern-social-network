@@ -1,7 +1,7 @@
 import Chance from "chance";
 import IPost from "../../src/interfaces/IPost";
 
-const createPostMock = (postId: string): IPost => {
+const createPostMock = (postId: string, userId: string): IPost => {
   const chance = new Chance();
 
   return {
@@ -9,7 +9,7 @@ const createPostMock = (postId: string): IPost => {
     avatar: chance.url(),
     name: chance.string(),
     text: chance.string(),
-    user: chance.name(),
+    user: userId,
   };
 };
 
