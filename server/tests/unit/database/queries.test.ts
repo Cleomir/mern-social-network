@@ -13,6 +13,8 @@ import {
   addEducationToProfile,
   addExperienceToProfile,
   addPost,
+  removePost,
+  addLikeToPost,
 } from "../../../src/database/queries";
 import {
   USER_EXISTS,
@@ -22,6 +24,9 @@ import {
   PROFILE_NOT_FOUND,
   NO_EDUCATION,
   NO_EXPERIENCE,
+  POST_NOT_FOUND,
+  FORBIDDEN_OPERATION,
+  POST_ALREADY_LIKED,
 } from "../../../src/config/customErrorMessages";
 import IProfile from "../../../src/interfaces/IProfile";
 import createProfileMock from "../../helpers/createProfileMock";
@@ -29,6 +34,7 @@ import createUserMock from "../../helpers/createUserMock";
 import createEducationMock from "../../helpers/createEducationMock";
 import createExperienceMock from "../../helpers/createExperienceMock";
 import createPostMock from "../../helpers/createPostMock";
+import addLikeToPostMock from "../../helpers/addLikeToPostMock";
 import IPost from "../../../src/interfaces/IPost";
 
 describe("Test database/queries.ts file", () => {
@@ -453,11 +459,123 @@ describe("Test database/queries.ts file", () => {
   test(`addPost() should create a post`, async () => {
     const postId: string = uuid();
     const requestId: string = uuid();
-    const post: IPost = createPostMock(postId);
+    const post: IPost = createPostMock(postId, uuid());
     const saveDocumentMock = jest.fn();
 
     await addPost(post, saveDocumentMock, requestId);
 
     expect(saveDocumentMock).toHaveBeenCalled();
+  });
+
+  test(`removePost() should delete a post`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    const post: IPost = createPostMock(postId, userId);
+    const findPostMock = jest.fn(async () => post);
+    const deleteDocumentMock = jest.fn();
+
+    await removePost(
+      userId,
+      postId,
+      findPostMock,
+      deleteDocumentMock,
+      requestId
+    );
+
+    expect(findPostMock).toHaveBeenCalledWith(postId, requestId);
+    expect(deleteDocumentMock).toHaveBeenCalled();
+  });
+
+  test(`removePost() should throw ${POST_NOT_FOUND} if post is not found`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    const findPostMock = jest.fn();
+    const deleteDocumentMock = jest.fn();
+
+    await expect(() =>
+      removePost(userId, postId, findPostMock, deleteDocumentMock, requestId)
+    ).rejects.toThrow(POST_NOT_FOUND);
+  });
+
+  test(`removePost() should throw ${FORBIDDEN_OPERATION} if post doesn't belong to user`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    const post: IPost = createPostMock(postId, chance.string());
+    const findPostMock = jest.fn(async () => post);
+    const deleteDocumentMock = jest.fn();
+
+    await expect(() =>
+      removePost(userId, postId, findPostMock, deleteDocumentMock, requestId)
+    ).rejects.toThrow(FORBIDDEN_OPERATION);
+  });
+
+  test(`addLikeToPost() should add a like to a post`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    const post: IPost = createPostMock(postId, userId);
+    const findPostMock = jest.fn(async () => post);
+    const saveDocumentMock = jest.fn();
+
+    await addLikeToPost(
+      userId,
+      postId,
+      findPostMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findPostMock).toHaveBeenCalledWith(postId, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
+  });
+
+  test(`addLikeToPost() should add multiple likes to a post`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    let post: IPost = createPostMock(postId, userId);
+    post = addLikeToPostMock(post, uuid());
+    const findPostMock = jest.fn(async () => post);
+    const saveDocumentMock = jest.fn();
+
+    await addLikeToPost(
+      userId,
+      postId,
+      findPostMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findPostMock).toHaveBeenCalledWith(postId, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
+  });
+
+  test(`addLikeToPost() should throw ${POST_NOT_FOUND} if post post is not found`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    const findPostMock = jest.fn();
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      addLikeToPost(userId, postId, findPostMock, saveDocumentMock, requestId)
+    ).rejects.toThrow(POST_NOT_FOUND);
+  });
+
+  test(`addLikeToPost() should throw ${POST_ALREADY_LIKED} if post is already liked`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    let post: IPost = createPostMock(postId, userId);
+    post = addLikeToPostMock(post, userId);
+    const findPostMock = jest.fn(async () => post);
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      addLikeToPost(userId, postId, findPostMock, saveDocumentMock, requestId)
+    ).rejects.toThrow(POST_ALREADY_LIKED);
   });
 });
