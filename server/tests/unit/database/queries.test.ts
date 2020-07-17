@@ -15,6 +15,9 @@ import {
   addPost,
   removePost,
   addLikeToPost,
+  removeLikeFromPost,
+  addCommentToPost,
+  removeCommentFromPost,
 } from "../../../src/database/queries";
 import {
   USER_EXISTS,
@@ -27,6 +30,7 @@ import {
   POST_NOT_FOUND,
   FORBIDDEN_OPERATION,
   POST_ALREADY_LIKED,
+  POST_NOT_LIKED,
 } from "../../../src/config/customErrorMessages";
 import IProfile from "../../../src/interfaces/IProfile";
 import createProfileMock from "../../helpers/createProfileMock";
@@ -34,8 +38,10 @@ import createUserMock from "../../helpers/createUserMock";
 import createEducationMock from "../../helpers/createEducationMock";
 import createExperienceMock from "../../helpers/createExperienceMock";
 import createPostMock from "../../helpers/createPostMock";
+import createCommentMock from "../../helpers/createCommentMock";
 import addLikeToPostMock from "../../helpers/addLikeToPostMock";
 import IPost from "../../../src/interfaces/IPost";
+import IComment from "../../../src/interfaces/IComment";
 
 describe("Test database/queries.ts file", () => {
   const chance = new Chance();
@@ -577,5 +583,190 @@ describe("Test database/queries.ts file", () => {
     await expect(() =>
       addLikeToPost(userId, postId, findPostMock, saveDocumentMock, requestId)
     ).rejects.toThrow(POST_ALREADY_LIKED);
+  });
+
+  test(`removeLikeFromPost() should remove a like from a post`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    let post: IPost = createPostMock(postId, userId);
+    post = addLikeToPostMock(post, userId);
+    const findPostMock = jest.fn(async () => post);
+    const saveDocumentMock = jest.fn();
+
+    await removeLikeFromPost(
+      userId,
+      postId,
+      findPostMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findPostMock).toHaveBeenCalledWith(postId, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
+  });
+
+  test(`removeLikeFromPost() should throw ${POST_NOT_FOUND} if post is not found`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    const findPostMock = jest.fn();
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      removeLikeFromPost(
+        userId,
+        postId,
+        findPostMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(POST_NOT_FOUND);
+  });
+
+  test(`removeLikeFromPost() should throw ${POST_NOT_LIKED} if post doesn't have any like`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    let post: IPost = createPostMock(postId, userId);
+    post = addLikeToPostMock(post, uuid());
+    const findPostMock = jest.fn(async () => post);
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      removeLikeFromPost(
+        userId,
+        postId,
+        findPostMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(POST_NOT_LIKED);
+  });
+
+  test(`addCommentToPost() should a comment to a post`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    const post: IPost = createPostMock(postId, userId);
+    const comment: IComment = createCommentMock(uuid(), userId);
+    const findPostMock = jest.fn(async () => post);
+    const saveDocumentMock = jest.fn();
+
+    await addCommentToPost(
+      postId,
+      comment,
+      findPostMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findPostMock).toHaveBeenCalledWith(postId, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
+  });
+
+  test(`addCommentToPost() should add multiple comments to a post`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    const post: IPost = createPostMock(postId, userId);
+    post.comments = [createCommentMock(uuid(), userId)];
+    const comment: IComment = createCommentMock(uuid(), uuid());
+    const findPostMock = jest.fn(async () => post);
+    const saveDocumentMock = jest.fn();
+
+    await addCommentToPost(
+      postId,
+      comment,
+      findPostMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findPostMock).toHaveBeenCalledWith(postId, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
+  });
+
+  test(`addCommentToPost() should throw ${POST_NOT_FOUND} if post is not found`, async () => {
+    const postId: string = uuid();
+    const requestId: string = uuid();
+    const comment: IComment = createCommentMock(uuid(), uuid());
+    const findPostMock = jest.fn();
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      addCommentToPost(
+        postId,
+        comment,
+        findPostMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(POST_NOT_FOUND);
+  });
+
+  test(`removeCommentFromPost() should remove a comment from a post`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const commentId: string = uuid();
+    const requestId: string = uuid();
+    const post: IPost = createPostMock(postId, userId);
+    post.comments = [createCommentMock(commentId, userId)];
+    const findPostMock = jest.fn(async () => post);
+    const saveDocumentMock = jest.fn();
+
+    await removeCommentFromPost(
+      postId,
+      commentId,
+      userId,
+      findPostMock,
+      saveDocumentMock,
+      requestId
+    );
+
+    expect(findPostMock).toHaveBeenCalledWith(postId, requestId);
+    expect(saveDocumentMock).toHaveBeenCalled();
+  });
+
+  test(`removeCommentFromPost() should throw ${POST_NOT_FOUND} if post is not found`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const commentId: string = uuid();
+    const requestId: string = uuid();
+    const findPostMock = jest.fn();
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      removeCommentFromPost(
+        postId,
+        commentId,
+        userId,
+        findPostMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(POST_NOT_FOUND);
+  });
+
+  test(`removeCommentFromPost() should throw ${FORBIDDEN_OPERATION} if comment doesn't belong to user`, async () => {
+    const userId = chance.guid({ version: 4 });
+    const postId: string = uuid();
+    const commentId: string = uuid();
+    const requestId: string = uuid();
+    const post: IPost = createPostMock(postId, userId);
+    post.comments = [createCommentMock(commentId, uuid())];
+    const findPostMock = jest.fn(async () => post);
+    const saveDocumentMock = jest.fn();
+
+    await expect(() =>
+      removeCommentFromPost(
+        postId,
+        commentId,
+        userId,
+        findPostMock,
+        saveDocumentMock,
+        requestId
+      )
+    ).rejects.toThrow(FORBIDDEN_OPERATION);
   });
 });
