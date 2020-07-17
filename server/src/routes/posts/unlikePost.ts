@@ -6,7 +6,7 @@ import {
   POST_NOT_LIKED,
   INTERNAL_SERVER_ERROR,
 } from "../../config/customErrorMessages";
-import { RemoveLikeFromPost } from "../../database/queries";
+import { removeLikeFromPost } from "../../database/queries";
 import logger, { logObject } from "../../logger";
 import RequestValidator from "../../validation/RequestValidator";
 import { findOnePost, saveOneDocument } from "../../database/dbDirectCalls";
@@ -29,7 +29,7 @@ const unlikePost = async (req: Request, res: Response): Promise<unknown> => {
 
   try {
     // remove like from post
-    await RemoveLikeFromPost(
+    await removeLikeFromPost(
       userId,
       postId,
       findOnePost,

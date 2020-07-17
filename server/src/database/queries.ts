@@ -133,7 +133,6 @@ export const removePost = async (
   }
 
   logger.error(`[MONGO][${requestId}] Removing post id {${postId}}`);
-  //await ((post as unknown) as Document).remove();
   await deleteOneDocumentFunc((post as unknown) as Document);
   logger.error(`[MONGO][${requestId}] Post removed`);
 };
@@ -179,7 +178,7 @@ export const addLikeToPost = async (
  * @param postId Post id
  * @param requestId Id of the request
  */
-export const RemoveLikeFromPost = async (
+export const removeLikeFromPost = async (
   userId: string,
   postId: string,
   findOnePostFunc: IFindOnePost,
@@ -197,13 +196,12 @@ export const RemoveLikeFromPost = async (
     userIdIndex = post.likes.findIndex(
       (likedUserId) => likedUserId.user.toString() === userId
     );
-
     if (userIdIndex === -1) {
       logger.error(`[MONGO][${requestId}] Post not liked yet`);
       throw new Error(POST_NOT_LIKED);
     }
-
     post.likes.splice(userIdIndex, 1);
+
     logger.error(`[MONGO][${requestId}] Removing like from post`);
     await saveOneDocumentFunc((post as unknown) as Document);
     logger.error(`[MONGO][${requestId}] Like removed`);
