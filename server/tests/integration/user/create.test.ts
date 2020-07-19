@@ -38,6 +38,7 @@ describe("Test /users/register path", () => {
     expect(response.body).toHaveProperty("email");
     expect(response.body).toHaveProperty("avatar");
     expect(response.body).toHaveProperty("date");
+    insertUserMock.mockRestore();
   });
 
   test("It should return status 400 if name is undefined", async () => {
@@ -169,8 +170,10 @@ describe("Test /users/register path", () => {
       .set("Content-type", "application/json")
       .send({ name, email, password });
 
+    expect(insertUserMock).toHaveBeenCalled();
     expect(response.status).toBe(403);
     expect(response.body.message).toBe(USER_EXISTS);
+    insertUserMock.mockRestore();
   });
 
   test("It should return status 500 if any internal error occurs", async () => {
@@ -187,7 +190,9 @@ describe("Test /users/register path", () => {
       .set("Content-type", "application/json")
       .send({ name, email, password });
 
+    expect(insertUserMock).toHaveBeenCalled();
     expect(response.status).toBe(500);
     expect(response.body.message).toBe(INTERNAL_SERVER_ERROR);
+    insertUserMock.mockRestore();
   });
 });
