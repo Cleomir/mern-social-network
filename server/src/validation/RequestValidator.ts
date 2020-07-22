@@ -32,11 +32,11 @@ export default class RequestValidator {
     description: Joi.string(),
   });
   private static socialPattern = Joi.object({
-    youtube: Joi.string(),
-    twitter: Joi.string(),
-    facebook: Joi.string(),
-    linkedin: Joi.string(),
-    instagram: Joi.string(),
+    youtube: Joi.string().pattern(/youtube\.com\/channel\/\w{1,}/, "YouTube"),
+    twitter: Joi.string().pattern(/twitter\.com\/\w{1,}/, "Twitter"),
+    facebook: Joi.string().pattern(/facebook\.com\/\w{1,}/, "Facebook"),
+    linkedin: Joi.string().pattern(/linkedin\.com\/in\/\w{1,}/, "Linkedin"),
+    instagram: Joi.string().pattern(/instagram\.com\/\w{1,}/, "Instagram"),
   });
 
   public static validateHandle(handle: string): Joi.ValidationResult {
