@@ -7,6 +7,8 @@ import { signJWT } from "../../../src/authentication/jwt";
 import createProfileMock from "../../helpers/createProfileMock";
 import * as queries from "../../../src/database/queries";
 import IProfile from "../../../src/interfaces/IProfile";
+import createExperienceMock from "../../helpers/createExperienceMock";
+import createEducationMock from "../../helpers/createEducationMock";
 
 describe("Test /profiles path", () => {
   const chance = new Chance();
@@ -29,6 +31,7 @@ describe("Test /profiles path", () => {
         ...profile,
       });
 
+    console.log(response.body.message);
     expect(insertProfileMock).toHaveBeenCalled();
     expect(response.status).toBe(201);
     insertProfileMock.mockRestore();
@@ -202,6 +205,7 @@ describe("Test /profiles path", () => {
     const profile: IProfile = createProfileMock();
     const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
     const skills = new Array(51);
+
     const response: Response = await request(app)
       .post("/profiles")
       .set("Content-type", "application/json")
@@ -215,5 +219,183 @@ describe("Test /profiles path", () => {
     expect(response.body.message).toBe(
       '"skills" must contain less than or equal to 50 items'
     );
+  });
+
+  test("It should return status 400 if experience length is greater than 10", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    profile.experience = [];
+    for (let i = 0; i <= 10; i++) {
+      profile.experience.push(createExperienceMock());
+    }
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe(
+      '"experience" must contain less than or equal to 10 items'
+    );
+  });
+
+  test("It should return status 400 if education length is greater than 5", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    profile.education = [];
+    for (let i = 0; i <= 5; i++) {
+      profile.education.push(createEducationMock());
+    }
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe(
+      '"education" must contain less than or equal to 5 items'
+    );
+  });
+
+  test("It should return status 400 if company is invalid", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+        company: chance.integer(),
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('"company" must be a string');
+  });
+
+  test("It should return status 400 if website is invalid", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+        website: chance.integer(),
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('"website" must be a string');
+  });
+
+  test("It should return status 400 if location is invalid", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+        location: chance.integer(),
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('"location" must be a string');
+  });
+
+  test("It should return status 400 if bio is invalid", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+        bio: chance.integer(),
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('"bio" must be a string');
+  });
+
+  test("It should return status 400 if github username is invalid", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+        github_username: chance.integer(),
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('"github_username" must be a string');
+  });
+
+  test("It should return status 400 if youtube inside ", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+        github_username: chance.integer(),
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('"github_username" must be a string');
   });
 });
