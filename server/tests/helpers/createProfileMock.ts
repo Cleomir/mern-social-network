@@ -14,11 +14,11 @@ const createProfileMock = (): IProfile => {
   const bio = chance.string();
   const github_username = chance.string();
   const social = {
-    youtube: chance.string(),
-    twitter: chance.string(),
-    facebook: chance.string(),
-    linkedin: chance.string(),
-    instagram: chance.string(),
+    youtube: `youtube.com/channel/${chance.string({ alpha: true })}`,
+    twitter: `twitter.com/${chance.string({ alpha: true })}`,
+    facebook: `facebook.com/${chance.string({ alpha: true })}`,
+    linkedin: `linkedin.com/in/${chance.string({ alpha: true })}`,
+    instagram: `instagram.com/${chance.string({ alpha: true })}`,
   };
 
   // generate random skills
