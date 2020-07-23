@@ -9,8 +9,13 @@ import * as queries from "../../../src/database/queries";
 import IProfile from "../../../src/interfaces/IProfile";
 import createExperienceMock from "../../helpers/createExperienceMock";
 import createEducationMock from "../../helpers/createEducationMock";
+import {
+  PROFILE_EXISTS,
+  PROFILE_HANDLE_EXISTS,
+  INTERNAL_SERVER_ERROR,
+} from "../../../src/config/customErrorMessages";
 
-describe("Test /profiles path", () => {
+describe("Test POST /profiles path", () => {
   const chance = new Chance();
 
   test("It should create a profile and return status 200", async () => {
@@ -31,7 +36,6 @@ describe("Test /profiles path", () => {
         ...profile,
       });
 
-    console.log(response.body.message);
     expect(insertProfileMock).toHaveBeenCalled();
     expect(response.status).toBe(201);
     insertProfileMock.mockRestore();
@@ -378,7 +382,7 @@ describe("Test /profiles path", () => {
     expect(response.body.message).toBe('"github_username" must be a string');
   });
 
-  test("It should return status 400 if youtube inside ", async () => {
+  test("It should return status 400 if youtube link is not a string ", async () => {
     const userId: string = chance.hash({ length: 24 });
     const name: string = chance.name();
     const email: string = chance.email();
@@ -392,10 +396,172 @@ describe("Test /profiles path", () => {
       .set("Authorization", `Bearer ${token}`)
       .send({
         ...profile,
-        github_username: chance.integer(),
+        social: { youtube: chance.integer() },
       });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe('"github_username" must be a string');
+    expect(response.body.message).toBe('"social.youtube" must be a string');
+  });
+
+  test("It should return status 400 if twitter link is not a string ", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+        social: { twitter: chance.integer() },
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('"social.twitter" must be a string');
+  });
+
+  test("It should return status 400 if facebook link is not a string ", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+        social: { facebook: chance.integer() },
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('"social.facebook" must be a string');
+  });
+
+  test("It should return status 400 if linkedin link is not a string ", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+        social: { linkedin: chance.integer() },
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('"social.linkedin" must be a string');
+  });
+
+  test("It should return status 400 if instagram link is not a string ", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+        social: { instagram: chance.integer() },
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('"social.instagram" must be a string');
+  });
+
+  test("It should return 403 if profile already exists", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+    const insertProfileMock = jest.spyOn(queries, "insertProfile");
+    insertProfileMock.mockImplementation(async () => {
+      throw new Error(PROFILE_EXISTS);
+    });
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+      });
+
+    expect(insertProfileMock).toHaveBeenCalled();
+    expect(response.status).toBe(403);
+    expect(response.body.message).toBe(PROFILE_EXISTS);
+    insertProfileMock.mockRestore();
+  });
+
+  test("It should return 403 if profile handle already exists", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+    const insertProfileMock = jest.spyOn(queries, "insertProfile");
+    insertProfileMock.mockImplementation(async () => {
+      throw new Error(PROFILE_HANDLE_EXISTS);
+    });
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+      });
+
+    expect(insertProfileMock).toHaveBeenCalled();
+    expect(response.status).toBe(403);
+    expect(response.body.message).toBe(PROFILE_HANDLE_EXISTS);
+    insertProfileMock.mockRestore();
+  });
+
+  test("It should return 500 if any internal error occurs", async () => {
+    const userId: string = chance.hash({ length: 24 });
+    const name: string = chance.name();
+    const email: string = chance.email();
+    const avatar: string = chance.url();
+    const profile: IProfile = createProfileMock();
+    const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
+    const insertProfileMock = jest.spyOn(queries, "insertProfile");
+    insertProfileMock.mockImplementation(async () => {
+      throw new Error(INTERNAL_SERVER_ERROR);
+    });
+
+    const response: Response = await request(app)
+      .post("/profiles")
+      .set("Content-type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        ...profile,
+      });
+
+    expect(insertProfileMock).toHaveBeenCalled();
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe(INTERNAL_SERVER_ERROR);
+    insertProfileMock.mockRestore();
   });
 });
