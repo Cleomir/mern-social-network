@@ -46,7 +46,10 @@ const deleteProfileAndUser = async (
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();
   } catch (error) {
-    if (error.message === USER_NOT_FOUND || PROFILE_NOT_FOUND) {
+    if (
+      error.message === USER_NOT_FOUND ||
+      error.message === PROFILE_NOT_FOUND
+    ) {
       logger.error(`[NODE][${req.id}] Response status 403`);
       return res.status(403).json({ message: error.message });
     }
