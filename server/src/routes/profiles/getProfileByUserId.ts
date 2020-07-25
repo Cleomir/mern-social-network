@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 
-import { NO_PROFILE } from "../../config/customErrorMessages";
+import {
+  NO_PROFILE,
+  INTERNAL_SERVER_ERROR,
+} from "../../config/customErrorMessages";
 import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 import RequestValidator from "../../validation/RequestValidator";
@@ -24,6 +27,7 @@ const getProfileByUserId = async (
     return res.status(400).json({ message: validation.error.message });
   }
 
+  // find profile
   try {
     const profile: IProfile | undefined = await findOneProfile(
       { user: user_id },
@@ -38,7 +42,7 @@ const getProfileByUserId = async (
     return res.status(200).json(profile);
   } catch (error) {
     logObject("error", `[NODE][${req.id}] Response status 500`, error);
-    return res.status(500).json({ message: NO_PROFILE });
+    return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 

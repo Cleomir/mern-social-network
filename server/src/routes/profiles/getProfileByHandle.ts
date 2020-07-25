@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 
-import { NO_PROFILE } from "../../config/customErrorMessages";
+import {
+  NO_PROFILE,
+  INTERNAL_SERVER_ERROR,
+} from "../../config/customErrorMessages";
 import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
 import { ValidationResult } from "@hapi/joi";
@@ -25,21 +28,21 @@ const getProfileByHandle = async (
   }
 
   // find profile
-  const profile: IProfile | undefined = await findOneProfile(
-    { handle },
-    req.id
-  );
-  if (!profile) {
-    logger.error(`[NODE][${req.id}] Response status 404`);
-    return res.status(404).json({ message: NO_PROFILE });
-  }
-
   try {
+    const profile: IProfile | undefined = await findOneProfile(
+      { handle },
+      req.id
+    );
+    if (!profile) {
+      logger.error(`[NODE][${req.id}] Response status 404`);
+      return res.status(404).json({ message: NO_PROFILE });
+    }
+
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).json(profile);
   } catch (error) {
     logObject("error", `[NODE][${req.id}] Response status 500`, error);
-    return res.status(500).json({ message: NO_PROFILE });
+    return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 
