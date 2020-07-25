@@ -8,7 +8,6 @@ import deleteEducation from "./education/deleteEducation";
 import addExperience from "./experience/addExperience";
 import deleteExperience from "./experience/deleteExperience";
 import getAllProfiles from "./getAllProfiles";
-import getCurrentUserProfile from "./getCurrentUserProfile";
 import getProfileByHandle from "./getProfileByHandle";
 import getProfileByUserId from "./getProfileByUserId";
 
@@ -26,7 +25,6 @@ router.delete(
   deleteEducation
 );
 router.get("/handle/:handle", getProfileByHandle);
-router.get("/all", getAllProfiles);
 router.post(
   "/experience",
   passport.authenticate("jwt", { session: false }),
@@ -37,21 +35,17 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   addEducation
 );
+router.get("/:user_id", getProfileByUserId);
 router.delete(
   "/",
   passport.authenticate("jwt", { session: false }),
   deleteProfileAndUser
-);
-router.get(
-  "/",
-  passport.authenticate("jwt", { session: false }),
-  getCurrentUserProfile
 );
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   createProfile
 );
-router.get("/:user_id", getProfileByUserId);
+router.get("/", getAllProfiles);
 
 export default router;
