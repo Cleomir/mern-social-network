@@ -5,14 +5,14 @@ import * as queries from "../../../src/database/dbDirectCalls";
 import createProfileMock from "../../helpers/createProfileMock";
 import { INTERNAL_SERVER_ERROR } from "../../../src/config/customErrorMessages";
 
-describe("Test GET /profiles/all path", () => {
+describe("Test GET /profiles/ path", () => {
   test("It should query all user profiles and return status 200 ", async () => {
     const profileMock = createProfileMock();
     const findAllProfilesMock = jest.spyOn(queries, "findAllProfiles");
     findAllProfilesMock.mockImplementation(async () => [profileMock]);
 
     const response: Response = await request(app)
-      .get("/profiles/all")
+      .get("/profiles/")
       .set("Content-type", "application/json")
       .send();
 
@@ -26,7 +26,7 @@ describe("Test GET /profiles/all path", () => {
     findAllProfilesMock.mockImplementation();
 
     const response: Response = await request(app)
-      .get("/profiles/all")
+      .get("/profiles/")
       .set("Content-type", "application/json")
       .send();
 
@@ -42,7 +42,7 @@ describe("Test GET /profiles/all path", () => {
     });
 
     const response: Response = await request(app)
-      .get("/profiles/all")
+      .get("/profiles/")
       .set("Content-type", "application/json")
       .send();
 
