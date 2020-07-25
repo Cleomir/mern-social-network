@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 
-import { NO_PROFILE } from "../../config/customErrorMessages";
+import {
+  NO_PROFILE,
+  INTERNAL_SERVER_ERROR,
+} from "../../config/customErrorMessages";
 import { findAllProfiles } from "../../database/dbDirectCalls";
 import logger, { logObject } from "../../logger";
 import IProfile from "../../interfaces/IProfile";
@@ -25,7 +28,7 @@ const getAllProfiles = async (
     return res.status(200).json(profile);
   } catch (error) {
     logObject("error", `[NODE][${req.id}] Response status 500`, error);
-    return res.status(500).json({ message: NO_PROFILE });
+    return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 
