@@ -20,7 +20,10 @@ const addEducation = async (req: Request, res: Response): Promise<unknown> => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { id } = req.user!;
   const { education } = req.body;
-  const validation: ValidationResult = RequestValidator.validateId(id);
+  const validation: ValidationResult = RequestValidator.validateEducation(
+    id,
+    education
+  );
   if (validation.error) {
     logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
@@ -35,7 +38,7 @@ const addEducation = async (req: Request, res: Response): Promise<unknown> => {
       req.id
     );
 
-    logger.info(`[NODE][${req.id}] Response status 200`);
+    logger.info(`[NODE][${req.id}] Response status 201`);
     return res.status(201).end();
   } catch (error) {
     logObject("error", `[NODE][${req.id}] Response status 500`, error);
