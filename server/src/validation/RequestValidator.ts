@@ -119,7 +119,7 @@ export default class RequestValidator {
     }).validate({ user, experience });
   }
 
-  public static validateEducation(
+  public static validateAddEducation(
     user: string,
     education: IEducation
   ): Joi.ValidationResult {
@@ -127,5 +127,15 @@ export default class RequestValidator {
       user: this.idPattern.required(),
       education: Joi.array().items(this.educationPattern).min(1).required(),
     }).validate({ user, education });
+  }
+
+  public static validateDeleteEducation(
+    user: string,
+    educationId: string
+  ): Joi.ValidationResult {
+    return Joi.object({
+      user: this.idPattern.required(),
+      educationId: this.idPattern.required(),
+    }).validate({ user, educationId });
   }
 }
