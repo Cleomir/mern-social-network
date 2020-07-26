@@ -20,7 +20,7 @@ const addEducation = async (req: Request, res: Response): Promise<unknown> => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { id } = req.user!;
   const { education } = req.body;
-  const validation: ValidationResult = RequestValidator.validateEducation(
+  const validation: ValidationResult = RequestValidator.validateAddEducation(
     id,
     education
   );

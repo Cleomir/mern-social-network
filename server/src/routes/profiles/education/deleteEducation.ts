@@ -27,7 +27,10 @@ const deleteEducation = async (
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { id } = req.user!;
   const { edu_id } = req.params;
-  const validation: ValidationResult = RequestValidator.validateId(edu_id);
+  const validation: ValidationResult = RequestValidator.validateDeleteEducation(
+    id,
+    edu_id
+  );
   if (validation.error) {
     logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
@@ -45,7 +48,7 @@ const deleteEducation = async (
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();
   } catch (error) {
-    if (error.message === PROFILE_NOT_FOUND || NO_EDUCATION) {
+    if (error.message === PROFILE_NOT_FOUND || error.message === NO_EDUCATION) {
       logger.error(`[NODE][${req.id}] Response status 404`);
       return res.status(404).json({ message: error.message });
     }
