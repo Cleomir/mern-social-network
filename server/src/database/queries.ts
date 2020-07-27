@@ -50,7 +50,7 @@ export const addEducationToProfile = async (
     requestId
   );
   if (!userProfile) {
-    throw new Error(USER_NOT_FOUND);
+    throw new Error(PROFILE_NOT_FOUND);
   }
 
   // check if user already has experience
