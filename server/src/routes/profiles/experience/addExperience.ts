@@ -23,7 +23,10 @@ const addExperience = async (req: Request, res: Response): Promise<unknown> => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { id } = req.user!;
   const { experience } = req.body;
-  const validation: ValidationResult = RequestValidator.validateId(id);
+  const validation: ValidationResult = RequestValidator.validateAddExperience(
+    id,
+    experience
+  );
   if (validation.error) {
     logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });

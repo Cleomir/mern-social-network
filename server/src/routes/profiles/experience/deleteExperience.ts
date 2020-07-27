@@ -27,7 +27,10 @@ const deleteExperience = async (
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { id } = req.user!;
   const exp_id = req.params.exp_id;
-  const validation: ValidationResult = RequestValidator.validateId(exp_id);
+  const validation: ValidationResult = RequestValidator.validateDeleteExperience(
+    id,
+    exp_id
+  );
   if (validation.error) {
     logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
