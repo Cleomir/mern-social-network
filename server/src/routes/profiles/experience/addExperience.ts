@@ -46,7 +46,9 @@ const addExperience = async (req: Request, res: Response): Promise<unknown> => {
   } catch (error) {
     if (error.message === PROFILE_NOT_FOUND) {
       logger.error(`[NODE][${req.id}] Response status 404`);
+      return res.status(404).json({ message: PROFILE_NOT_FOUND });
     }
+
     logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
