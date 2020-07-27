@@ -7,7 +7,7 @@ import IEducation from "../interfaces/IEducation";
 
 export default class RequestValidator {
   // validation rules
-  private static emailPattern = Joi.string().email();
+  private static emailPattern = Joi.string().email({ minDomainSegments: 1 });
   private static idPattern = Joi.string()
     .pattern(/^[0-9a-f]{24}$/, "id")
     .required();
@@ -109,7 +109,7 @@ export default class RequestValidator {
     }).validate(profile);
   }
 
-  public static validateExperience(
+  public static validateAddExperience(
     user: string,
     experience: IExperience
   ): Joi.ValidationResult {
@@ -117,6 +117,16 @@ export default class RequestValidator {
       user: this.idPattern.required(),
       experience: Joi.array().items(this.experiencePattern).min(1).required(),
     }).validate({ user, experience });
+  }
+
+  public static validateDeleteExperience(
+    user: string,
+    experienceId: string
+  ): Joi.ValidationResult {
+    return Joi.object({
+      user: this.idPattern.required(),
+      experienceId: this.idPattern.required(),
+    }).validate({ user, experienceId });
   }
 
   public static validateAddEducation(
