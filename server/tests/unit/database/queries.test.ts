@@ -385,7 +385,7 @@ describe("Test database/queries.ts file", () => {
     expect(saveDocumentMock).toHaveBeenCalled();
   });
 
-  test(`addEducationToProfile() should throw ${USER_NOT_FOUND} if profile is not found`, async () => {
+  test(`addEducationToProfile() should throw ${PROFILE_NOT_FOUND} if profile is not found`, async () => {
     const userId = chance.guid({ version: 4 });
     const requestId: string = uuid();
     const educationMock = [createEducationMock()];
@@ -400,7 +400,7 @@ describe("Test database/queries.ts file", () => {
         saveDocumentMock,
         requestId
       )
-    ).rejects.toThrow(USER_NOT_FOUND);
+    ).rejects.toThrow(PROFILE_NOT_FOUND);
   });
 
   test(`addExperienceToProfile() should add an experience to a profile`, async () => {
