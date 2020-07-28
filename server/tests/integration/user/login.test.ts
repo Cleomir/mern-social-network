@@ -132,7 +132,12 @@ describe("Test /users/login path", () => {
   test("It should return status 400 if password doesn't match", async () => {
     const name = chance.name();
     const email = chance.email();
-    const password = chance.string({ length: 8 });
+    const password = chance.string({
+      length: 8,
+      alpha: true,
+      numeric: true,
+      symbols: false,
+    });
     const mockUser: IUser = {
       id: chance.guid({ version: 4 }),
       name,
@@ -147,7 +152,16 @@ describe("Test /users/login path", () => {
     const response: Response = await request(app)
       .post("/users/login")
       .set("Content-type", "application/json")
-      .send({ name, email, password: chance.string({ length: 8 }) });
+      .send({
+        name,
+        email,
+        password: chance.string({
+          length: 8,
+          alpha: true,
+          numeric: true,
+          symbols: false,
+        }),
+      });
 
     expect(findOneUserMock).toHaveBeenCalled();
     expect(response.status).toBe(400);

@@ -4,14 +4,12 @@ import { v4 as uuid } from "uuid";
 
 import app from "../../../../src/App";
 import * as queries from "../../../../src/database/queries";
-import createEducationMock from "../../../helpers/createEducationMock";
 import {
   INTERNAL_SERVER_ERROR,
   PROFILE_NOT_FOUND,
   NO_EDUCATION,
 } from "../../../../src/config/customErrorMessages";
 import { signJWT } from "../../../../src/authentication/jwt";
-import IEducation from "../../../../src/interfaces/IEducation";
 
 describe("Test DELETE /profiles/education path", () => {
   const chance = new Chance();
@@ -22,25 +20,22 @@ describe("Test DELETE /profiles/education path", () => {
     const name: string = chance.name();
     const email: string = chance.email();
     const avatar: string = chance.url();
-    const education: IEducation = createEducationMock(educationId);
     const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
-    const deleteEducationToProfileMock = jest.spyOn(
+    const deleteEducationFromProfileMock = jest.spyOn(
       queries,
       "removeEducationFromProfile"
     );
-    deleteEducationToProfileMock.mockImplementation();
+    deleteEducationFromProfileMock.mockImplementation();
 
     const response: Response = await request(app)
       .delete(`/profiles/education/${educationId}`)
       .set("Content-type", "application/json")
       .set("Authorization", `Bearer ${token}`)
-      .send({
-        education: [education],
-      });
+      .send();
 
-    expect(deleteEducationToProfileMock).toHaveBeenCalled();
+    expect(deleteEducationFromProfileMock).toHaveBeenCalled();
     expect(response.status).toBe(200);
-    deleteEducationToProfileMock.mockRestore();
+    deleteEducationFromProfileMock.mockRestore();
   });
 
   test("It should return status 400 if user id is invalid ", async () => {
@@ -49,16 +44,13 @@ describe("Test DELETE /profiles/education path", () => {
     const name: string = chance.name();
     const email: string = chance.email();
     const avatar: string = chance.url();
-    const education: IEducation = createEducationMock(educationId);
     const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
 
     const response: Response = await request(app)
       .delete(`/profiles/education/${educationId}`)
       .set("Content-type", "application/json")
       .set("Authorization", `Bearer ${token}`)
-      .send({
-        education: [education],
-      });
+      .send();
 
     expect(response.status).toBe(400);
     expect(response.body.message).toMatch(/fails to match the id pattern/);
@@ -66,20 +58,21 @@ describe("Test DELETE /profiles/education path", () => {
 
   test("It should return status 400 if education id is invalid ", async () => {
     const userId: string = chance.hash({ length: 24 });
-    const educationId: string = chance.string();
+    const educationId: string = chance.string({
+      alpha: true,
+      numeric: true,
+      symbols: false,
+    });
     const name: string = chance.name();
     const email: string = chance.email();
     const avatar: string = chance.url();
-    const education: IEducation = createEducationMock(educationId);
     const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
 
     const response: Response = await request(app)
       .delete(`/profiles/education/${educationId}`)
       .set("Content-type", "application/json")
       .set("Authorization", `Bearer ${token}`)
-      .send({
-        education: [education],
-      });
+      .send();
 
     expect(response.status).toBe(400);
     expect(response.body.message).toMatch(/fails to match the id pattern/);
@@ -91,13 +84,12 @@ describe("Test DELETE /profiles/education path", () => {
     const name: string = chance.name();
     const email: string = chance.email();
     const avatar: string = chance.url();
-    const education: IEducation = createEducationMock(educationId);
     const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
-    const deleteEducationToProfileMock = jest.spyOn(
+    const deleteEducationFromProfileMock = jest.spyOn(
       queries,
       "removeEducationFromProfile"
     );
-    deleteEducationToProfileMock.mockImplementation(async () => {
+    deleteEducationFromProfileMock.mockImplementation(async () => {
       throw new Error(PROFILE_NOT_FOUND);
     });
 
@@ -105,13 +97,11 @@ describe("Test DELETE /profiles/education path", () => {
       .delete(`/profiles/education/${educationId}`)
       .set("Content-type", "application/json")
       .set("Authorization", `Bearer ${token}`)
-      .send({
-        education: [education],
-      });
+      .send();
 
-    expect(deleteEducationToProfileMock).toHaveBeenCalled();
+    expect(deleteEducationFromProfileMock).toHaveBeenCalled();
     expect(response.status).toBe(404);
-    deleteEducationToProfileMock.mockRestore();
+    deleteEducationFromProfileMock.mockRestore();
   });
 
   test("It should return status 404 if education is not found ", async () => {
@@ -120,13 +110,12 @@ describe("Test DELETE /profiles/education path", () => {
     const name: string = chance.name();
     const email: string = chance.email();
     const avatar: string = chance.url();
-    const education: IEducation = createEducationMock(educationId);
     const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
-    const deleteEducationToProfileMock = jest.spyOn(
+    const deleteEducationFromProfileMock = jest.spyOn(
       queries,
       "removeEducationFromProfile"
     );
-    deleteEducationToProfileMock.mockImplementation(async () => {
+    deleteEducationFromProfileMock.mockImplementation(async () => {
       throw new Error(NO_EDUCATION);
     });
 
@@ -134,14 +123,12 @@ describe("Test DELETE /profiles/education path", () => {
       .delete(`/profiles/education/${educationId}`)
       .set("Content-type", "application/json")
       .set("Authorization", `Bearer ${token}`)
-      .send({
-        education: [education],
-      });
+      .send();
 
-    expect(deleteEducationToProfileMock).toHaveBeenCalled();
+    expect(deleteEducationFromProfileMock).toHaveBeenCalled();
     expect(response.status).toBe(404);
     expect(response.body.message).toBe(NO_EDUCATION);
-    deleteEducationToProfileMock.mockRestore();
+    deleteEducationFromProfileMock.mockRestore();
   });
 
   test("It should return status 500 if any internal error occurs ", async () => {
@@ -150,13 +137,12 @@ describe("Test DELETE /profiles/education path", () => {
     const name: string = chance.name();
     const email: string = chance.email();
     const avatar: string = chance.url();
-    const education: IEducation = createEducationMock(educationId);
     const token: string = signJWT({ id: userId, name, email, avatar }, uuid());
-    const deleteEducationToProfileMock = jest.spyOn(
+    const deleteEducationFromProfileMock = jest.spyOn(
       queries,
       "removeEducationFromProfile"
     );
-    deleteEducationToProfileMock.mockImplementation(async () => {
+    deleteEducationFromProfileMock.mockImplementation(async () => {
       throw new Error(INTERNAL_SERVER_ERROR);
     });
 
@@ -164,13 +150,11 @@ describe("Test DELETE /profiles/education path", () => {
       .delete(`/profiles/education/${educationId}`)
       .set("Content-type", "application/json")
       .set("Authorization", `Bearer ${token}`)
-      .send({
-        education: [education],
-      });
+      .send();
 
-    expect(deleteEducationToProfileMock).toHaveBeenCalled();
+    expect(deleteEducationFromProfileMock).toHaveBeenCalled();
     expect(response.status).toBe(500);
     expect(response.body.message).toBe(INTERNAL_SERVER_ERROR);
-    deleteEducationToProfileMock.mockRestore();
+    deleteEducationFromProfileMock.mockRestore();
   });
 });

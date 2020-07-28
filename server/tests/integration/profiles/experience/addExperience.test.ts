@@ -214,7 +214,12 @@ describe("Test POST /profiles/experience path", () => {
       .set("Content-type", "application/json")
       .set("Authorization", `Bearer ${token}`)
       .send({
-        experience: [{ ...experienceMock, from: chance.string() }],
+        experience: [
+          {
+            ...experienceMock,
+            from: chance.string({ alpha: true, numeric: true, symbols: false }),
+          },
+        ],
       });
 
     expect(response.status).toBe(400);
