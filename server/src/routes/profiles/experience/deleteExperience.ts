@@ -48,7 +48,10 @@ const deleteExperience = async (
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();
   } catch (error) {
-    if (error.message === PROFILE_NOT_FOUND || NO_EXPERIENCE) {
+    if (
+      error.message === PROFILE_NOT_FOUND ||
+      error.message === NO_EXPERIENCE
+    ) {
       logger.info(`[NODE][${req.id}] Response status 404`);
       return res.status(404).json({ message: error.message });
     }
