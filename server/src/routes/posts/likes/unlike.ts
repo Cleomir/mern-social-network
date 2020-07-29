@@ -3,43 +3,35 @@ import { ValidationResult } from "@hapi/joi";
 
 import {
   POST_NOT_FOUND,
+  POST_NOT_LIKED,
   INTERNAL_SERVER_ERROR,
-} from "../../config/customErrorMessages";
-import { addCommentToPost } from "../../database/queries";
-import logger, { logObject } from "../../logger";
-import IComment from "../../interfaces/IComment";
-import RequestValidator from "../../validation/RequestValidator";
-import { findOnePost, saveOneDocument } from "../../database/dbDirectCalls";
+} from "../../../config/customErrorMessages";
+import { removeLikeFromPost } from "../../../database/queries";
+import logger, { logObject } from "../../../logger";
+import RequestValidator from "../../../validation/RequestValidator";
+import { findOnePost, saveOneDocument } from "../../../database/dbDirectCalls";
 
 /**
- * Add comment to a post
+ * Like a post
  * @param req Request object
  * @param res Response object
  */
-const addComment = async (req: Request, res: Response): Promise<unknown> => {
+const unlikePost = async (req: Request, res: Response): Promise<unknown> => {
   // request validation
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { id } = req.user!;
-  const { post_id } = req.params;
-  const comment: IComment = {
-    user: id,
-    text: req.body.text,
-    avatar: req.body.avatar,
-    name: req.body.name,
-  };
-  const validation: ValidationResult = RequestValidator.validateNewPostOrComment(
-    comment
-  );
+  const { id: userId } = req.user!;
+  const { id: postId } = req.params;
+  const validation: ValidationResult = RequestValidator.validateId(postId);
   if (validation.error) {
     logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
   }
 
   try {
-    // save comment
-    await addCommentToPost(
-      post_id,
-      comment,
+    // remove like from post
+    await removeLikeFromPost(
+      userId,
+      postId,
       findOnePost,
       saveOneDocument,
       req.id
@@ -52,10 +44,14 @@ const addComment = async (req: Request, res: Response): Promise<unknown> => {
       logger.error(`[NODE][${req.id}] Response status 404`);
       return res.status(404).json({ message: POST_NOT_FOUND });
     }
+    if (error.message === POST_NOT_LIKED) {
+      logger.error(`[NODE][${req.id}] Response status 403`);
+      return res.status(403).json({ message: POST_NOT_LIKED });
+    }
 
     logObject("error", `[NODE][${req.id}] Response status 500`, error);
     return res.status(500).json({ message: INTERNAL_SERVER_ERROR });
   }
 };
 
-export default addComment;
+export default unlikePost;

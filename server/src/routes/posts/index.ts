@@ -1,14 +1,14 @@
 import express, { Router } from "express";
 import passport from "passport";
 
-import createPost from "./createPost";
-import getAllPosts from "./getAllPosts";
-import getPostById from "./getPostById";
-import deletePost from "./deletePost";
-import likePost from "./likePost";
-import unlikePost from "./unlikePost";
-import addComment from "./addComment";
-import deleteComment from "./deleteComment";
+import createPost from "./create";
+import getAllPosts from "./getAll";
+import getPostById from "./getById";
+import deletePost from "./delete";
+import likePost from "./likes/like";
+import unlikePost from "./likes/unlike";
+import addComment from "./comments/add";
+import deleteComment from "./comments/delete";
 
 /**
  * Default Express router

@@ -3,13 +3,13 @@ import passport from "passport";
 
 import createProfile from "./create";
 import deleteProfileAndUser from "./deleteProfileAndUser";
-import addEducation from "./education/addEducation";
-import deleteEducation from "./education/deleteEducation";
-import addExperience from "./experience/addExperience";
-import deleteExperience from "./experience/deleteExperience";
-import getAllProfiles from "./getAllProfiles";
-import getProfileByHandle from "./getProfileByHandle";
-import getProfileByUserId from "./getProfileByUserId";
+import addEducation from "./education/add";
+import deleteEducation from "./education/delete";
+import addExperience from "./experience/add";
+import deleteExperience from "./experience/delete";
+import getAllProfiles from "./getAll";
+import getProfileByHandle from "./getByHandle";
+import getProfileByUserId from "./getByUserId";
 
 const router: Router = express.Router();
 

@@ -2,44 +2,34 @@ import { Request, Response } from "express";
 import { ValidationResult } from "@hapi/joi";
 
 import {
-  FORBIDDEN_OPERATION,
   POST_NOT_FOUND,
+  POST_ALREADY_LIKED,
   INTERNAL_SERVER_ERROR,
-} from "../../config/customErrorMessages";
-import { removeCommentFromPost } from "../../database/queries";
-import logger, { logObject } from "../../logger";
-import RequestValidator from "../../validation/RequestValidator";
-import { findOnePost, saveOneDocument } from "../../database/dbDirectCalls";
+} from "../../../config/customErrorMessages";
+import { addLikeToPost } from "../../../database/queries";
+import logger, { logObject } from "../../../logger";
+import RequestValidator from "../../../validation/RequestValidator";
+import { findOnePost, saveOneDocument } from "../../../database/dbDirectCalls";
 
 /**
- * Delete a comment from a post
+ * Like a post
  * @param req Request object
  * @param res Response object
  */
-const deleteComment = async (req: Request, res: Response): Promise<unknown> => {
+const likePost = async (req: Request, res: Response): Promise<unknown> => {
   // request validation
-  const { post_id, comment_id } = req.params;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { id: user_id } = req.user!;
-  const validation: ValidationResult = RequestValidator.validateDeleteComment(
-    post_id,
-    comment_id
-  );
+  const { id: userId } = req.user!;
+  const { id: postId } = req.params;
+  const validation: ValidationResult = RequestValidator.validateId(postId);
   if (validation.error) {
     logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
   }
 
   try {
-    // delete comment
-    await removeCommentFromPost(
-      post_id,
-      comment_id,
-      user_id,
-      findOnePost,
-      saveOneDocument,
-      req.id
-    );
+    // add like to post
+    await addLikeToPost(userId, postId, findOnePost, saveOneDocument, req.id);
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();
@@ -48,9 +38,10 @@ const deleteComment = async (req: Request, res: Response): Promise<unknown> => {
       logger.error(`[NODE][${req.id}] Response status 404`);
       return res.status(404).json({ message: POST_NOT_FOUND });
     }
-    if (error.message === FORBIDDEN_OPERATION) {
+
+    if (error.message === POST_ALREADY_LIKED) {
       logger.error(`[NODE][${req.id}] Response status 403`);
-      return res.status(403).json({ message: FORBIDDEN_OPERATION });
+      return res.status(403).json({ message: POST_ALREADY_LIKED });
     }
 
     logObject("error", `[NODE][${req.id}] Response status 500`, error);
@@ -58,4 +49,4 @@ const deleteComment = async (req: Request, res: Response): Promise<unknown> => {
   }
 };
 
-export default deleteComment;
+export default likePost;
