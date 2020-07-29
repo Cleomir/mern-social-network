@@ -16,12 +16,12 @@ import { findOnePost, saveOneDocument } from "../../../database/dbDirectCalls";
  * @param req Request object
  * @param res Response object
  */
-const unlikePost = async (req: Request, res: Response): Promise<unknown> => {
+const removeLike = async (req: Request, res: Response): Promise<unknown> => {
   // request validation
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { id: userId } = req.user!;
-  const { id: postId } = req.params;
-  const validation: ValidationResult = RequestValidator.validateId(postId);
+  const { id } = req.user!;
+  const { post_id } = req.params;
+  const validation: ValidationResult = RequestValidator.validateId(post_id);
   if (validation.error) {
     logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
@@ -29,13 +29,7 @@ const unlikePost = async (req: Request, res: Response): Promise<unknown> => {
 
   try {
     // remove like from post
-    await removeLikeFromPost(
-      userId,
-      postId,
-      findOnePost,
-      saveOneDocument,
-      req.id
-    );
+    await removeLikeFromPost(id, post_id, findOnePost, saveOneDocument, req.id);
 
     logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).end();
@@ -54,4 +48,4 @@ const unlikePost = async (req: Request, res: Response): Promise<unknown> => {
   }
 };
 
-export default unlikePost;
+export default removeLike;
