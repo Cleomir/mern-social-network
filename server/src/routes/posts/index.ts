@@ -17,12 +17,12 @@ const router: Router = express.Router();
 
 // /posts routes
 router.delete(
-  "/comment/:post_id/:comment_id",
+  "/comments/:post_id/:comment_id",
   passport.authenticate("jwt", { session: false }),
   deleteComment
 );
 router.post(
-  "/comment/:post_id",
+  "/comments/:post_id",
   passport.authenticate("jwt", { session: false }),
   addComment
 );
