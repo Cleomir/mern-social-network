@@ -5,8 +5,8 @@ import createPost from "./create";
 import getAllPosts from "./getAll";
 import getPostById from "./getById";
 import deletePost from "./delete";
-import likePost from "./likes/like";
-import unlikePost from "./likes/unlike";
+import addLike from "./likes/add";
+import removeLike from "./likes/remove";
 import addComment from "./comments/add";
 import deleteComment from "./comments/delete";
 
@@ -26,15 +26,15 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   addComment
 );
-router.post(
-  "/unlike/:id",
+router.delete(
+  "/likes/:post_id",
   passport.authenticate("jwt", { session: false }),
-  unlikePost
+  removeLike
 );
 router.post(
-  "/like/:id",
+  "/likes/:post_id",
   passport.authenticate("jwt", { session: false }),
-  likePost
+  addLike
 );
 router.get("/:id", getPostById);
 router.delete(
