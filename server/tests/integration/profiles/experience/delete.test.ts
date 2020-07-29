@@ -11,7 +11,7 @@ import {
 } from "../../../../src/config/customErrorMessages";
 import { signJWT } from "../../../../src/authentication/jwt";
 
-describe("Test DELETE /profiles/experience path", () => {
+describe("Test DELETE /profiles/experience/:exp_id path", () => {
   const chance = new Chance();
 
   test("It should be able to delete an experience and return status 200 ", async () => {

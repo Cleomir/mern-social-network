@@ -10,7 +10,7 @@ import {
   INTERNAL_SERVER_ERROR,
 } from "../../../src/config/customErrorMessages";
 
-describe("Test /users/login path", () => {
+describe("Test POST /users/login path", () => {
   const chance = new Chance();
 
   test("It should login and return status 200", async () => {

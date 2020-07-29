@@ -6,7 +6,7 @@ import * as queries from "../../../src/database/dbDirectCalls";
 import createProfileMock from "../../helpers/createProfileMock";
 import { INTERNAL_SERVER_ERROR } from "../../../src/config/customErrorMessages";
 
-describe("Test GET /profiles/handle/:handle path", () => {
+describe("Test GET /profiles/:user_id path", () => {
   const chance = new Chance();
 
   test("It should query a profile by id and return status 200 ", async () => {

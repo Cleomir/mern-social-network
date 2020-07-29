@@ -11,7 +11,7 @@ import {
 } from "../../../../src/config/customErrorMessages";
 import { signJWT } from "../../../../src/authentication/jwt";
 
-describe("Test DELETE /profiles/education path", () => {
+describe("Test DELETE /profiles/education/:edu_id path", () => {
   const chance = new Chance();
 
   test("It should be able to delete an education and return status 200 ", async () => {

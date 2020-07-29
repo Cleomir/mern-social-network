@@ -9,7 +9,7 @@ import {
   INTERNAL_SERVER_ERROR,
 } from "../../../src/config/customErrorMessages";
 
-describe("Test /users/register path", () => {
+describe("Test POST /users/register path", () => {
   const chance = new Chance();
 
   test("It should create a user and return status 200", async () => {
