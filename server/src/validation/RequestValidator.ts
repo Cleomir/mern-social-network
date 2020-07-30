@@ -73,7 +73,7 @@ export default class RequestValidator {
     return Joi.object({
       avatar: Joi.string(),
       user: this.idPattern.required(),
-      test: Joi.string().min(1),
+      text: Joi.string().min(1).required(),
       name: this.namePattern,
     }).validate(post);
   }
