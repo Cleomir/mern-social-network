@@ -148,4 +148,14 @@ export default class RequestValidator {
       educationId: this.idPattern.required(),
     }).validate({ user, educationId });
   }
+
+  public static validateDeletePost(
+    user: string,
+    postId: string
+  ): Joi.ValidationResult {
+    return Joi.object({
+      user: this.idPattern.required(),
+      postId: this.idPattern.required(),
+    }).validate({ user, postId });
+  }
 }
