@@ -21,7 +21,10 @@ const deletePost = async (req: Request, res: Response): Promise<unknown> => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { id: userId } = req.user!;
   const { id: postId } = req.params;
-  const validation: ValidationResult = RequestValidator.validateId(userId);
+  const validation: ValidationResult = RequestValidator.validateDeletePost(
+    userId,
+    postId
+  );
   if (validation.error) {
     logger.error(`[NODE][${req.id}] Response status 400`);
     return res.status(400).json({ message: validation.error.message });
