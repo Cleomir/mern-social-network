@@ -18,7 +18,7 @@ const getAllPosts = async (req: Request, res: Response): Promise<unknown> => {
       return res.status(204).end();
     }
 
-    logger.info(`[NODE][${req.id}] Response status 201`);
+    logger.info(`[NODE][${req.id}] Response status 200`);
     return res.status(200).json(posts);
   } catch (error) {
     logObject("error", `[NODE][${req.id}] Response status 500`, error);
