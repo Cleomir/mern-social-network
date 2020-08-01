@@ -45,8 +45,8 @@ const addComment = async (req: Request, res: Response): Promise<unknown> => {
       req.id
     );
 
-    logger.info(`[NODE][${req.id}] Response status 200`);
-    return res.status(200).end();
+    logger.info(`[NODE][${req.id}] Response status 201`);
+    return res.status(201).end();
   } catch (error) {
     if (error.message === POST_NOT_FOUND) {
       logger.error(`[NODE][${req.id}] Response status 404`);
