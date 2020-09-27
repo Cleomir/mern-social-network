@@ -42,7 +42,7 @@ export const logObject = (
   if (level === "info") {
     logger.info(`${message} ${inspect(object, { depth: null })}`);
   } else if (level === "warn") {
-    logger.info(`${message} ${inspect(object, { depth: null })}`);
+    logger.warn(`${message} ${inspect(object, { depth: null })}`);
   } else {
     logger.error(`${message} ${inspect(object, { depth: null })}`);
   }
