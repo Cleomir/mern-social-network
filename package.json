@@ -9,7 +9,7 @@
     "build:prod": "webpack --config ./server/webpack.prod.js",
     "watch:all": "npm-run-all --parallel watch:build watch:server --print-label",
     "watch:build": "webpack --watch --config ./server/webpack.dev.js",
-    "watch:server": "nodemon ./server/dist/server-bundle.js",
+    "watch:server": "nodemon  --inspect ./server/dist/server-bundle.js",
     "test": "jest --forceExit --detectOpenHandles --coverage --runInBand",
     "test:watch": "jest --watch --detectOpenHandles --coverage --runInBand",
     "docs": "npx typedoc"
